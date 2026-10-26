@@ -7,58 +7,30 @@ package dan200.computercraft.shared.turtle.upgrades;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
-import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.turtle.TurtleUpgradeType;
+import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import dan200.computercraft.shared.peripheral.generic.methods.AbstractInventoryMethods;
 import dan200.computercraft.shared.platform.ItemContainer;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
 
-import static net.minecraft.nbt.Tag.TAG_COMPOUND;
-
 /**
  * Turtle storage upgrade.
  */
-public final class TurtleStorage extends AbstractTurtleUpgrade {
-    private static final String TAG_ITEM_TAG = "Tag";
+public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
     public static final String ADJECTIVE = "upgrade.computercraft.storage.adjective";
 
     public static final String DATA_PACK_NAME = "turtle_storage";
     public static final String DATA_PACK_TRANSLATION = "dataPack." + DATA_PACK_NAME + ".description";
 
-    public TurtleStorage(ResourceLocation id, ItemStack stack) {
-        super(id, TurtleUpgradeType.PERIPHERAL, ADJECTIVE, stack);
-    }
-
-    @Override
-    public CompoundTag getUpgradeData(ItemStack stack) {
-        var upgradeData = super.getUpgradeData(stack);
-
-        // Store the item's current tag.
-        var itemTag = stack.getTag();
-        if (itemTag != null) upgradeData.put(TAG_ITEM_TAG, itemTag);
-
-        return upgradeData;
-    }
-
-    @Override
-    public ItemStack getUpgradeItem(CompoundTag upgradeData) {
-        var item = super.getUpgradeItem(upgradeData).copy();
-        item.setTag(upgradeData.contains(TAG_ITEM_TAG, TAG_COMPOUND) ? upgradeData.getCompound(TAG_ITEM_TAG) : null);
-        return item;
-    }
-
-    @Override
-    public boolean isItemSuitable(ItemStack stack) {
-        return true;
+    public TurtleStorage(ResourceLocation id, Ingredient item) {
+        super(id, TurtleUpgradeType.PERIPHERAL, ADJECTIVE, item);
     }
 
     @Override
@@ -87,12 +59,16 @@ public final class TurtleStorage extends AbstractTurtleUpgrade {
             this.side = side;
         }
 
-        private ItemStack getStack() throws LuaException {
-            var upgrade = turtle.getUpgradeWithData(side);
-            if (upgrade == null || !(upgrade.upgrade() instanceof TurtleStorage)) {
+        private UpgradeHandle<ITurtleUpgrade> getHandle() throws LuaException {
+            var upgrade = turtle.getUpgradeHandle(side);
+            if (upgrade == null || !(upgrade.getUpgrade() instanceof TurtleStorage)) {
                 throw new LuaException("Upgrade is not equipped");
             }
-            return upgrade.getUpgradeItem();
+            return upgrade;
+        }
+
+        private ItemStack getStack() throws LuaException {
+            return getHandle().getItem();
         }
 
         private static ItemContainer getContainer(ItemStack stack) throws LuaException {
@@ -157,8 +133,9 @@ public final class TurtleStorage extends AbstractTurtleUpgrade {
          */
         @LuaFunction(mainThread = true)
         public int pushItems(int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot) throws LuaException {
-            var stack = getStack();
-            return moveAndUpdate(stack, getContainer(stack), fromSlot, turtleInventory, toSlot, limit);
+            var handle = getHandle();
+            var stack = handle.getItem();
+            return moveAndUpdate(handle, stack, getContainer(stack), fromSlot, turtleInventory, toSlot, limit);
         }
 
         /**
@@ -172,16 +149,14 @@ public final class TurtleStorage extends AbstractTurtleUpgrade {
          */
         @LuaFunction(mainThread = true)
         public int pullItems(Optional<Integer> fromSlot, Optional<Integer> limit, Optional<Integer> toSlot) throws LuaException {
-            var stack = getStack();
-            return moveAndUpdate(stack, turtleInventory, fromSlot.orElse(turtle.getSelectedSlot() + 1), getContainer(stack), toSlot, limit);
+            var handle = getHandle();
+            var stack = handle.getItem();
+            return moveAndUpdate(handle, stack, turtleInventory, fromSlot.orElse(turtle.getSelectedSlot() + 1), getContainer(stack), toSlot, limit);
         }
 
-        private int moveAndUpdate(ItemStack stack, ItemContainer from, int fromSlot, ItemContainer to, Optional<Integer> toSlot, Optional<Integer> limit) throws LuaException {
+        private int moveAndUpdate(UpgradeHandle<ITurtleUpgrade> handle, ItemStack stack, ItemContainer from, int fromSlot, ItemContainer to, Optional<Integer> toSlot, Optional<Integer> limit) throws LuaException {
             var moved = AbstractInventoryMethods.move(from, fromSlot, to, toSlot, limit);
-            if (moved > 0) {
-                turtle.getUpgradeNBTData(side).put(TAG_ITEM_TAG, stack.getOrCreateTag());
-                turtle.updateUpgradeNBTData(side);
-            }
+            if (moved > 0) handle.setItem(stack);
             return moved;
         }
 

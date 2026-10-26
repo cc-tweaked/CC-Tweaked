@@ -246,7 +246,8 @@ public class PlatformHelperImpl implements PlatformHelper {
             Ingredient.of(MoreConventionalTags.SKULLS),
             Ingredient.of(ConventionalItemTags.DYES),
             Ingredient.of(Items.ENDER_PEARL),
-            Ingredient.of(MoreConventionalTags.WOODEN_CHESTS)
+            Ingredient.of(MoreConventionalTags.WOODEN_CHESTS),
+            Ingredient.of(ConventionalItemTags.SHULKER_BOXES)
         );
     }
 
@@ -334,7 +335,6 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    @SuppressWarnings("NullAway") // NullAway doesn't like the null here.
     public @Nullable IMedia getMedia(ItemStack stack) {
         return MediaLookup.get().find(stack, null);
     }

@@ -7,6 +7,7 @@ package dan200.computercraft.api.pocket;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -87,19 +88,30 @@ public interface IPocketAccess {
      * Get the currently equipped upgrade.
      *
      * @return The currently equipped upgrade.
-     * @see #getUpgradeNBTData()
      * @see #setUpgrade(UpgradeData)
+     * @see #getUpgradeHandle()
      */
-    @Nullable
-    UpgradeData<IPocketUpgrade> getUpgrade();
+    @Nullable UpgradeData<IPocketUpgrade> getUpgrade();
+
+    /**
+     * Get a handle to the equipped upgrade.
+     * <p>
+     * This function is not thread safe and must be called from the server thread.
+     *
+     * @return The currently equipped upgrade.
+     * @see #setUpgrade(UpgradeData)
+     * @since 1.121.0
+     */
+    @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle();
 
     /**
      * Set the upgrade for this pocket computer, also updating the item stack.
      * <p>
-     * Note this method is not thread safe - it must be called from the server thread.
+     * This function is not thread safe and must be called from the server thread.
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      * @see #getUpgrade()
+     * @see #getUpgradeHandle()
      */
     void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade);
 
@@ -113,14 +125,18 @@ public interface IPocketAccess {
      * @see UpgradeBase#getUpgradeItem(CompoundTag)
      * @see UpgradeBase#getUpgradeData(ItemStack)
      * @see #getUpgrade()
+     * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#getData()}.
      */
+    @Deprecated(since = "1.121.0")
     CompoundTag getUpgradeNBTData();
 
     /**
      * Mark the upgrade-specific NBT as dirty.
      *
      * @see #getUpgradeNBTData()
+     * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#setDataChanged()}.
      */
+    @Deprecated(since = "1.121.0")
     void updateUpgradeNBTData();
 
     /**

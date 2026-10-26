@@ -25,6 +25,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.IntUnaryOperator;
+
 public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBlockEntity> {
     private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
     private static final ResourceLocation ELF_OVERLAY_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
@@ -93,7 +95,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
             renderModel(transform, buffers, lightmapCoord, overlayLight, model, null);
         } else {
             // Otherwise render it using the colour item.
-            renderModel(transform, buffers, lightmapCoord, overlayLight, COLOUR_TURTLE_MODEL, new int[]{ colour });
+            renderModel(transform, buffers, lightmapCoord, overlayLight, COLOUR_TURTLE_MODEL, x -> x == 0 ? colour : -1);
         }
 
         // Render the overlay
@@ -121,12 +123,12 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
 
         var model = TurtleUpgradeModellers.getModel(upgrade, turtle.getAccess(), side);
         applyTransformation(transform, model.getMatrix());
-        renderModel(transform, buffers, lightmapCoord, overlayLight, model.getModel(), null);
+        renderModel(transform, buffers, lightmapCoord, overlayLight, model.getModel(), model.getTints());
 
         transform.popPose();
     }
 
-    private void renderModel(PoseStack transform, MultiBufferSource buffers, int lightmapCoord, int overlayLight, ResourceLocation modelLocation, int @Nullable [] tints) {
+    private void renderModel(PoseStack transform, MultiBufferSource buffers, int lightmapCoord, int overlayLight, ResourceLocation modelLocation, @Nullable IntUnaryOperator tints) {
         var modelManager = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getModelManager();
         renderModel(transform, buffers, lightmapCoord, overlayLight, ClientPlatformHelper.get().getModel(modelManager, modelLocation), tints);
     }
@@ -139,10 +141,10 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
      * @param lightmapCoord The current lightmap coordinate.
      * @param overlayLight  The overlay light.
      * @param model         The model to render.
-     * @param tints         Tints for the quads, as an array of RGB values.
+     * @param tints         Tints for the quads.
      * @see net.minecraft.client.renderer.block.ModelBlockRenderer#renderModel
      */
-    private void renderModel(PoseStack transform, MultiBufferSource renderer, int lightmapCoord, int overlayLight, BakedModel model, int @Nullable [] tints) {
+    private void renderModel(PoseStack transform, MultiBufferSource renderer, int lightmapCoord, int overlayLight, BakedModel model, @Nullable IntUnaryOperator tints) {
         ClientPlatformHelper.get().renderBakedModel(transform, renderer, model, lightmapCoord, overlayLight, tints);
     }
 

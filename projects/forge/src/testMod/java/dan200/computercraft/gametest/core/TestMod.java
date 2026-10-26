@@ -22,7 +22,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod("cctest")
 public class TestMod {
     public TestMod() {
-        TestHooks.init();
+        TestHooks.init("Forge");
 
         var bus = MinecraftForge.EVENT_BUS;
         bus.addListener(EventPriority.LOW, (ServerStartedEvent e) -> TestHooks.onServerStarted(e.getServer()));

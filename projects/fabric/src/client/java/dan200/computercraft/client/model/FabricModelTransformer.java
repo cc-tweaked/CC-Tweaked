@@ -5,18 +5,20 @@
 package dan200.computercraft.client.model;
 
 import com.mojang.math.Transformation;
+import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.model.turtle.ModelTransformer;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.core.Direction;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Extends {@link ModelTransformer} to also work as a {@link RenderContext.QuadTransform}.
  */
 public class FabricModelTransformer extends ModelTransformer implements RenderContext.QuadTransform {
-    public FabricModelTransformer(Transformation transformation) {
-        super(transformation);
+    public FabricModelTransformer(Transformation transformation, @Nullable TurtleSide side) {
+        super(transformation, side);
     }
 
     @Override
@@ -35,6 +37,8 @@ public class FabricModelTransformer extends ModelTransformer implements RenderCo
 
         var face = quad.nominalFace();
         if (face != null) quad.nominalFace(Direction.rotate(transformation, face));
+
+        quad.colorIndex(getTintIndex(quad.colorIndex()));
 
         return true;
     }

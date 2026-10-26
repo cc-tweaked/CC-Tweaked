@@ -8,7 +8,9 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.impl.AbstractUpgradeHolder;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
@@ -22,7 +24,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,7 +41,7 @@ public final class PocketBrain implements IPocketAccess {
     private Vec3 position;
 
     private boolean dirty = false;
-    private @Nullable UpgradeData<IPocketUpgrade> upgrade;
+    private @Nullable UpgradeHolder upgrade;
     private int colour = -1;
     private int lightColour = -1;
 
@@ -48,7 +49,7 @@ public final class PocketBrain implements IPocketAccess {
         this.computer = new PocketServerComputer(this, holder, properties);
         this.holder = holder;
         this.position = holder.pos();
-        this.upgrade = UpgradeData.copyOf(upgrade);
+        this.upgrade = upgrade == null ? null : new UpgradeHolder(upgrade);
         this.colour = colour;
         invalidatePeripheral();
     }
@@ -97,7 +98,7 @@ public final class PocketBrain implements IPocketAccess {
         this.dirty = false;
 
         IColouredItem.setColourBasic(stack, colour);
-        PocketComputerItem.setUpgrade(stack, UpgradeData.copyOf(upgrade));
+        PocketComputerItem.setUpgrade(stack, upgrade == null ? null : upgrade.getUpgradeData().copy());
         return true;
     }
 
@@ -141,20 +142,45 @@ public final class PocketBrain implements IPocketAccess {
         lightColour = colour;
     }
 
-    @Override
-    public CompoundTag getUpgradeNBTData() {
-        var upgrade = this.upgrade;
-        return upgrade == null ? new CompoundTag() : upgrade.data();
+    private void requirePresent() {
+        if (!computer.getLevel().getServer().isSameThread()) {
+            throw new IllegalStateException("Must be called from the main thread");
+        }
+        if (!holder.isValid(computer)) throw new IllegalStateException("Pocket computer is not active");
     }
 
     @Override
+    public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
+        return upgrade == null ? null : upgrade.getUpgradeData();
+    }
+
+    @Override
+    public @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle() {
+        requirePresent();
+        return upgrade == null ? null : upgrade.getHandle();
+    }
+
+    @Override
+    @Deprecated
+    public CompoundTag getUpgradeNBTData() {
+        var upgrade = this.upgrade;
+        return upgrade == null ? new CompoundTag() : upgrade.getData();
+    }
+
+    @Override
+    @Deprecated
     public void updateUpgradeNBTData() {
         dirty = true;
+
+        // If marking the data as dirty via the old API then recompute the item from the upgrade data.
+        var upgrade = this.upgrade;
+        if (upgrade != null) upgrade.recomputeItem();
     }
 
     @Override
     public void invalidatePeripheral() {
-        var peripheral = upgrade == null ? null : upgrade.upgrade().createPeripheral(this);
+        var upgrade = this.upgrade;
+        var peripheral = upgrade == null ? null : upgrade.getUpgrade().createPeripheral(this);
         computer.setPeripheral(ComputerSide.BACK, peripheral);
     }
 
@@ -162,27 +188,42 @@ public final class PocketBrain implements IPocketAccess {
     @Deprecated(forRemoval = true)
     public Map<ResourceLocation, IPeripheral> getUpgrades() {
         var upgrade = this.upgrade;
-        return upgrade == null ? Map.of() : Collections.singletonMap(upgrade.upgrade().getUpgradeID(), computer.getPeripheral(ComputerSide.BACK));
+        var peripheral = computer.getPeripheral(ComputerSide.BACK);
+        return upgrade == null || peripheral == null ? Map.of() : Map.of(upgrade.getUpgrade().getUpgradeID(), peripheral);
     }
 
-    @Override
-    public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
-        return upgrade;
-    }
-
-    /**
-     * Set the upgrade for this pocket computer, also updating the item stack.
-     * <p>
-     * Note this method is not thread safe - it must be called from the server thread.
-     *
-     * @param upgrade The new upgrade to set it to, may be {@code null}.
-     */
     @Override
     public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        if (Objects.equals(this.upgrade, upgrade)) return;
+        requirePresent();
 
-        this.upgrade = UpgradeData.copyOf(upgrade);
+        var currentUpgrade = this.upgrade;
+        if (Objects.equals(currentUpgrade == null ? null : currentUpgrade.getUpgradeData(), upgrade)) return;
+
+        this.upgrade = upgrade == null ? null : new UpgradeHolder(upgrade);
         dirty = true;
         invalidatePeripheral();
+    }
+
+    private final class UpgradeHolder extends AbstractUpgradeHolder<IPocketUpgrade> {
+        UpgradeHolder(UpgradeData<IPocketUpgrade> upgrade) {
+            super(upgrade);
+        }
+
+        @Override
+        protected void requireValid() {
+            if (upgrade != this) throw new IllegalStateException("Upgrade is no longer present");
+            requirePresent();
+        }
+
+        @Override
+        public void setChanged() {
+            dirty = true;
+        }
+
+        @Override
+        public void remove() {
+            requireValid();
+            setUpgrade(null);
+        }
     }
 }

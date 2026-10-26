@@ -27,6 +27,7 @@ import net.minecraftforge.client.model.data.ModelData;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.function.IntUnaryOperator;
 
 @AutoService(dan200.computercraft.impl.client.ClientPlatformHelper.class)
 public class ClientPlatformHelperImpl implements ClientPlatformHelper {
@@ -49,7 +50,7 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     }
 
     @Override
-    public void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, int @Nullable [] tints) {
+    public void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, @Nullable IntUnaryOperator tints) {
         for (var renderType : model.getRenderTypes(ItemStack.EMPTY, true)) {
             var buffer = buffers.getBuffer(renderType);
             for (var face : directions) {

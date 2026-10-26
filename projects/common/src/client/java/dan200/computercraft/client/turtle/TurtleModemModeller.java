@@ -41,15 +41,20 @@ public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
 
     @Override
     public TransformedModel getModel(TurtleModem upgrade, @Nullable ITurtleAccess turtle, TurtleSide side) {
-        var active = false;
-        if (turtle != null) {
-            var turtleNBT = turtle.getUpgradeNBTData(side);
-            active = turtleNBT.contains("active") && turtleNBT.getBoolean("active");
-        }
-
+        var active = isActive(turtle, side);
         return side == TurtleSide.LEFT
             ? TransformedModel.of(active ? leftOnModel : leftOffModel)
             : TransformedModel.of(active ? rightOnModel : rightOffModel);
+    }
+
+    private static boolean isActive(@Nullable ITurtleAccess turtle, TurtleSide side) {
+        if (turtle == null) return false;
+
+        var handle = turtle.getUpgradeHandle(side);
+        if (handle == null) return false;
+
+        var data = handle.getData();
+        return data.contains("active") && data.getBoolean("active");
     }
 
     @Override

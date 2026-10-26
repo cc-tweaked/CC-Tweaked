@@ -44,8 +44,7 @@ class TurtleToolSerialiserTest {
         return Combinators.combine(
             MinecraftArbitraries.resourceLocation(),
             Arbitraries.strings().ofMaxLength(100),
-            MinecraftArbitraries.item(),
-            MinecraftArbitraries.itemStack(),
+            MinecraftArbitraries.ingredient(),
             Arbitraries.floats(),
             Arbitraries.of(true, false),
             Arbitraries.of(TurtleToolDurability.values()),
@@ -55,8 +54,7 @@ class TurtleToolSerialiserTest {
 
     private static final StructuralEquality<TurtleTool> equality = StructuralEquality.all(
         StructuralEquality.at("id", ITurtleUpgrade::getUpgradeID),
-        StructuralEquality.at("craftingItem", ITurtleUpgrade::getCraftingItem, MinecraftEqualities.itemStack),
-        StructuralEquality.at("tool", x -> x.item, MinecraftEqualities.itemStack),
+        StructuralEquality.at("craftingItem", ITurtleUpgrade::getCraftingIngredient, MinecraftEqualities.ingredient),
         StructuralEquality.at("damageMultiplier", x -> x.damageMultiplier),
         StructuralEquality.at("allowEnchantments", x -> x.allowEnchantments),
         StructuralEquality.at("consumeDurability", x -> x.consumeDurability),

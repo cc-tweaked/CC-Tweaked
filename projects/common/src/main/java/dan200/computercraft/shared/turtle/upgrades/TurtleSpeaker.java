@@ -12,11 +12,11 @@ import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public class TurtleSpeaker extends AbstractTurtleUpgrade {
+public class TurtleSpeaker extends AbstractTurtleUpgrade.StackAware {
     private static class Peripheral extends UpgradeSpeakerPeripheral {
         final ITurtleAccess turtle;
 
@@ -35,7 +35,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade {
         }
     }
 
-    public TurtleSpeaker(ResourceLocation id, ItemStack item) {
+    public TurtleSpeaker(ResourceLocation id, Ingredient item) {
         super(id, TurtleUpgradeType.PERIPHERAL, UpgradeSpeakerPeripheral.ADJECTIVE, item);
     }
 

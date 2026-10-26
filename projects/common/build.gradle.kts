@@ -8,7 +8,6 @@ import cc.tweaked.gradle.MergeTrees
 import cc.tweaked.gradle.annotationProcessorEverywhere
 import cc.tweaked.vanillaextract.configurations.Capabilities.clientClasses
 import cc.tweaked.vanillaextract.configurations.Capabilities.commonClasses
-import net.ltgt.gradle.errorprone.errorprone
 
 plugins {
     `java-test-fixtures`
@@ -66,17 +65,10 @@ dependencies {
     testModCompileOnly(libs.mixin)
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(testFixtures(project(":common")))
+    testModImplementation(libs.openTestReporting)
     testModImplementation(libs.bundles.kotlin)
 
     "cctJavadoc"(libs.cctJavadoc)
-}
-
-// TODO: Enable JSpecify in the common classes. Unfortunately there's several bugs blocking us right now.
-tasks.compileJava {
-    options.errorprone {
-        option("NullAway:JSpecifyMode", false)
-        option("NullAway:JSpecifyExperimental", false)
-    }
 }
 
 illuaminate {

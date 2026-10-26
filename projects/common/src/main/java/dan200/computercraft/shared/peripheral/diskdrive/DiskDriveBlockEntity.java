@@ -78,7 +78,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     private boolean recordPlaying = false;
     // In order to avoid main-thread calls in the peripheral, we set flags to mark which operation should be performed,
     // then read them when ticking.
-    private final AtomicReference<RecordCommand> recordQueued = new AtomicReference<>(null);
+    private final AtomicReference<@Nullable RecordCommand> recordQueued = new AtomicReference<>(null);
     private final AtomicBoolean ejectQueued = new AtomicBoolean(false);
 
     /**
@@ -165,7 +165,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
      */
     private synchronized void updateMedia() {
         var newStack = getDiskStack();
-        if (ItemStack.isSameItemSameTags(newStack, media.stack())) return;
+        if (ItemStack.matches(newStack, media.stack())) return;
 
         var newMedia = MediaStack.of(newStack);
 
@@ -236,7 +236,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
      */
     @GuardedBy("this")
     private void updateMediaStack(ItemStack stack, boolean immediate) {
-        if (ItemStack.isSameItemSameTags(media.stack(), stack)) return;
+        if (ItemStack.matches(media.stack(), stack)) return;
         media = new MediaStack(stack, media.media());
 
         if (immediate) {

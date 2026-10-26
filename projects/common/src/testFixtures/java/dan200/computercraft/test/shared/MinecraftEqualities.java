@@ -16,7 +16,7 @@ public class MinecraftEqualities {
     public static final StructuralEquality<ItemStack> itemStack = new StructuralEquality<>() {
         @Override
         public boolean equals(ItemStack left, ItemStack right) {
-            return ItemStack.isSameItemSameTags(left, right) && left.getCount() == right.getCount();
+            return ItemStack.matches(left, right);
         }
 
         @Override

@@ -296,15 +296,15 @@ public final class ModRegistry {
         static final RegistrationHelper<TurtleUpgradeSerialiser<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(TurtleUpgradeSerialiser.registryId());
 
         public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleSpeaker>> SPEAKER =
-            REGISTRY.register("speaker", () -> TurtleUpgradeSerialiser.simpleWithCustomItem(TurtleSpeaker::new));
+            REGISTRY.register("speaker", () -> TurtleUpgradeSerialiser.simpleWithCustomIngredient(TurtleSpeaker::new));
         public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleCraftingTable>> WORKBENCH =
-            REGISTRY.register("workbench", () -> TurtleUpgradeSerialiser.simpleWithCustomItem(TurtleCraftingTable::new));
+            REGISTRY.register("workbench", () -> TurtleUpgradeSerialiser.simpleWithCustomIngredient(TurtleCraftingTable::new));
         public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_NORMAL =
-            REGISTRY.register("wireless_modem_normal", () -> TurtleUpgradeSerialiser.simpleWithCustomItem((id, item) -> new TurtleModem(id, item, false)));
+            REGISTRY.register("wireless_modem_normal", () -> TurtleUpgradeSerialiser.simpleWithCustomIngredient((id, item) -> new TurtleModem(id, item, false)));
         public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_ADVANCED =
-            REGISTRY.register("wireless_modem_advanced", () -> TurtleUpgradeSerialiser.simpleWithCustomItem((id, item) -> new TurtleModem(id, item, true)));
+            REGISTRY.register("wireless_modem_advanced", () -> TurtleUpgradeSerialiser.simpleWithCustomIngredient((id, item) -> new TurtleModem(id, item, true)));
         public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleStorage>> STORAGE =
-            REGISTRY.register("storage", () -> TurtleUpgradeSerialiser.simpleWithCustomItem(TurtleStorage::new));
+            REGISTRY.register("storage", () -> TurtleUpgradeSerialiser.simpleWithCustomIngredient(TurtleStorage::new));
 
         public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleTool>> TOOL = REGISTRY.register("tool", () -> TurtleToolSerialiser.INSTANCE);
     }
@@ -313,11 +313,11 @@ public final class ModRegistry {
         static final RegistrationHelper<PocketUpgradeSerialiser<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(PocketUpgradeSerialiser.registryId());
 
         public static final RegistryEntry<PocketUpgradeSerialiser<PocketSpeaker>> SPEAKER =
-            REGISTRY.register("speaker", () -> PocketUpgradeSerialiser.simpleWithCustomItem(PocketSpeaker::new));
+            REGISTRY.register("speaker", () -> PocketUpgradeSerialiser.simpleWithCustomIngredient(PocketSpeaker::new));
         public static final RegistryEntry<PocketUpgradeSerialiser<PocketModem>> WIRELESS_MODEM_NORMAL =
-            REGISTRY.register("wireless_modem_normal", () -> PocketUpgradeSerialiser.simpleWithCustomItem((id, item) -> new PocketModem(id, item, false)));
+            REGISTRY.register("wireless_modem_normal", () -> PocketUpgradeSerialiser.simpleWithCustomIngredient((id, item) -> new PocketModem(id, item, false)));
         public static final RegistryEntry<PocketUpgradeSerialiser<PocketModem>> WIRELESS_MODEM_ADVANCED =
-            REGISTRY.register("wireless_modem_advanced", () -> PocketUpgradeSerialiser.simpleWithCustomItem((id, item) -> new PocketModem(id, item, true)));
+            REGISTRY.register("wireless_modem_advanced", () -> PocketUpgradeSerialiser.simpleWithCustomIngredient((id, item) -> new PocketModem(id, item, true)));
     }
 
     public static class Menus {
@@ -364,7 +364,7 @@ public final class ModRegistry {
         static {
             register("tracking_field", TrackingFieldArgumentType.class, TrackingFieldArgumentType.metric());
             register("computer", ComputerArgumentType.class, ComputerArgumentType.get());
-            registerUnsafe("repeat", RepeatArgumentType.class, new RepeatArgumentType.Info());
+            registerUnsafe("repeat", RepeatArgumentType.class, RepeatArgumentType.type());
         }
     }
 
