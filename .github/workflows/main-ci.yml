@@ -59,6 +59,16 @@ jobs:
       run: ./tools/parse-reports.py
       if: ${{ failure() }}
 
+    - name: 📤 Upload Test Reports
+      uses: actions/upload-artifact@v7
+      if: ${{ !cancelled() }}
+      with:
+        name: Tests
+        path: |
+          projects/*/build/test-results/test/open-test-report.xml
+          projects/*/build/test-results/runGametest.xml
+        retention-days: 1
+
   build-core:
     strategy:
       fail-fast: false

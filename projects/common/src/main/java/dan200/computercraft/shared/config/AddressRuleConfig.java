@@ -148,13 +148,14 @@ class AddressRuleConfig {
     }
 
     private static <T extends Enum<T>> T parseEnum(String field, Class<T> klass, String x) {
-        for (var value : klass.getEnumConstants()) {
+        var values = Objects.requireNonNull(klass.getEnumConstants());
+        for (var value : values) {
             if (value.name().equalsIgnoreCase(x)) return value;
         }
 
         throw new InvalidRuleException(String.format(
             "Field '%s' should be one of %s, but is '%s'.",
-            field, Arrays.stream(klass.getEnumConstants()).map(Enum::name).toList(), x
+            field, Arrays.stream(values).map(Enum::name).toList(), x
         ));
     }
 }

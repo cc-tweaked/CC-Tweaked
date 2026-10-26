@@ -33,3 +33,4 @@ jobs:
       with:
         name: Documentation
         path: ./projects/web/build/site/
+        retention-days: 1

@@ -69,6 +69,7 @@ import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
 import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
 import net.neoforged.neoforge.server.permission.nodes.PermissionType;
 import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import org.jspecify.annotations.Nullable;
 
@@ -160,6 +161,12 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
+    public @Nullable ItemContainer getContainer(ItemStack stack) {
+        var handler = ItemAccess.forStack(stack).getCapability(Capabilities.Item.ITEM);
+        return handler == null ? null : new ForgeItemContainer(handler);
+    }
+
+    @Override
     public RecipeIngredients getRecipeIngredients() {
         return new RecipeIngredients(
             Tags.Items.DUSTS_REDSTONE,
@@ -171,7 +178,8 @@ public class PlatformHelperImpl implements PlatformHelper {
             Tags.Items.INGOTS_IRON,
             Tags.Items.DYES,
             Tags.Items.ENDER_PEARLS,
-            Tags.Items.CHESTS_WOODEN
+            Tags.Items.CHESTS_WOODEN,
+            Tags.Items.SHULKER_BOXES
         );
     }
 

@@ -36,17 +36,19 @@ public class ForgeDataProviders {
     @SubscribeEvent
     public static void gather(GatherDataEvent.Client event) {
         var generator = event.getGenerator();
-        DataProviders.add(new GeneratorSinkImpl(generator.getVanillaPack(true), event.getWorldLookupProvider(), event.getReloadableLookupProvider()));
+        var pack = generator.getVanillaPack(true);
+        DataProviders.add(new GeneratorSinkImpl(generator, pack, event.getWorldLookupProvider(), event.getReloadableLookupProvider()));
     }
 
     private record GeneratorSinkImpl(
-        DataGenerator.PackGenerator generator,
+        DataGenerator generator,
+        DataGenerator.PackGenerator pack,
         CompletableFuture<HolderLookup.Provider> worldRegistries,
         CompletableFuture<HolderLookup.Provider> reloadableRegistries
     ) implements DataProviders.GeneratorSink {
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
-            return generator.addProvider(p -> new PrettyDataProvider<>(factory.create(p))).provider();
+            return pack.addProvider(p -> new PrettyDataProvider<>(factory.create(p))).provider();
         }
 
         @Override
@@ -98,6 +100,16 @@ public class ForgeDataProviders {
                     items.accept(itemModels);
                 }
             });
+        }
+
+        @Override
+        public DataProviders.GeneratorSink nestedDatapack(String name) {
+            return new GeneratorSinkImpl(
+                generator(),
+                generator.getBuiltinDatapack(true, "../../../resourcepacks/" + name),
+                worldRegistries(),
+                reloadableRegistries()
+            );
         }
     }
 }

@@ -5,7 +5,12 @@
   "key": {"#": "minecraft:diamond_sword", "T": "computercraft:turtle_normal"},
   "pattern": ["#T"],
   "result": {
-    "components": {"computercraft:right_turtle_upgrade": {"id": "minecraft:diamond_sword"}},
+    "components": {
+      "computercraft:right_turtle_upgrade": {
+        "id": "minecraft:diamond_sword",
+        "item": {"id": "minecraft:diamond_sword"}
+      }
+    },
     "id": "computercraft:turtle_normal"
   }
 }

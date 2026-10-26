@@ -19,7 +19,7 @@ public class ItemStackMatcher extends TypeSafeMatcher<ItemStack> {
 
     @Override
     protected boolean matchesSafely(ItemStack item) {
-        return ItemStack.isSameItemSameComponents(item, stack) && item.getCount() == stack.getCount();
+        return ItemStack.matches(item, stack);
     }
 
     @Override

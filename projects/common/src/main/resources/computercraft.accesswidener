@@ -23,8 +23,10 @@ accessible method net/minecraft/client/renderer/FirstPersonHandsAndItemsRenderer
 accessible method com/mojang/blaze3d/audio/Channel pumpBuffers (I)V
 accessible field net/minecraft/client/sounds/SoundEngine executor Lnet/minecraft/client/sounds/SoundEngineExecutor;
 
-# Turtle datafixers
+# Data fixers
+accessible method net/minecraft/util/datafix/fixes/ItemStackComponentizationFix fixItemStack (Lnet/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData;Lcom/mojang/serialization/Dynamic;)V
 accessible class net/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData
+accessible field net/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData tag Lcom/mojang/serialization/Dynamic;
 
 # GUI elements
 accessible field net/minecraft/client/gui/GuiGraphicsExtractor minecraft Lnet/minecraft/client/Minecraft;

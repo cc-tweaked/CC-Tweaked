@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.datafix;
 
 import com.mojang.datafixers.DSL;
+import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.templates.TypeTemplate;
@@ -16,6 +17,8 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import net.minecraft.util.datafix.fixes.ItemStackComponentizationFix;
 import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.util.datafix.schemas.NamespacedSchema;
+import net.minecraft.util.datafix.schemas.V3818_5;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +29,19 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static net.minecraft.util.Util.writeAndReadTypedOrThrow;
+
 /**
  * Additional fixers to convert CC's item NBT to use components.
  *
  * @see ItemStackComponentizationFix
  */
 public class ComponentizationFixers {
+    /**
+     * The version of the {@link V3818_5} schema where we apply our changes.
+     */
+    public static final int SCHEMA_VERSION = DataFixUtils.makeKey(3818, 5);
+
     private static final String TURTLE_NORMAL = "computercraft:turtle_normal";
     private static final String TURTLE_ADVANCED = "computercraft:turtle_advanced";
 
@@ -51,6 +61,16 @@ public class ComponentizationFixers {
         Stream.of(DISK)
     ).collect(Collectors.toUnmodifiableSet());
 
+    public static final UpgradeKeys POCKET_UPGRADE = new UpgradeKeys("Upgrade", "UpgradeInfo");
+    public static final UpgradeKeys TURTLE_UPGRADE_LEFT = new UpgradeKeys("LeftUpgrade", "LeftUpgradeNbt");
+    public static final UpgradeKeys TURTLE_UPGRADE_RIGHT = new UpgradeKeys("RightUpgrade", "RightUpgradeNbt");
+
+    public record UpgradeKeys(String id, String item, String data) {
+        private UpgradeKeys(String id, String data) {
+            this(id, id + "Item", data);
+        }
+    }
+
     /**
      * Fix components in item stacks.
      *
@@ -67,7 +87,7 @@ public class ComponentizationFixers {
         if (item.is(POCKET_COMPUTERS)) {
             item.moveTagToComponent("On", "computercraft:on");
 
-            moveUpgradeToComponent(item, ops, "Upgrade", "UpgradeInfo", "computercraft:pocket_upgrade");
+            moveUpgradeToComponent(item, ops, POCKET_UPGRADE, "computercraft:pocket_upgrade");
 
             // Remove instance/session, so they don't end up in minecraft:custom_data.
             item.removeTag("InstanceId");
@@ -79,8 +99,8 @@ public class ComponentizationFixers {
 
             item.removeTag("Overlay").result().ifPresent(x -> item.setComponent("computercraft:overlay", fixOverlay(x)));
 
-            moveUpgradeToComponent(item, ops, "LeftUpgrade", "LeftUpgradeNbt", "computercraft:left_turtle_upgrade");
-            moveUpgradeToComponent(item, ops, "RightUpgrade", "RightUpgradeNbt", "computercraft:right_turtle_upgrade");
+            moveUpgradeToComponent(item, ops, TURTLE_UPGRADE_LEFT, "computercraft:left_turtle_upgrade");
+            moveUpgradeToComponent(item, ops, TURTLE_UPGRADE_RIGHT, "computercraft:right_turtle_upgrade");
         }
 
         if (item.is(DISK)) item.moveTagToComponent("DiskId", "computercraft:disk_id");
@@ -100,11 +120,11 @@ public class ComponentizationFixers {
         if (item.is(PRINTOUTS)) movePrintoutToComponent(item, ops);
     }
 
-    private static void moveUpgradeToComponent(ItemStackComponentizationFix.ItemStackData data, Dynamic<?> ops, String key, String dataKey, String component) {
-        // Rewrite {Upgrade:"foo",UpgradeData:...} to {cc:upgrade:{id:"foo", components:...}}
-        var upgrade = data.removeTag(key).asString(null);
+    private static void moveUpgradeToComponent(ItemStackComponentizationFix.ItemStackData data, Dynamic<?> ops, UpgradeKeys keys, String component) {
+        // Rewrite {Upgrade:"foo",UpgradeItem:...UpgradeData:...} to {cc:upgrade:{id:"foo", "item": ..., components:...}}
+        var upgrade = data.removeTag(keys.id()).asString(null);
         if (upgrade == null) return;
-        data.setComponent(component, createUpgradeData(ops, upgrade, data.removeTag(dataKey)));
+        data.setComponent(component, createUpgradeData(ops, upgrade, data.removeTag(keys.item()), true, data.removeTag(keys.data())));
     }
 
     private static void moveColourToComponent(ItemStackComponentizationFix.ItemStackData item, Dynamic<?> ops, String key) {
@@ -150,24 +170,25 @@ public class ComponentizationFixers {
         return fixTurtleBlockEntity(input, output, TURTLE_NORMAL).compose(fixTurtleBlockEntity(input, output, TURTLE_ADVANCED));
     }
 
+    @SuppressWarnings("NullAway") // FIXME: I don't quite understand what's going on here.
     private static Function<Typed<?>, Typed<?>> fixTurtleBlockEntity(Schema inputSchema, Schema outputSchema, String name) {
         var input = DSL.namedChoice(name, inputSchema.getChoiceType(References.BLOCK_ENTITY, name));
         var output = outputSchema.getChoiceType(References.BLOCK_ENTITY, name);
 
-        return typed -> typed.updateTyped(input, output, typed2 -> typed2.update(DSL.remainderFinder(), x -> {
-            x = moveUpgradeData(x, "LeftUpgrade", "LeftUpgradeNbt");
-            x = moveUpgradeData(x, "RightUpgrade", "RightUpgradeNbt");
+        return beData -> beData.updateTyped(input, output, turtleData -> writeAndReadTypedOrThrow(turtleData, output, x -> {
+            x = moveUpgradeData(x, TURTLE_UPGRADE_LEFT);
+            x = moveUpgradeData(x, TURTLE_UPGRADE_RIGHT);
             x = x.update("Overlay", ComponentizationFixers::fixOverlay);
             return x;
         }));
     }
 
-    private static Dynamic<?> moveUpgradeData(Dynamic<?> ops, String key, String dataKey) {
-        // Rewrite {Upgrade:"foo",UpgradeData:...} to {Upgrade:{id:"foo", components:...}}
-        var upgradeId = ops.get(key).asString(null);
+    private static Dynamic<?> moveUpgradeData(Dynamic<?> ops, UpgradeKeys keys) {
+        // Rewrite {Upgrade:"foo",UpgradeItem:...,UpgradeData:...} to {Upgrade:{id:"foo", item: ..., components:...}}
+        var upgradeId = ops.get(keys.id()).asString(null);
         if (upgradeId == null) return ops;
 
-        return ops.set(key, createUpgradeData(ops, upgradeId, ops.get(dataKey))).remove(dataKey);
+        return ops.set(keys.id(), createUpgradeData(ops, upgradeId, ops.get(keys.item()), false, ops.get(keys.data()))).remove(keys.item()).remove(keys.data());
     }
 
     private static Dynamic<?> fixOverlay(Dynamic<?> overlay) {
@@ -189,11 +210,22 @@ public class ComponentizationFixers {
      *
      * @param ops         A {@link Dynamic} instance, for creating new dynamic values.
      * @param upgradeId   The upgrade ID
+     * @param upgradeItem The item for this upgrade.
+     * @param convertItem Whether to also apply item-stack fixes to the upgrade item. When converting an upgrade on
+     *                    an item, DFUs are *not* applied to the nested item (as the ItemStack info does not contain
+     *                    sufficient information). However, they *are* applied when converting an upgrade on a BE, so we
+     *                    need to avoid the double-conversion.
      * @param upgradeData Additional upgrade data
      * @return The newly created {@link UpgradeData}-compatible value.
      */
-    private static Dynamic<?> createUpgradeData(Dynamic<?> ops, String upgradeId, OptionalDynamic<?> upgradeData) {
+    private static Dynamic<?> createUpgradeData(Dynamic<?> ops, String upgradeId, OptionalDynamic<?> upgradeItem, boolean convertItem, OptionalDynamic<?> upgradeData) {
         var newUpgrade = ops.emptyMap().set("id", ops.createString(upgradeId));
+
+        // Migrate upgrade item
+        var item = upgradeItem.result().orElse(null);
+        if (item != null) {
+            newUpgrade = newUpgrade.set("item", convertItem ? fixItem(item) : item);
+        }
 
         var data = upgradeData.result().orElse(null);
         if (data != null && !data.equals(ops.emptyMap())) {
@@ -204,6 +236,14 @@ public class ComponentizationFixers {
         return newUpgrade;
     }
 
+    private static Dynamic<?> fixItem(Dynamic<?> dynamic) {
+        var parsedData = ItemStackComponentizationFix.ItemStackData.read(dynamic);
+        if (parsedData.isEmpty()) return dynamic;
+
+        var data = parsedData.get();
+        ItemStackComponentizationFix.fixItemStack(data, data.tag);
+        return data.write();
+    }
 
     /**
      * Add our custom data components to the datafixer system.
@@ -218,7 +258,7 @@ public class ComponentizationFixers {
      */
     public static void addComponents(Map<String, Supplier<TypeTemplate>> types, Schema schema) {
         // Create a codec for UpgradeData
-        Supplier<TypeTemplate> upgradeData = () -> DSL.optionalFields("components", References.DATA_COMPONENTS.in(schema));
+        Supplier<TypeTemplate> upgradeData = () -> upgradeDataType(schema);
 
         if (schema.getVersionKey() < RenamePocketComputerUpgradeFix.SCHEMA_VERSION) {
             types.put("computercraft:pocket_upgrade", upgradeData);
@@ -230,5 +270,19 @@ public class ComponentizationFixers {
 
         types.put("computercraft:left_turtle_upgrade", upgradeData);
         types.put("computercraft:right_turtle_upgrade", upgradeData);
+    }
+
+    /**
+     * Get the {@link TypeTemplate} for our {@link UpgradeData}.
+     *
+     * @param schema The current schema
+     * @return The upgrade data.
+     */
+    public static TypeTemplate upgradeDataType(Schema schema) {
+        return DSL.optionalFields(
+            "id", DSL.constType(NamespacedSchema.namespacedString()),
+            "item", References.ITEM_STACK.in(schema),
+            "components", References.DATA_COMPONENTS.in(schema)
+        );
     }
 }

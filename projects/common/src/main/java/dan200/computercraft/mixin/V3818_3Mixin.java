@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  * This mixin is identical between Fabric and NeoForge aside from using a different method name.
  */
 @Mixin(V3818_3.class)
-class V3818_3Mixin {
+abstract class V3818_3Mixin {
     @ModifyReturnValue(method = "components", at = @At("TAIL"))
     @SuppressWarnings("UnusedMethod")
     private static SequencedMap<String, Supplier<TypeTemplate>> components(SequencedMap<String, Supplier<TypeTemplate>> types, Schema schema) {

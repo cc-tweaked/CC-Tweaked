@@ -38,7 +38,7 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
     }
 
     @Override
-    public void registerGenericCapability(BlockCapability<?, Direction> capability) {
+    public void registerGenericCapability(BlockCapability<? extends Object, @Nullable Direction> capability) {
         Objects.requireNonNull(capability, "Capability cannot be null");
         Peripherals.addGenericLookup(new CapabilityLookup<>(capability));
     }
@@ -57,7 +57,7 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
      * @param capability The capability to lookup
      * @param <T>        The type of the capability we look up.
      */
-    private record CapabilityLookup<T>(BlockCapability<T, Direction> capability) implements ComponentLookup {
+    private record CapabilityLookup<T>(BlockCapability<T, @Nullable Direction> capability) implements ComponentLookup {
         @Nullable
         @Override
         public T find(ServerLevel level, BlockPos pos, BlockState state, BlockEntity blockEntity, Direction side) {

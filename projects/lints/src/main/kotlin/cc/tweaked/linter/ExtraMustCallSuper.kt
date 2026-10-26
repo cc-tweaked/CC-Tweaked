@@ -23,6 +23,7 @@ import javax.lang.model.element.Modifier
     """,
     severity = BugPattern.SeverityLevel.ERROR,
     tags = [BugPattern.StandardTags.LIKELY_ERROR],
+    linkType = BugPattern.LinkType.NONE,
 )
 class ExtraMustCallSuper : BugChecker(), BugChecker.MethodTreeMatcher {
     companion object {

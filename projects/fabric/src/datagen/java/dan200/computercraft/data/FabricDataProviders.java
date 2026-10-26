@@ -5,6 +5,7 @@
 package dan200.computercraft.data;
 
 import com.mojang.serialization.Codec;
+import dan200.computercraft.api.ComputerCraftAPI;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -28,21 +29,22 @@ import java.util.function.Consumer;
 public class FabricDataProviders implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
-        var pack = new GeneratorSinkImpl(generator.createPack(), generator.getWorldRegistries(), generator.getRegistries());
+        var pack = new GeneratorSinkImpl(generator, generator.createPack(), generator.getWorldRegistries(), generator.getRegistries());
         DataProviders.add(pack);
     }
 
     private record GeneratorSinkImpl(
-        FabricDataGenerator.Pack generator,
+        FabricDataGenerator generator,
+        FabricDataGenerator.Pack pack,
         CompletableFuture<HolderLookup.Provider> worldRegistries,
         CompletableFuture<HolderLookup.Provider> reloadableRegistries
     ) implements DataProviders.GeneratorSink {
         private <T extends DataProvider> T addWithFabricOutput(FabricDataGenerator.Pack.Factory<T> factory) {
-            return generator.addProvider((FabricPackOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
+            return pack.addProvider((FabricPackOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
         }
 
         private <T extends DataProvider> T addWithRegistries(FabricDataGenerator.Pack.RegistryDependentFactory<T> factory) {
-            return generator.addProvider((r, p) -> new PrettyDataProvider<>(factory.create(r, p))).provider();
+            return pack.addProvider((r, p) -> new PrettyDataProvider<>(factory.create(r, p))).provider();
         }
 
         @Override
@@ -98,6 +100,16 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
                     items.accept(generators);
                 }
             });
+        }
+
+        @Override
+        public DataProviders.GeneratorSink nestedDatapack(String name) {
+            return new GeneratorSinkImpl(
+                generator(),
+                generator().createBuiltinResourcePack(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name)),
+                worldRegistries(),
+                reloadableRegistries()
+            );
         }
     }
 }

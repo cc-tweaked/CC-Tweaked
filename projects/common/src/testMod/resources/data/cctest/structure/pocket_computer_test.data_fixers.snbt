@@ -27,7 +27,7 @@
         {pos: [4, 0, 2], state: "minecraft:polished_andesite"},
         {pos: [4, 0, 3], state: "minecraft:polished_andesite"},
         {pos: [4, 0, 4], state: "minecraft:polished_andesite"},
-        {pos: [2, 1, 2], state: "minecraft:chest{facing:north,type:single,waterlogged:false}", nbt: {Items: [{Count: 1b, Slot: 0b, id: "computercraft:pocket_computer_advanced", tag: {ComputerId: 123, Upgrade: "computercraft:wireless_modem_normal", display: {Name: '{"text":"Test"}'}}}], id: "minecraft:chest"}}
+        {pos: [2, 1, 2], state: "minecraft:chest{facing:north,type:single,waterlogged:false}", nbt: {Items: [{Count: 1b, Slot: 0b, id: "computercraft:pocket_computer_advanced", tag: {ComputerId: 123, InstanceId: [I; -1496601984, 1527793399, -1542736776, 2137516638], On: 0b, SessionId: 1591798634, Upgrade: "computercraft:wireless_modem_advanced", UpgradeItem: {Count: 1b, id: "computercraft:wireless_modem_advanced", tag: {RepairCost: 0, display: {Name: '{"text":"My favourite modem"}'}}}, display: {Name: '{"text":"Test"}'}}}], id: "minecraft:chest"}}
     ],
     entities: [],
     palette: [

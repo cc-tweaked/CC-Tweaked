@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.DataFixerBuilder;
 import com.mojang.datafixers.schemas.Schema;
+import dan200.computercraft.shared.datafix.ComponentizationFixers;
 import dan200.computercraft.shared.datafix.RenamePocketComputerUpgradeFix;
 import dan200.computercraft.shared.datafix.TurtleOwnerFix;
 import dan200.computercraft.shared.datafix.TurtleUpgradeComponentizationFix;
@@ -39,7 +40,7 @@ abstract class DataFixersMixin {
     )
     @SuppressWarnings("UnusedMethod")
     private static Schema addComponentizationFixes(Schema schema, @Local DataFixerBuilder builder) {
-        assertSchemaVersion(schema, DataFixUtils.makeKey(3818, 5));
+        assertSchemaVersion(schema, ComponentizationFixers.SCHEMA_VERSION);
         builder.addFixer(new TurtleUpgradeComponentizationFix(schema));
         return schema;
     }

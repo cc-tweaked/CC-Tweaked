@@ -17,6 +17,7 @@ import dan200.computercraft.shared.computer.metrics.basic.Aggregate;
 import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.config.ConfigSpec;
+import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
@@ -125,6 +126,9 @@ public final class LanguageProvider implements DataProvider {
         add("upgrade.computercraft.wireless_modem_normal.adjective", "Wireless");
         add("upgrade.computercraft.wireless_modem_advanced.adjective", "Ender");
         add("upgrade.computercraft.speaker.adjective", "Noisy");
+        add(TurtleStorage.ADJECTIVE, "Storage");
+
+        add(TurtleStorage.DATA_PACK_TRANSLATION, "Turtle storage upgrades");
 
         add("chat.computercraft.wired_modem.peripheral_connected", "Peripheral \"%s\" connected to network");
         add("chat.computercraft.wired_modem.peripheral_disconnected", "Peripheral \"%s\" disconnected from network");

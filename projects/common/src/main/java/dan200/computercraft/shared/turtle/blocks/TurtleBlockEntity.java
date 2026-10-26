@@ -200,7 +200,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     private static @Nullable UpgradeData<ITurtleUpgrade> withPersistedData(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
-        return upgrade == null ? null : UpgradeData.of(upgrade.holder(), upgrade.upgrade().getPersistedData(upgrade.data()));
+        return upgrade == null ? null : UpgradeData.of(upgrade.holder(), upgrade.getUpgradeItem(), upgrade.upgrade().getPersistedData(upgrade.data()));
     }
 
     @Override

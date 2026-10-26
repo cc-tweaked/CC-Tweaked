@@ -6,6 +6,7 @@ package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.item.ItemStackTemplate;
 import org.jetbrains.annotations.ApiStatus;
@@ -38,11 +39,21 @@ public interface IPocketAccess extends PocketComputer {
      * Get the currently equipped upgrade.
      *
      * @return The currently equipped upgrade.
-     * @see #getUpgradeData()
      * @see #setUpgrade(UpgradeData)
+     * @see #getUpgradeHandle()
      */
-    @Nullable
-    UpgradeData<IPocketUpgrade> getUpgrade();
+    @Nullable UpgradeData<IPocketUpgrade> getUpgrade();
+
+    /**
+     * Get a handle to the equipped upgrade.
+     * <p>
+     * This function is not thread safe and must be called from the server thread.
+     *
+     * @return The currently equipped upgrade.
+     * @see #setUpgrade(UpgradeData)
+     * @since 1.121.0
+     */
+    @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle();
 
     /**
      * Set the upgrade for this pocket computer, also updating the item stack.
@@ -52,6 +63,7 @@ public interface IPocketAccess extends PocketComputer {
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      * @see #getUpgrade()
+     * @see #getUpgradeHandle()
      */
     void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade);
 
@@ -65,7 +77,9 @@ public interface IPocketAccess extends PocketComputer {
      * @see UpgradeBase#getUpgradeItem(DataComponentPatch)
      * @see UpgradeBase#getUpgradeData(ItemStackTemplate)
      * @see #getUpgrade()
+     * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#getData()}.
      */
+    @Deprecated(since = "1.121.0")
     DataComponentPatch getUpgradeData();
 
     /**
@@ -76,7 +90,9 @@ public interface IPocketAccess extends PocketComputer {
      *
      * @param data The new upgrade data.
      * @see #getUpgradeData()
+     * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#setData(DataComponentPatch)}.
      */
+    @Deprecated(since = "1.121.0")
     void setUpgradeData(DataComponentPatch data);
 
     /**

@@ -6,19 +6,18 @@ package cc.tweaked.web.http;
 
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.HttpHandler;
+import dan200.computercraft.core.apis.http.HttpUri;
 import dan200.computercraft.core.apis.http.ResourceGroup;
-import dan200.computercraft.core.apis.http.ResourceQueue;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import org.jspecify.annotations.Nullable;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 
 public final class JsHttpHandler implements HttpHandler {
     private final IAPIEnvironment environment;
 
-    private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>(() -> HttpHandler.DEFAULT_MAX_REQUESTS);
+    private final ResourceGroup<HttpRequest> requests = new ResourceGroup<>(() -> HttpHandler.DEFAULT_MAX_REQUESTS, ResourceGroup.DEFAULT_LIMIT);
     private final ResourceGroup<Websocket> websockets = new ResourceGroup<>(() -> HttpHandler.DEFAULT_MAX_WEBSOCKETS);
 
     public JsHttpHandler(IAPIEnvironment environment) {
@@ -38,18 +37,18 @@ public final class JsHttpHandler implements HttpHandler {
     }
 
     @Override
-    public boolean queueCheckUrl(String address, URI uri) {
+    public boolean queueCheckUrl(String address, HttpUri uri) {
         environment.queueEvent("http_check", address, true);
         return true;
     }
 
     @Override
-    public boolean queueRequest(String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout) {
-        return new HttpRequest(requests, environment, address, postBody, headers, binary, followRedirects).queue(r -> r.request(uri, method));
+    public boolean queueRequest(String address, HttpUri uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout) {
+        return new HttpRequest(requests, environment, address, uri, method, postBody, headers, binary, followRedirects).queue();
     }
 
     @Override
-    public boolean queueWebsocket(String address, URI uri, HttpHeaders headers, int timeout) {
-        return new Websocket(websockets, environment, address, uri).queue(Websocket::connect);
+    public boolean queueWebsocket(String address, HttpUri uri, HttpHeaders headers, int timeout) {
+        return new Websocket(websockets, environment, address, uri).queue();
     }
 }

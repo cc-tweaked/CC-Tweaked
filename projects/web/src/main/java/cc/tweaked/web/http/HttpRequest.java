@@ -5,11 +5,16 @@
 package cc.tweaked.web.http;
 
 import cc.tweaked.web.Main;
-import com.google.common.base.Splitter;
+import cc.tweaked.web.js.Console;
+import cc.tweaked.web.js.abort.AbortController;
+import cc.tweaked.web.js.fetch.Headers;
+import cc.tweaked.web.js.fetch.RequestInit;
+import cc.tweaked.web.js.fetch.Response;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.handles.ReadHandle;
+import dan200.computercraft.core.apis.http.HttpUri;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
 import dan200.computercraft.core.apis.http.request.HttpResponseHandle;
@@ -19,11 +24,12 @@ import io.netty.handler.codec.http.HttpMethod;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.teavm.jso.JSObject;
 import org.teavm.jso.ajax.XMLHttpRequest;
-import org.teavm.jso.typedarrays.ArrayBuffer;
+import org.teavm.jso.core.JSError;
+import org.teavm.jso.core.JSPromise;
 import org.teavm.jso.typedarrays.Int8Array;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.util.HashMap;
@@ -32,7 +38,7 @@ import java.util.Map;
 /**
  * Replaces {@link dan200.computercraft.core.apis.http.request.HttpRequest} with a version which uses AJAX/{@link XMLHttpRequest}.
  */
-final class HttpRequest extends Resource<HttpRequest> {
+final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> {
     private static final Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
     private static final String SUCCESS_EVENT = "http_success";
     private static final String FAILURE_EVENT = "http_failure";
@@ -46,10 +52,11 @@ final class HttpRequest extends Resource<HttpRequest> {
     private final boolean followRedirects;
 
     HttpRequest(
-        ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable ByteBuffer postBody,
-        HttpHeaders headers, boolean binary, boolean followRedirects
+        ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment,
+        String address, HttpUri uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers,
+        boolean binary, boolean followRedirects
     ) {
-        super(limiter);
+        super(limiter, new Init(uri, method));
         this.environment = environment;
         this.address = address;
         postBuffer = postBody;
@@ -64,64 +71,97 @@ final class HttpRequest extends Resource<HttpRequest> {
         }
     }
 
-    public void request(URI uri, HttpMethod method) {
-        if (isClosed()) return;
+    public sealed interface State extends ResourceState {
+    }
 
-        try {
-            var request = new XMLHttpRequest();
-            request.setOnReadyStateChange(() -> onResponseStateChange(request));
-            request.setResponseType("arraybuffer");
-            var address = uri.toASCIIString();
-            request.open(method.toString(), Main.CORS_PROXY.isEmpty() ? address : Main.CORS_PROXY.replace("{}", address));
-            for (var iterator = headers.iteratorAsString(); iterator.hasNext(); ) {
-                var header = iterator.next();
-                request.setRequestHeader(header.getKey(), header.getValue());
-            }
-            request.setRequestHeader("X-CC-Redirect", followRedirects ? "true" : "false");
-            request.send(postBuffer == null ? null : Int8Array.fromJavaBuffer(postBuffer));
-            checkClosed();
-        } catch (Exception e) {
-            failure("Could not connect");
-            LOG.error(Logging.HTTP_ERROR, "Error in HTTP request", e);
+    private record Init(HttpUri uri, HttpMethod method) implements State {
+        @Override
+        public void close() {
         }
     }
 
-    private void onResponseStateChange(XMLHttpRequest request) {
-        if (request.getReadyState() != XMLHttpRequest.DONE) return;
-        if (request.getStatus() == 0) {
-            this.failure("Could not connect");
-            return;
+    private record Fetching(AbortController abort) implements State {
+        @Override
+        public void close() {
+            abort.abort();
+        }
+    }
+
+    @Override
+    protected void start() {
+        transformState(Init.class, s -> doRequest(s.uri, s.method));
+    }
+
+    private @Nullable State doRequest(HttpUri uri, HttpMethod method) {
+        try {
+            var abort = new AbortController();
+
+            var request = RequestInit.create();
+            request.setMethod(method.name());
+            if (postBuffer != null) request.setBody(Int8Array.fromJavaBuffer(postBuffer));
+            request.setSignal(abort.getSignal());
+
+            var requestHeaders = new Headers();
+            for (var iterator = headers.iteratorAsString(); iterator.hasNext(); ) {
+                var header = iterator.next();
+                requestHeaders.append(header.getKey(), header.getValue());
+            }
+            requestHeaders.append("X-CC-Redirect", Boolean.toString(followRedirects));
+
+            var address = uri.getUri().toASCIIString();
+            Response.fetch(Main.CORS_PROXY.isEmpty() ? address : Main.CORS_PROXY.replace("{}", address), request)
+                .then(this::handleResponse)
+                .catchError(e -> {
+                    if (e instanceof JSError err) Console.error(err);
+                    LOG.error(Logging.HTTP_ERROR, "Error in HTTP request", e);
+                    close(Fetching.class, () -> queueFailure("Could not connect"));
+                    return null;
+                });
+
+            return new Fetching(abort);
+        } catch (Exception e) {
+            LOG.error(Logging.HTTP_ERROR, "Error in HTTP request", e);
+            queueFailure("Could not connect");
+            return null;
+        }
+    }
+
+    private @Nullable JSPromise<? extends @Nullable JSObject> handleResponse(Response response) {
+        if (response.getStatus() == 0) {
+            close(Fetching.class, () -> queueFailure("Could not connect"));
+            return null;
         }
 
-        var buffer = (ArrayBuffer) request.getResponse();
-        SeekableByteChannel contents = new ArrayByteChannel(new Int8Array(buffer).copyToJavaArray());
-        var reader = new ReadHandle(contents, binary);
-
         Map<String, String> responseHeaders = new HashMap<>();
-        for (var header : Splitter.on("\r\n").split(request.getAllResponseHeaders())) {
-            var index = header.indexOf(':');
-            if (index < 0) continue;
-
+        response.getHeaders().forEach((v, k, h) -> {
             // Normalise the header (so "content-type" becomes "Content-Type")
             var upcase = true;
-            var headerBuilder = new StringBuilder(index);
-            for (var i = 0; i < index; i++) {
-                var c = header.charAt(i);
+            var headerBuilder = new StringBuilder(k.length());
+            for (var i = 0; i < k.length(); i++) {
+                var c = k.charAt(i);
                 headerBuilder.append(upcase ? Character.toUpperCase(c) : c);
                 upcase = c == '-';
             }
-            responseHeaders.put(headerBuilder.toString(), header.substring(index + 1).trim());
-        }
-        var stream = new HttpResponseHandle(reader, request.getStatus(), request.getStatusText(), responseHeaders);
+            responseHeaders.put(headerBuilder.toString(), v);
+        });
 
-        if (request.getStatus() >= 200 && request.getStatus() < 400) {
-            if (tryClose()) environment.queueEvent(SUCCESS_EVENT, address, stream);
-        } else {
-            if (tryClose()) environment.queueEvent(FAILURE_EVENT, address, request.getStatusText(), stream);
-        }
+        return response.bytes().then(body -> {
+            SeekableByteChannel contents = new ArrayByteChannel(new Int8Array(body).copyToJavaArray());
+            var reader = new ReadHandle(contents, binary);
+
+            var stream = new HttpResponseHandle(reader, response.getStatus(), response.getStatusText(), responseHeaders);
+
+            if (response.getStatus() >= 200 && response.getStatus() < 400) {
+                close(Fetching.class, () -> environment.queueEvent(SUCCESS_EVENT, address, stream));
+            } else {
+                close(Fetching.class, () -> environment.queueEvent(FAILURE_EVENT, address, response.getStatusText(), stream));
+            }
+
+            return null;
+        });
     }
 
-    void failure(String message) {
-        if (tryClose()) environment.queueEvent(FAILURE_EVENT, address, message);
+    private void queueFailure(String message) {
+        environment.queueEvent(FAILURE_EVENT, address, message);
     }
 }

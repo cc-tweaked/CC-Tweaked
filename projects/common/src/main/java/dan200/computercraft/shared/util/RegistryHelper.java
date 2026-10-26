@@ -64,7 +64,7 @@ public final class RegistryHelper {
      * @return A codec that retrieves the given registry, or errors if not available.
      * @see #retrieveRegistryStreamCodec(ResourceKey)
      */
-    public static <T> MapCodec<HolderLookup.RegistryLookup<T>> retrieveRegistryCodec(ResourceKey<? extends Registry<? extends T>> registryKey) {
+    public static <T> MapCodec<HolderLookup<T>> retrieveRegistryCodec(ResourceKey<? extends Registry<? extends T>> registryKey) {
         return ExtraCodecs.retrieveContext(ops -> {
             if (!(ops instanceof RegistryOps<?> registryOps)) return DataResult.error(() -> "Not a registryKey ops");
 
@@ -87,7 +87,7 @@ public final class RegistryHelper {
      * @return A codec that retrieves the given registry, or errors if not available.
      * @see #retrieveRegistryCodec(ResourceKey)
      */
-    public static <T> StreamCodec<RegistryFriendlyByteBuf, Registry<T>> retrieveRegistryStreamCodec(ResourceKey<? extends Registry<? extends T>> registryKey) {
+    public static <T> StreamCodec<RegistryFriendlyByteBuf, HolderLookup<T>> retrieveRegistryStreamCodec(ResourceKey<? extends Registry<? extends T>> registryKey) {
         return StreamCodec.of(
             (_, _) -> {
             },

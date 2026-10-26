@@ -4,22 +4,19 @@
 
 package dan200.computercraft.gametest.core
 
-import com.google.common.base.Stopwatch
 import net.minecraft.gametest.framework.GameTestInfo
-import net.minecraft.gametest.framework.JUnitLikeTestReporter
 import net.minecraft.gametest.framework.TestReporter
-import org.w3c.dom.Document
-import org.w3c.dom.Element
-import java.io.*
-import java.nio.file.Files.createDirectories
+import org.opentest4j.reporting.events.api.DocumentWriter
+import org.opentest4j.reporting.events.api.NamespaceRegistry
+import org.opentest4j.reporting.events.core.CoreFactory
+import org.opentest4j.reporting.events.java.JavaFactory
+import org.opentest4j.reporting.events.root.Events
+import org.opentest4j.reporting.events.root.Finished
+import org.opentest4j.reporting.events.root.RootFactory
+import org.opentest4j.reporting.schema.Namespace
+import java.io.File
 import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.util.concurrent.TimeUnit
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.transform.TransformerException
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.dom.DOMSource
-import javax.xml.transform.stream.StreamResult
+import org.opentest4j.reporting.events.core.Result as OtrResult
 
 /**
  * A test reporter which delegates to a list of other reporters.
@@ -41,74 +38,63 @@ class MultiTestReporter(private val reporters: List<TestReporter>) : TestReporte
 }
 
 /**
- * Reports tests to a JUnit XML file. This is equivalent to [JUnitLikeTestReporter], except it ensures the destination
- * directory exists and includes the stack trace in the error.
+ * A test reporter that writes [Open Test Reporting](https://github.com/ota4j-team/open-test-reporting/) test reports.
+ *
+ * @param name The name of this test suite.
+ * @param destination The destination file to write to.
  */
-open class JunitTestReporter(private val destination: File) : TestReporter {
-    private val document: Document
-    private val testSuite: Element
-    private val stopwatch: Stopwatch = Stopwatch.createStarted()
+class OtrTestReporter(name: String, destination: File) : TestReporter {
+    private val writer: DocumentWriter<Events>
+    private var hasErrors = false
 
     init {
-        document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+        val namespaceRegistry = NamespaceRegistry.builder(Namespace.REPORTING_CORE)
+            .add("e", Namespace.REPORTING_EVENTS)
+            .add("java", Namespace.REPORTING_JAVA)
+            .build()
 
-        testSuite = document.createElement("testsuite")
-        testSuite.setAttribute("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+        writer = Events.createDocumentWriter(namespaceRegistry, destination.toPath())
 
-        val container = document.createElement("testsuite")
-        container.appendChild(testSuite)
-        document.appendChild(container)
+        writer.append(RootFactory.started(SUITE_ID, Instant.now(), name))
     }
 
-    private fun createTestCase(testInfo: GameTestInfo): Element {
-        val testCase = document.createElement("testcase")
-        testCase.setAttribute("name", testInfo.id().toString())
-        testCase.setAttribute("classname", testInfo.structure.toString())
-        testCase.setAttribute("time", (testInfo.runTime.toDouble() / 1000.0).toString())
-        testSuite.appendChild(testCase)
-        return testCase
+    private fun report(testInfo: GameTestInfo, configure: (Finished) -> Unit) {
+        val finished = Instant.now()
+        val started = finished.minusMillis(testInfo.runTime)
+        val name = testInfo.id().toShortString()
+        writer.append(RootFactory.started(name, started, name)) {
+            it.withParentId(SUITE_ID)
+        }
+        writer.append(RootFactory.finished(name, finished), configure)
     }
 
     override fun onTestFailed(testInfo: GameTestInfo) {
-        val error = testInfo.error!!
-        val result: Element
-        if (testInfo.isRequired) {
-            result = document.createElement("failure")
-            result.setAttribute("message", error.message)
-            result.setAttribute("type", error.javaClass.name)
+        report(testInfo) { report ->
+            if (testInfo.isRequired) hasErrors = true
 
-            val writer = StringWriter()
-            error.printStackTrace(PrintWriter(writer))
-            result.textContent = writer.toString()
-        } else {
-            result = document.createElement("skipped")
-            result.setAttribute("message", error.message)
+            val status = if (testInfo.isRequired) OtrResult.Status.FAILED else OtrResult.Status.ABORTED
+            report.append(CoreFactory.result(status)) { result ->
+                val error = testInfo.error
+                if (error != null) {
+                    result.append(CoreFactory.reason(error.message ?: "unknown"))
+                    result.append(JavaFactory.throwable(error))
+                }
+            }
         }
-
-        createTestCase(testInfo).appendChild(result)
     }
 
     override fun onTestSuccess(testInfo: GameTestInfo) {
-        createTestCase(testInfo)
+        report(testInfo) { it.append(CoreFactory.result(OtrResult.Status.SUCCESSFUL)) }
     }
 
     override fun finish() {
-        stopwatch.stop()
-        testSuite.setAttribute(
-            "time",
-            (stopwatch.elapsed(TimeUnit.MILLISECONDS).toDouble() / 1000.0).toString(),
-        )
-
-        try {
-            try {
-                createDirectories(destination.toPath().parent)
-            } catch (e: IOException) {
-                throw UncheckedIOException("Failed to create parent directory", e)
-            }
-
-            TransformerFactory.newInstance().newTransformer().transform(DOMSource(document), StreamResult(destination))
-        } catch (transformerException: TransformerException) {
-            throw Error("Couldn't save test report", transformerException)
+        writer.append(RootFactory.finished(SUITE_ID, Instant.now())) {
+            it.append(CoreFactory.result(if (hasErrors) OtrResult.Status.FAILED else OtrResult.Status.SUCCESSFUL))
         }
+        writer.close()
+    }
+
+    companion object {
+        private const val SUITE_ID = "_gametests_"
     }
 }

@@ -40,12 +40,12 @@ class RecipeResolver implements ISimpleRecipeManagerPlugin<RecipeHolder<Crafting
             var id = ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "upgrade_" + nextId++));
             var pattern = new ShapedRecipePattern(
                 width, height,
-                inputs.stream().map(x -> Optional.of(Ingredient.of(x.item().value()))).toList(),
+                inputs.stream().map(x -> Optional.of(x.ingredient())).toList(),
                 Optional.empty()
             );
             var display = new ShapedCraftingRecipeDisplay(
                 width, height,
-                inputs.stream().<SlotDisplay>map(SlotDisplay.ItemStackSlotDisplay::new).toList(),
+                inputs.stream().map(UpgradeRecipeGenerator.InputItem::display).toList(),
                 new SlotDisplay.ItemStackSlotDisplay(result),
                 CRAFTING_STATION
             );

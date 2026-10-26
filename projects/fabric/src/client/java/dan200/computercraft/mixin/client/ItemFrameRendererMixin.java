@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemFrameRenderer.class)
 @SuppressWarnings("UnusedMethod")
-class ItemFrameRendererMixin {
+abstract class ItemFrameRendererMixin {
     @Inject(
         method = "submit(Lnet/minecraft/client/renderer/entity/state/ItemFrameRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
         at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/state/ItemFrameRenderState;mapId:Lnet/minecraft/world/level/saveddata/maps/MapId;", opcode = Opcodes.GETFIELD, ordinal = 0),

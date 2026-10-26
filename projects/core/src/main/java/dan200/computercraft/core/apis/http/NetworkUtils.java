@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core.apis.http;
 
+import com.google.common.base.Suppliers;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.Options;
@@ -41,10 +42,8 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import java.net.Inet6Address;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Just a shared object for executing simple HTTP related tasks.
@@ -52,14 +51,9 @@ import java.util.function.Consumer;
 public final class NetworkUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkUtils.class);
 
-    public static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(4, ThreadUtils.lowPriorityFactory("Network"));
-    public static final EventLoopGroup LOOP_GROUP = new MultiThreadIoEventLoopGroup(4, ThreadUtils.lowPriorityFactory("Netty"), NioIoHandler.newFactory());
+    private static final EventLoopGroup LOOP_GROUP = new MultiThreadIoEventLoopGroup(4, ThreadUtils.lowPriorityFactory("Netty"), NioIoHandler.newFactory());
 
     private final AbstractTrafficShapingHandler shapingHandler;
-
-    static {
-        EXECUTOR.setKeepAliveTime(60, TimeUnit.SECONDS);
-    }
 
     private final NettyHttp netty;
 
@@ -70,27 +64,17 @@ public final class NetworkUtils {
         );
     }
 
-    private static final Object sslLock = new Object();
-    private static @Nullable SslContext sslContext;
-    private static boolean triedSslContext = false;
-
-    private static @Nullable SslContext makeSslContext() {
-        if (triedSslContext) return sslContext;
-        synchronized (sslLock) {
-            if (triedSslContext) return sslContext;
-
-            triedSslContext = true;
-            try {
-                return sslContext = SslContextBuilder.forClient().build();
-            } catch (SSLException e) {
-                LOG.error("Cannot construct SSL context", e);
-                return sslContext = null;
-            }
+    private static final Supplier<@Nullable SslContext> sslContext = Suppliers.memoize(() -> {
+        try {
+            return SslContextBuilder.forClient().build();
+        } catch (SSLException e) {
+            LOG.error("Cannot construct SSL context", e);
+            return null;
         }
-    }
+    });
 
     private static SslContext getSslContext() throws HTTPRequestException {
-        var ssl = makeSslContext();
+        var ssl = sslContext.get();
         if (ssl == null) throw new HTTPRequestException("Could not create a secure connection");
         return ssl;
     }
@@ -99,8 +83,20 @@ public final class NetworkUtils {
         shapingHandler.configure(netty.getConfig().uploadBandwidth(), netty.getConfig().downloadBandwidth());
     }
 
+    /**
+     * Check that a URI is accessible, throwing an error if not.
+     * <p>
+     * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
+     *
+     * @param url The URL to check.
+     * @throws HTTPRequestException If the URL is not permitted or is otherwise malformed.
+     */
+    public void checkUrl(HttpUri url) throws HTTPRequestException {
+        getOptions(url.getHost(), getAddress(url.getHost(), url.getPort()));
+    }
+
     public record ConnectionInfo(
-        URI uri,
+        HttpUri uri,
         InetSocketAddress address,
         int timeout,
         Options options,
@@ -109,26 +105,23 @@ public final class NetworkUtils {
     ) {
     }
 
-    public ConnectionInfo getConnectionInfo(URI uri, boolean ssl, int timeout) throws HTTPRequestException {
-        var address = getAddress(uri.getHost(), uri.getPort(), ssl);
-        var options = getOptions(uri.getHost(), address);
-        var sslContext = ssl ? getSslContext() : null;
-        var proxy = getProxyHandler(options, timeout);
-        return new ConnectionInfo(uri, address, timeout, options, sslContext, proxy);
-    }
-
     /**
-     * Create a {@link InetSocketAddress} from a {@link java.net.URI}.
+     * Check that a URI is accessible, throwing an error if not.
      * <p>
      * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
      *
-     * @param uri The URI to fetch.
-     * @param ssl Whether to connect with SSL. This is used to find the default port if not otherwise specified.
-     * @return The resolved address.
-     * @throws HTTPRequestException If the host is not malformed.
+     * @param uri     The URI to fetch.
+     * @param timeout The timeout used for the connection.
+     * @return The connection info.
+     * @throws HTTPRequestException If the URL is not permitted or is otherwise malformed.
+     * @see #connect(ConnectionInfo, Consumer)
      */
-    public static InetSocketAddress getAddress(URI uri, boolean ssl) throws HTTPRequestException {
-        return getAddress(uri.getHost(), uri.getPort(), ssl);
+    public ConnectionInfo getConnectionInfo(HttpUri uri, int timeout) throws HTTPRequestException {
+        var address = getAddress(uri.getHost(), uri.getPort());
+        var options = getOptions(uri.getHost(), address);
+        var sslContext = uri.getSsl() ? getSslContext() : null;
+        var proxy = getProxyHandler(options, timeout);
+        return new ConnectionInfo(uri, address, timeout, options, sslContext, proxy);
     }
 
     /**
@@ -138,13 +131,11 @@ public final class NetworkUtils {
      *
      * @param host The host to resolve.
      * @param port The port, or -1 if not defined.
-     * @param ssl  Whether to connect with SSL. This is used to find the default port if not otherwise specified.
      * @return The resolved address.
      * @throws HTTPRequestException If the host is not malformed.
      */
     @VisibleForTesting
-    static InetSocketAddress getAddress(String host, int port, boolean ssl) throws HTTPRequestException {
-        if (port < 0) port = ssl ? 443 : 80;
+    static InetSocketAddress getAddress(String host, int port) throws HTTPRequestException {
         var socketAddress = new InetSocketAddress(host, port);
         if (socketAddress.isUnresolved()) throw new HTTPRequestException("Unknown host");
         if (socketAddress.getAddress() instanceof Inet6Address inet6 && (inet6.getScopedInterface() != null || inet6.getScopeId() != 0)) {
@@ -158,11 +149,11 @@ public final class NetworkUtils {
      * Get options for a specific domain.
      *
      * @param host    The host to resolve.
-     * @param address The address, resolved by {@link #getAddress(String, int, boolean)}.
+     * @param address The address, resolved by {@link #getAddress(String, int)}.
      * @return The options for this host.
      * @throws HTTPRequestException If the host is not permitted
      */
-    public Options getOptions(String host, InetSocketAddress address) throws HTTPRequestException {
+    private Options getOptions(String host, InetSocketAddress address) throws HTTPRequestException {
         var options = AddressRule.apply(netty.getConfig().addressRules(), host, address);
         if (options.action() == Action.DENY) throw new HTTPRequestException("Domain not permitted");
         return options;
@@ -207,7 +198,7 @@ public final class NetworkUtils {
     }
 
     /**
-     * Connect to a socket using the supplied {@link ConnectionInfo} from {@link #getConnectionInfo(URI, boolean, int)}.
+     * Connect to a socket using the supplied {@link ConnectionInfo} from {@link #getConnectionInfo(HttpUri, int)}.
      *
      * @param conn      The connection info.
      * @param configure A function to configure the channel.
@@ -215,7 +206,7 @@ public final class NetworkUtils {
      */
     public ChannelFuture connect(ConnectionInfo conn, Consumer<SocketChannel> configure) {
         return new Bootstrap()
-            .group(NetworkUtils.LOOP_GROUP)
+            .group(LOOP_GROUP)
             .channelFactory(NioSocketChannel::new)
             .handler(new ChannelInitializer<SocketChannel>() {
                 @Override
@@ -261,8 +252,8 @@ public final class NetworkUtils {
 
         if (conn.proxy() != null) conn.proxy().accept(ch);
 
-        if (sslContext != null) {
-            p.addLast(makeSslHandler(ch, sslContext, conn.timeout(), conn.uri().getHost(), conn.address().getPort()));
+        if (conn.sslContext() != null) {
+            p.addLast(makeSslHandler(ch, conn.sslContext(), conn.timeout(), conn.uri().getHost(), conn.address().getPort()));
         }
     }
 

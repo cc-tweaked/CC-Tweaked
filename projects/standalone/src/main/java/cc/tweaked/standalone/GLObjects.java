@@ -4,12 +4,14 @@
 
 package cc.tweaked.standalone;
 
+import dan200.computercraft.core.util.Nullability;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL45C;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -79,6 +81,12 @@ public class GLObjects implements AutoCloseable {
         return texture;
     }
 
+    private InputStream getResource(String path) throws IOException {
+        var stream = Nullability.assertNonNull(getClass().getClassLoader()).getResourceAsStream(path);
+        if (stream == null) throw new IOException("Cannot find " + path);
+        return stream;
+    }
+
     /**
      * Create a texture, loading it from an image.
      *
@@ -88,8 +96,7 @@ public class GLObjects implements AutoCloseable {
      */
     public int loadTexture(String path) throws IOException {
         BufferedImage image;
-        try (var stream = getClass().getClassLoader().getResourceAsStream(path)) {
-            if (stream == null) throw new IOException("Cannot find " + path);
+        try (var stream = getResource(path)) {
             image = ImageIO.read(stream);
         }
 
@@ -122,8 +129,7 @@ public class GLObjects implements AutoCloseable {
      */
     public int compileShader(int type, String path) throws IOException {
         String contents;
-        try (var stream = getClass().getClassLoader().getResourceAsStream(path)) {
-            if (stream == null) throw new IOException("Could not load shader " + path);
+        try (var stream = getResource(path)) {
             contents = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
         }
 

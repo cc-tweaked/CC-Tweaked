@@ -8,19 +8,19 @@ import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
+import dan200.computercraft.core.util.ThreadUtils;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 
 public class ComputerThreadRunner implements AutoCloseable {
     private final ComputerThread thread;
 
-    private final Lock errorLock = new ReentrantLock();
+    private final Lock errorLock = ThreadUtils.newReentrantLock("ComputerThreadRunner.errorLock");
     private final @GuardedBy("errorLock") Condition hasError = errorLock.newCondition();
     @GuardedBy("errorLock")
     private @MonotonicNonNull Throwable error = null;

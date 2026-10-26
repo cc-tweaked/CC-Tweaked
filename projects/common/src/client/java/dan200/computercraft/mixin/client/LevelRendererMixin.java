@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.At;
  * @see LevelRenderer#submitBlockDestroyAnimation(PoseStack, SubmitNodeCollector, LevelRenderState)
  */
 @Mixin(LevelRenderer.class)
-public class LevelRendererMixin {
+abstract class LevelRendererMixin {
     @ModifyExpressionValue(
         method = "submitBlockDestroyAnimation", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;")
     )

@@ -10,6 +10,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 
@@ -85,5 +86,18 @@ public sealed interface UpgradeType<T extends UpgradeBase> permits UpgradeTypeIm
         return create(Item.CODEC
             .xmap(x -> factory.apply(new ItemStackTemplate(x, 1, DataComponentPatch.EMPTY)), x -> x.getCraftingItem().item())
             .fieldOf("item"));
+    }
+
+    /**
+     * Create an upgrade type for a simple upgrade whose crafting item can be specified.
+     *
+     * @param factory Generate a new upgrade with a specific ID and crafting item. The returned upgrade's
+     *                {@link UpgradeBase#getCraftingIngredient()} <strong>MUST</strong> equal the provided item.
+     * @param <T>     The type of the generated upgrade.
+     * @return A new upgrade type.
+     * @see #simple(UpgradeBase)  For upgrades whose crafting stack should not vary.
+     */
+    static <T extends UpgradeBase> UpgradeType<T> simpleWithCustomIngredient(Function<Ingredient, T> factory) {
+        return create(Ingredient.CODEC.xmap(factory, UpgradeBase::getCraftingIngredient).fieldOf("item"));
     }
 }

@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * @see NbtUtils#structureToSnbt(CompoundTag)
  */
 @Mixin(NbtUtils.class)
-class NbtUtilsMixin {
+abstract class NbtUtilsMixin {
     @Inject(method = "structureToSnbt", at = @At("HEAD"))
     @SuppressWarnings("unused")
     private static void structureToSnbt(CompoundTag tag, CallbackInfoReturnable<String> ci) {

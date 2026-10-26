@@ -14,8 +14,9 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.util.PeripheralHelpers;
+import dan200.computercraft.impl.AbstractUpgradeHolder;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -26,7 +27,6 @@ import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
@@ -45,10 +45,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
@@ -74,7 +71,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     private final Queue<TurtleCommandQueueEntry> commandQueue = new ArrayDeque<>();
     private int commandsIssued = 0;
 
-    private final UpgradeInstance[] upgrades = { new UpgradeInstance(), new UpgradeInstance() };
+    private final Map<TurtleSide, UpgradeHolder> upgrades = new EnumMap<>(TurtleSide.class);
 
     private int selectedSlot = 0;
     private int fuelLevel = 0;
@@ -105,7 +102,9 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     public void setupComputer(ServerComputer computer) {
-        updatePeripherals(computer);
+        for (var side : TurtleSide.values()) {
+            computer.setPeripheral(toDirection(side), getPeripheral(side));
+        }
     }
 
     public void update() {
@@ -124,8 +123,8 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         // Advance upgrades
         for (var side : TurtleSide.values()) {
-            var upgrade = upgrades[side.ordinal()].upgrade;
-            if (upgrade != null) upgrade.value().update(this, side);
+            var upgrade = upgrades.get(side);
+            if (upgrade != null) upgrade.getUpgrade().update(this, side);
         }
     }
 
@@ -442,13 +441,14 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public @Nullable ITurtleUpgrade getUpgrade(TurtleSide side) {
-        var upgrade = upgrades[side.ordinal()].upgrade;
-        return upgrade == null ? null : upgrade.value();
+        var upgrade = upgrades.get(side);
+        return upgrade == null ? null : upgrade.getUpgrade();
     }
 
     @Override
     public @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side) {
-        return upgrades[side.ordinal()].getUpgrade();
+        var upgrade = upgrades.get(side);
+        return upgrade == null ? null : upgrade.getUpgradeData();
     }
 
     @Override
@@ -466,16 +466,25 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     private boolean setUpgradeDirect(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
-        // Remove old upgrade
-        var instance = upgrades[side.ordinal()];
-        if (instance.upgrade == null && upgrade == null) return false;
+        var oldUpgrade = upgrades.get(side);
+        if (Objects.equals(oldUpgrade == null ? null : oldUpgrade.getUpgradeData(), upgrade)) return false;
 
         // Set new upgrade
-        instance.setUpgrade(upgrade);
+        UpgradeHolder holder;
+        if (upgrade != null) {
+            upgrades.put(side, holder = new UpgradeHolder(side, upgrade));
+        } else {
+            upgrades.remove(side);
+            holder = null;
+        }
 
-        // Create peripherals
+        // Create peripheral and update the computer. We *always* create a peripheral, even if the computer is not
+        // active, so that getPeripheral doesn't return null.
         if (owner.getLevel() != null && !owner.getLevel().isClientSide()) {
-            updatePeripherals(owner.createServerComputer());
+            var peripheral = holder == null ? null : (holder.peripheral = holder.getUpgrade().createPeripheral(this, side));
+
+            var computer = owner.getServerComputer();
+            if (computer != null) computer.setPeripheral(toDirection(side), peripheral);
         }
 
         return true;
@@ -483,21 +492,43 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public @Nullable IPeripheral getPeripheral(TurtleSide side) {
-        return upgrades[side.ordinal()].peripheral;
+        var upgrade = upgrades.get(side);
+        return upgrade == null ? null : upgrade.peripheral;
+    }
+
+    private void requirePresent() {
+        // This function may be called from the client (i.e. within a turtle modeller), in which case we always allow
+        // it.
+        var server = getLevel().getServer();
+        if (server == null) return;
+
+        if (!server.isSameThread()) throw new IllegalStateException("Must be called from the main thread");
+        if (isRemoved()) throw new IllegalStateException("Turtle has been removed");
     }
 
     @Override
+    public @Nullable UpgradeHandle<ITurtleUpgrade> getUpgradeHandle(TurtleSide side) {
+        requirePresent();
+        var upgrade = upgrades.get(side);
+        return upgrade == null ? null : upgrade.getHandle();
+    }
+
+    @Override
+    @Deprecated
     public DataComponentPatch getUpgradeData(TurtleSide side) {
-        return upgrades[side.ordinal()].data;
+        var upgrade = upgrades.get(side);
+        return upgrade == null ? DataComponentPatch.EMPTY : upgrade.getData();
     }
 
     @Override
+    @Deprecated
     public void setUpgradeData(TurtleSide side, DataComponentPatch data) {
-        var upgrade = upgrades[side.ordinal()];
-        if (Objects.equals(upgrade.data, data)) return;
+        var upgrade = upgrades.get(side);
+        if (upgrade == null || Objects.equals(upgrade.getData(), data)) return;
 
-        upgrade.data = data;
-        upgrade.cachedUpgradeData = null;
+        upgrade.setData(data);
+        upgrade.recomputeItem();
+
         BlockEntityHelpers.updateBlock(owner);
     }
 
@@ -536,31 +567,6 @@ public class TurtleBrain implements TurtleAccessInternal {
             case LEFT -> ComputerSide.LEFT;
             case RIGHT -> ComputerSide.RIGHT;
         };
-    }
-
-    private void updatePeripherals(ServerComputer serverComputer) {
-        if (serverComputer == null) return;
-
-        // Update peripherals
-        for (var side : TurtleSide.values()) {
-            var upgrade = getUpgrade(side);
-            IPeripheral peripheral = null;
-            if (upgrade != null && upgrade.getUpgradeType().isPeripheral()) {
-                peripheral = upgrade.createPeripheral(this, side);
-            }
-
-            var instance = upgrades[side.ordinal()];
-            if (PeripheralHelpers.equals(instance.peripheral, peripheral)) {
-                // If the peripheral is the same, just use that.
-                peripheral = instance.peripheral;
-            } else {
-                // Otherwise update our map
-                instance.peripheral = peripheral;
-            }
-
-            // Always update the computer: it may not be the same computer as before!
-            serverComputer.setPeripheral(toDirection(side), peripheral);
-        }
     }
 
     private void updateCommands() {
@@ -671,17 +677,15 @@ public class TurtleBrain implements TurtleAccessInternal {
                 var currentHoliday = Holiday.getCurrent();
                 if (currentHoliday == Holiday.VALENTINES) {
                     var position = getVisualPosition(1.0f);
-                    if (position != null) {
-                        var x = position.x + world.getRandom().nextGaussian() * 0.1;
-                        var y = position.y + 0.5 + world.getRandom().nextGaussian() * 0.1;
-                        var z = position.z + world.getRandom().nextGaussian() * 0.1;
-                        world.addParticle(
-                            ParticleTypes.HEART, x, y, z,
-                            world.getRandom().nextGaussian() * 0.02,
-                            world.getRandom().nextGaussian() * 0.02,
-                            world.getRandom().nextGaussian() * 0.02
-                        );
-                    }
+                    var x = position.x + world.getRandom().nextGaussian() * 0.1;
+                    var y = position.y + 0.5 + world.getRandom().nextGaussian() * 0.1;
+                    var z = position.z + world.getRandom().nextGaussian() * 0.1;
+                    world.addParticle(
+                        ParticleTypes.HEART, x, y, z,
+                        world.getRandom().nextGaussian() * 0.02,
+                        world.getRandom().nextGaussian() * 0.02,
+                        world.getRandom().nextGaussian() * 0.02
+                    );
                 }
             }
 
@@ -719,7 +723,7 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
 
         @Override
-        public MethodResult resume(Object[] response) {
+        public MethodResult resume(@Nullable Object[] response) {
             if (response.length < 3 || !(response[1] instanceof Number id) || !(response[2] instanceof Boolean)) {
                 return pull;
             }
@@ -730,32 +734,29 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
     }
 
-    private static final class UpgradeInstance {
-        private Holder.@Nullable Reference<ITurtleUpgrade> upgrade;
-        private DataComponentPatch data = DataComponentPatch.EMPTY;
+    private final class UpgradeHolder extends AbstractUpgradeHolder<ITurtleUpgrade> {
+        private final TurtleSide side;
         private @Nullable IPeripheral peripheral;
 
-        private @Nullable UpgradeData<ITurtleUpgrade> cachedUpgradeData;
-
-        private void setUpgrade(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
-            if (upgrade == null) {
-                this.upgrade = null;
-                data = DataComponentPatch.EMPTY;
-                cachedUpgradeData = null;
-            } else {
-                this.upgrade = upgrade.holder();
-                this.data = upgrade.data();
-                this.cachedUpgradeData = upgrade;
-            }
+        private UpgradeHolder(TurtleSide side, UpgradeData<ITurtleUpgrade> upgrade) {
+            super(upgrade);
+            this.side = side;
         }
 
-        private @Nullable UpgradeData<ITurtleUpgrade> getUpgrade() {
-            if (upgrade == null) return null;
+        @Override
+        protected void requireValid() {
+            if (upgrades.get(side) != this) throw new IllegalStateException("Upgrade is no longer present");
+            requirePresent();
+        }
 
-            var cached = cachedUpgradeData;
-            if (cached != null) return cached;
+        @Override
+        protected void setChanged() {
+            BlockEntityHelpers.updateBlock(owner);
+        }
 
-            return cachedUpgradeData = UpgradeData.of(upgrade, data);
+        @Override
+        protected void remove() {
+            setUpgrade(side, null);
         }
     }
 }

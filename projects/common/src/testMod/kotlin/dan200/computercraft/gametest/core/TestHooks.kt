@@ -51,7 +51,7 @@ object TestHooks {
     val sourceDir: Path = Paths.get(System.getProperty("cctest.sources")).normalize().toAbsolutePath()
 
     @JvmStatic
-    fun init() {
+    fun init(loader: String) {
         ServerContext.luaMachine = ManagedComputers
         ComputerCraftAPI.registerAPIFactory(::TestAPI)
 
@@ -64,7 +64,7 @@ object TestHooks {
             try {
                 GlobalTestReporter.replaceWith(
                     MultiTestReporter(
-                        JunitTestReporter(File(outputPath)),
+                        OtrTestReporter("$loader gametests", File(outputPath)),
                         LogTestReporter(),
                     ),
                 )

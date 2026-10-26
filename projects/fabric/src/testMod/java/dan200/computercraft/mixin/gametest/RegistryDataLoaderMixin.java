@@ -22,7 +22,7 @@ import java.util.Map;
  * instead.
  */
 @Mixin(RegistryDataLoader.class)
-class RegistryDataLoaderMixin {
+abstract class RegistryDataLoaderMixin {
     @Inject(method = "lambda$load$2", at = @At("HEAD"))
     @SuppressWarnings("unused")
     private static void beforeFreeze(

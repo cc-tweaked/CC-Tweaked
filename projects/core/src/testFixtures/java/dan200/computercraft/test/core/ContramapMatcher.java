@@ -6,6 +6,7 @@ package dan200.computercraft.test.core;
 
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -16,7 +17,7 @@ import java.util.function.Function;
  * @param <T> The type of the object to be matched.
  * @param <U> The type of the projection/field to be matched.
  */
-public final class ContramapMatcher<T, U> extends FeatureMatcher<T, U> {
+public final class ContramapMatcher<T, U extends @Nullable Object> extends FeatureMatcher<T, U> {
     private final Function<T, U> convert;
 
     public ContramapMatcher(String desc, Function<T, U> convert, Matcher<U> matcher) {
@@ -29,11 +30,11 @@ public final class ContramapMatcher<T, U> extends FeatureMatcher<T, U> {
         return convert.apply(actual);
     }
 
-    public static <T, U> Matcher<T> contramap(Matcher<U> matcher, String desc, Function<T, U> convert) {
+    public static <T, U extends @Nullable Object> Matcher<T> contramap(Matcher<U> matcher, String desc, Function<T, U> convert) {
         return new ContramapMatcher<>(desc, convert, matcher);
     }
 
-    public static <T, U> Matcher<T> contramap(Matcher<U> matcher, Function<T, U> convert) {
+    public static <T, U extends @Nullable Object> Matcher<T> contramap(Matcher<U> matcher, Function<T, U> convert) {
         return new ContramapMatcher<>("-f(_)->", convert, matcher);
     }
 }

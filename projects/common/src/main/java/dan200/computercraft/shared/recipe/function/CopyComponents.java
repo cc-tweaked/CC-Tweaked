@@ -78,7 +78,7 @@ public final class CopyComponents implements RecipeFunction {
     }
 
     @Override
-    public Type<?> getType() {
+    public Type<CopyComponents> getType() {
         return ModRegistry.RecipeFunctions.COPY_COMPONENTS.get();
     }
 

@@ -95,7 +95,7 @@ public final class StandaloneModel {
         }
 
         @Override
-        public boolean equals(Object other) {
+        public boolean equals(@Nullable Object other) {
             return other instanceof CacheKey(var otherModel) && model() == otherModel;
         }
 

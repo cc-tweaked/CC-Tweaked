@@ -63,7 +63,7 @@ public final class FabricItemContainer implements ItemContainer {
 
     @Override
     public int getCapacity(int slot) {
-        return saturatingToInt(getSlot(slot).getCapacity());
+        return Ints.saturatedCast(getSlot(slot).getCapacity());
     }
 
     @Override
@@ -105,15 +105,11 @@ public final class FabricItemContainer implements ItemContainer {
             // Extract or rollback.
             if (from.extract(resource, accepted, transaction) == accepted) {
                 transaction.commit();
-                return saturatingToInt(accepted);
+                return Ints.saturatedCast(accepted);
             }
 
             return NO_SPACE;
         }
-    }
-
-    private static int saturatingToInt(long value) {
-        return value > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) value;
     }
 
     private static final class OffsetStorage extends BasicSlottedStorage {

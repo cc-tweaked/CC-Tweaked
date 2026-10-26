@@ -35,6 +35,7 @@ import java.util.function.Consumer;
  * @see IPeripheral#detach(IComputerAccess)
  */
 public final class AttachedComputerSet {
+    @SuppressWarnings("ForbiddenAPI") // We don't have access to ThreadUtils here.
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final Set<IComputerAccess> computers = new HashSet<>(0);
 

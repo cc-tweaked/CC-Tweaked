@@ -33,9 +33,9 @@ class UpgradeDisplayGenerator implements DynamicDisplayGenerator<CraftingDisplay
         return entry.getType() == VanillaEntryTypes.ITEM ? Optional.of(resolver.findRecipesWithInput(entry.castValue())) : Optional.empty();
     }
 
-    private static CraftingDisplay makeDisplay(int width, int height, List<ItemStackTemplate> ingredients, ItemStackTemplate result) {
+    private static CraftingDisplay makeDisplay(int width, int height, List<UpgradeRecipeGenerator.InputItem> ingredients, ItemStackTemplate result) {
         return new DefaultCustomShapedDisplay(
-            ingredients.stream().map(EntryIngredients::of).toList(),
+            ingredients.stream().map(x -> EntryIngredients.ofSlotDisplay(x.display())).toList(),
             List.of(EntryIngredients.of(result)),
             Optional.empty(),
             width,

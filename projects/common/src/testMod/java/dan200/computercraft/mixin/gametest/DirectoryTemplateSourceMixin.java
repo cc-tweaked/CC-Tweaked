@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Mixin(DirectoryTemplateSource.class)
-class DirectoryTemplateSourceMixin {
+abstract class DirectoryTemplateSourceMixin {
     /**
      * Add missing {@link Blocks#AIR} to our "reduced" game test structures.
      *

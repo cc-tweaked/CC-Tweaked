@@ -21,6 +21,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.command.UserLevel;
@@ -96,10 +97,7 @@ import dan200.computercraft.shared.turtle.core.TurtleAccessInternal;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
-import dan200.computercraft.shared.turtle.upgrades.TurtleCraftingTable;
-import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
-import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
-import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
+import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import dan200.computercraft.shared.util.NonNegativeId;
 import dan200.computercraft.shared.util.StorageCapacity;
@@ -135,7 +133,6 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.*;
 
@@ -475,11 +472,13 @@ public final class ModRegistry {
         static final RegistrationHelper<UpgradeType<? extends ITurtleUpgrade>> REGISTRY = PlatformHelper.get().createRegistrationHelper(ITurtleUpgrade.typeRegistry());
 
         public static final RegistryEntry<UpgradeType<TurtleSpeaker>> SPEAKER =
-            REGISTRY.register("speaker", () -> UpgradeType.simpleWithCustomItem(TurtleSpeaker::new));
+            REGISTRY.register("speaker", () -> UpgradeType.simpleWithCustomIngredient(TurtleSpeaker::new));
         public static final RegistryEntry<UpgradeType<TurtleCraftingTable>> WORKBENCH =
-            REGISTRY.register("workbench", () -> UpgradeType.simpleWithCustomItem(TurtleCraftingTable::new));
+            REGISTRY.register("workbench", () -> UpgradeType.simpleWithCustomIngredient(TurtleCraftingTable::new));
         public static final RegistryEntry<UpgradeType<TurtleModem>> WIRELESS_MODEM =
             REGISTRY.register("wireless_modem", () -> UpgradeType.create(TurtleModem.CODEC));
+        public static final RegistryEntry<UpgradeType<TurtleStorage>> STORAGE =
+            REGISTRY.register("storage", () -> UpgradeType.simpleWithCustomIngredient(TurtleStorage::new));
 
         public static final RegistryEntry<UpgradeType<TurtleTool>> TOOL = REGISTRY.register("tool", () -> UpgradeType.create(TurtleTool.CODEC));
     }
@@ -488,7 +487,7 @@ public final class ModRegistry {
         static final RegistrationHelper<UpgradeType<? extends IPocketUpgrade>> REGISTRY = PlatformHelper.get().createRegistrationHelper(IPocketUpgrade.typeRegistry());
 
         public static final RegistryEntry<UpgradeType<PocketSpeaker>> SPEAKER =
-            REGISTRY.register("speaker", () -> UpgradeType.simpleWithCustomItem(PocketSpeaker::new));
+            REGISTRY.register("speaker", () -> UpgradeType.simpleWithCustomIngredient(PocketSpeaker::new));
         public static final RegistryEntry<UpgradeType<PocketModem>> WIRELESS_MODEM = REGISTRY.register("wireless_modem", () -> UpgradeType.create(PocketModem.CODEC));
     }
 
@@ -536,7 +535,7 @@ public final class ModRegistry {
         static {
             register("tracking_field", TrackingFieldArgumentType.class, TrackingFieldArgumentType.metric());
             register("computer", ComputerArgumentType.class, ComputerArgumentType.get());
-            registerUnsafe("repeat", RepeatArgumentType.class, new RepeatArgumentType.TypeInfo());
+            registerUnsafe("repeat", RepeatArgumentType.class, RepeatArgumentType.type());
         }
     }
 
@@ -652,7 +651,7 @@ public final class ModRegistry {
 
         ComputerCraftAPI.registerAPIFactory(computer -> {
             var turtle = computer.getComponent(ComputerComponents.TURTLE);
-            var metrics = Objects.requireNonNull(computer.getComponent(ServerComputer.METRICS));
+            var metrics = Nullability.assertNonNull(computer.getComponent(ServerComputer.METRICS));
             return turtle == null ? null : new TurtleAPI(metrics, (TurtleAccessInternal) turtle);
         });
 

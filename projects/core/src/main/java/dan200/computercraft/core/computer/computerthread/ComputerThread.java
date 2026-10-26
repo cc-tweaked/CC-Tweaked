@@ -100,7 +100,7 @@ public final class ComputerThread implements ComputerScheduler {
     /**
      * Lock used for modifications to the array of current threads.
      */
-    private final ReentrantLock threadLock = new ReentrantLock();
+    private final ReentrantLock threadLock = ThreadUtils.newReentrantLock("ComputerThread.threadLock");
 
     private static final int RUNNING = 0;
     private static final int STOPPING = 1;
@@ -120,7 +120,7 @@ public final class ComputerThread implements ComputerScheduler {
      * The array of current workers, and their owning threads.
      */
     @GuardedBy("threadLock")
-    private final WorkerThread[] workers;
+    private final @Nullable WorkerThread[] workers;
 
     /**
      * The number of workers in {@link #workers}.
@@ -133,7 +133,7 @@ public final class ComputerThread implements ComputerScheduler {
     private final long latency;
     private final long minPeriod;
 
-    private final ReentrantLock computerLock = new ReentrantLock();
+    private final ReentrantLock computerLock = ThreadUtils.newReentrantLock("ComputerThread.computerLock");
     private final @GuardedBy("computerLock") Condition workerWakeup = computerLock.newCondition();
     private final @GuardedBy("computerLock") Condition monitorWakeup = computerLock.newCondition();
 
@@ -187,7 +187,7 @@ public final class ComputerThread implements ComputerScheduler {
     }
 
     @SuppressWarnings("GuardedBy")
-    private WorkerThread[] workersReadOnly() {
+    private @Nullable WorkerThread[] workersReadOnly() {
         return workers;
     }
 
@@ -204,7 +204,9 @@ public final class ComputerThread implements ComputerScheduler {
         try {
             LOG.trace("Possibly spawning a worker or monitor.");
 
-            if (monitor == null || !monitor.isAlive()) (monitor = monitorFactory.newThread(new Monitor())).start();
+            if (monitor == null || !monitor.isAlive()) {
+                (monitor = Objects.requireNonNull(monitorFactory.newThread(new Monitor()), "Cannot create monitor thread")).start();
+            }
             if (idleWorkers.get() == 0 || workerCount < workers.length) {
                 for (var i = 0; i < workers.length; i++) {
                     if (workers[i] == null) {
@@ -575,7 +577,7 @@ public final class ComputerThread implements ComputerScheduler {
         /**
          * The computer we're currently running.
          */
-        final AtomicReference<ExecutorImpl> currentExecutor = new AtomicReference<>(null);
+        final AtomicReference<@Nullable ExecutorImpl> currentExecutor = new AtomicReference<>(null);
 
         /**
          * The last time we reported a stack trace, used to avoid spamming the logs.
@@ -584,7 +586,7 @@ public final class ComputerThread implements ComputerScheduler {
 
         WorkerThread(int index) {
             this.index = index;
-            owner = workerFactory.newThread(this);
+            owner = Objects.requireNonNull(workerFactory.newThread(this), "Cannot create thread");
         }
 
         @Override

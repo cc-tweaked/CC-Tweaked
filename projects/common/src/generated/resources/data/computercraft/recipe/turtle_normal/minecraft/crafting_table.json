@@ -5,7 +5,12 @@
   "key": {"#": "minecraft:crafting_table", "T": "computercraft:turtle_normal"},
   "pattern": ["#T"],
   "result": {
-    "components": {"computercraft:right_turtle_upgrade": {"id": "minecraft:crafting_table"}},
+    "components": {
+      "computercraft:right_turtle_upgrade": {
+        "id": "minecraft:crafting_table",
+        "item": {"id": "minecraft:crafting_table"}
+      }
+    },
     "id": "computercraft:turtle_normal"
   }
 }

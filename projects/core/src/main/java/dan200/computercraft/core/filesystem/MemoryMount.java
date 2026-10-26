@@ -188,7 +188,7 @@ public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEnt
 
     private long computeUsedSpace() {
         Queue<FileEntry> queue = new ArrayDeque<>();
-        queue.add(root);
+        queue.add(Nullability.assertNonNull(root));
 
         long size = 0;
 

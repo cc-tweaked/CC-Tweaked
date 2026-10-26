@@ -34,7 +34,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
 
     @Override
     public void onInitialize() {
-        TestHooks.init();
+        TestHooks.init("Fabric");
 
         var phase = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "test_mod");
         ServerLifecycleEvents.SERVER_STARTED.addPhaseOrdering(Event.DEFAULT_PHASE, phase);

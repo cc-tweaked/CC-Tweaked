@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FirstPersonHandsAndItemsRenderer.class)
-class FirstPersonHandsAndItemsRendererMixin {
+abstract class FirstPersonHandsAndItemsRendererMixin {
     @Inject(method = "submitArmWithItem", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings("unused")
     private void onSubmitArmWithItem(

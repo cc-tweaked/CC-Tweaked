@@ -92,7 +92,7 @@ public final class ForgeItemContainer implements ItemContainer {
         return move(handler, fromSlot, ((ForgeItemContainer) destination).handler, maxAmount);
     }
 
-    private static int move(ResourceHandler<ItemResource> from, int fromSlot, ResourceHandler<ItemResource> to, int maxAmount) {
+    public static int move(ResourceHandler<ItemResource> from, int fromSlot, ResourceHandler<ItemResource> to, int maxAmount) {
         var resource = from.getResource(fromSlot);
         if (resource.isEmpty()) return NO_ITEMS;
 

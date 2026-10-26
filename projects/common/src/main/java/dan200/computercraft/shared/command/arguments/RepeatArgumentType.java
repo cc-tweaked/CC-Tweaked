@@ -24,38 +24,26 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 /**
  * Reads one argument multiple times.
  * <p>
  * Note that this must be the last element in an argument chain: in order to improve the quality of error messages,
  * we will always try to consume another argument while there is input remaining.
- * <p>
- * One problem with how parsers function, is that they must consume some input: and thus we
  *
- * @param <T> The type of each value returned
- * @param <U> The type of the inner parser. This will normally be a {@link List} or {@code T}.
+ * @param <T> The type of each value returned.
  */
-public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
-    private final ArgumentType<U> child;
-    private final BiConsumer<List<T>, U> appender;
-    private final boolean flatten;
+public final class RepeatArgumentType<T> implements ArgumentType<List<T>> {
+    private final ArgumentType<T> child;
     private final SimpleCommandExceptionType some;
 
-    private RepeatArgumentType(ArgumentType<U> child, BiConsumer<List<T>, U> appender, boolean flatten, SimpleCommandExceptionType some) {
+    private RepeatArgumentType(ArgumentType<T> child, SimpleCommandExceptionType some) {
         this.child = child;
-        this.appender = appender;
-        this.flatten = flatten;
         this.some = some;
     }
 
-    public static <T> RepeatArgumentType<T, T> some(ArgumentType<T> appender, SimpleCommandExceptionType missing) {
-        return new RepeatArgumentType<>(appender, List::add, false, missing);
-    }
-
-    public static <T> RepeatArgumentType<T, List<T>> someFlat(ArgumentType<List<T>> appender, SimpleCommandExceptionType missing) {
-        return new RepeatArgumentType<>(appender, List::addAll, true, missing);
+    public static <T> RepeatArgumentType<T> some(ArgumentType<T> appender, SimpleCommandExceptionType missing) {
+        return new RepeatArgumentType<>(appender, missing);
     }
 
     @Override
@@ -67,7 +55,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
             if (!reader.canRead()) break;
 
             var startParse = reader.getCursor();
-            appender.accept(out, child.parse(reader));
+            out.add(child.parse(reader));
             hadSome = true;
 
             if (reader.getCursor() == startParse) {
@@ -110,47 +98,49 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
         return child.getExamples();
     }
 
-    public static class TypeInfo implements ArgumentTypeInfo<RepeatArgumentType<?, ?>, Template> {
+    public static <T> ArgumentTypeInfo<RepeatArgumentType<T>, ? extends ArgumentTypeInfo.Template<RepeatArgumentType<T>>> type() {
+        return new TypeInfo<>();
+    }
+
+    private static final class TypeInfo<T> implements ArgumentTypeInfo<RepeatArgumentType<T>, Template<T>> {
         @Override
-        public void serializeToNetwork(RepeatArgumentType.Template arg, FriendlyByteBuf buf) {
-            buf.writeBoolean(arg.flatten);
+        public void serializeToNetwork(RepeatArgumentType.Template<T> arg, FriendlyByteBuf buf) {
             ArgumentUtils.serializeToNetwork(buf, arg.child);
             ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.encode(buf, ArgumentUtils.getMessage(arg.some));
         }
 
         @Override
-        public RepeatArgumentType.Template deserializeFromNetwork(FriendlyByteBuf buf) {
-            var isList = buf.readBoolean();
-            var child = ArgumentUtils.deserialize(buf);
+        public RepeatArgumentType.Template<T> deserializeFromNetwork(FriendlyByteBuf buf) {
+            @SuppressWarnings("unchecked")
+            var child = (ArgumentTypeInfo.Template<ArgumentType<T>>) ArgumentUtils.deserialize(buf);
+
             var message = ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.decode(buf);
-            return new RepeatArgumentType.Template(this, child, isList, new SimpleCommandExceptionType(message));
+            return new RepeatArgumentType.Template<>(this, child, new SimpleCommandExceptionType(message));
         }
 
         @Override
-        public RepeatArgumentType.Template unpack(RepeatArgumentType<?, ?> argumentType) {
-            return new RepeatArgumentType.Template(this, ArgumentTypeInfos.unpack(argumentType.child), argumentType.flatten, argumentType.some);
+        public RepeatArgumentType.Template<T> unpack(RepeatArgumentType<T> argumentType) {
+            return new RepeatArgumentType.Template<T>(this, ArgumentTypeInfos.unpack(argumentType.child), argumentType.some);
         }
 
         @Override
-        public void serializeToJson(RepeatArgumentType.Template arg, JsonObject json) {
-            json.addProperty("flatten", arg.flatten);
+        public void serializeToJson(RepeatArgumentType.Template<T> arg, JsonObject json) {
             json.add("child", ArgumentUtils.serializeToJson(arg.child));
             json.add("error", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, ArgumentUtils.getMessage(arg.some)).getOrThrow());
         }
     }
 
-    public record Template(
-        TypeInfo info, ArgumentTypeInfo.Template<?> child, boolean flatten, SimpleCommandExceptionType some
-    ) implements ArgumentTypeInfo.Template<RepeatArgumentType<?, ?>> {
+    private record Template<T>(
+        TypeInfo<T> info, ArgumentTypeInfo.Template<ArgumentType<T>> child, SimpleCommandExceptionType some
+    ) implements ArgumentTypeInfo.Template<RepeatArgumentType<T>> {
         @Override
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        public RepeatArgumentType<?, ?> instantiate(CommandBuildContext commandBuildContext) {
+        public RepeatArgumentType<T> instantiate(CommandBuildContext commandBuildContext) {
             var child = child().instantiate(commandBuildContext);
-            return flatten ? RepeatArgumentType.someFlat((ArgumentType) child, some()) : RepeatArgumentType.some(child, some());
+            return RepeatArgumentType.some(child, some());
         }
 
         @Override
-        public ArgumentTypeInfo<RepeatArgumentType<?, ?>, ?> type() {
+        public ArgumentTypeInfo<RepeatArgumentType<T>, ?> type() {
             return info;
         }
     }

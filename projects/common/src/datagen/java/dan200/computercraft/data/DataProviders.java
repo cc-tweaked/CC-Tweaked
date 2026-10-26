@@ -14,7 +14,10 @@ import dan200.computercraft.client.model.LecternPrintoutModel;
 import dan200.computercraft.client.turtle.TurtleOverlay;
 import dan200.computercraft.data.client.BlockModelProvider;
 import dan200.computercraft.data.client.ItemModelProvider;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.inventory.UpgradeSlot;
+import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
+import net.minecraft.DetectedVersion;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
@@ -26,11 +29,18 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.metadata.PackMetadataGenerator;
 import net.minecraft.data.registries.RegistriesDatapackGenerator;
 import net.minecraft.data.registries.RegistryPatchGenerator;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.util.InclusiveRange;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 
 import java.util.Arrays;
@@ -52,15 +62,23 @@ public final class DataProviders {
     }
 
     public static void add(GeneratorSink generator) {
+        generator.add(out -> new PackMetadataGenerator(out)
+            .add(PackMetadataSection.CLIENT_TYPE, new PackMetadataSection(
+                Component.literal("CC: Tweaked"),
+                new InclusiveRange<>(DetectedVersion.BUILT_IN.packVersion(PackType.CLIENT_RESOURCES))
+            ))
+        );
+
         var worldRegistryPatch = RegistryPatchGenerator.createWorldLookup(
             generator.worldRegistries(),
             new RegistrySetBuilder()
                 .add(ITurtleUpgrade.REGISTRY, TurtleUpgradeProvider::register)
                 .add(IPocketUpgrade.REGISTRY, PocketUpgradeProvider::addUpgrades)
         );
+        var worldRegistries = worldRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::full);
 
         var reloadableRegistries = RegistryPatchGenerator.createReloadableLookup(
-            worldRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::full),
+            worldRegistries,
             generator.reloadableRegistries(),
             new RegistrySetBuilder()
                 .add(RecipeProvider.create())
@@ -98,6 +116,17 @@ public final class DataProviders {
         generator.addFromCodec("Turtle upgrade models", PackOutput.Target.RESOURCE_PACK, TurtleUpgradeModel.SOURCE, TurtleUpgradeModel.CODEC, TurtleUpgradeProvider::addModels);
 
         generator.addModels(BlockModelProvider::addBlockModels, ItemModelProvider::addItemModels);
+
+        var storagePack = generator.nestedDatapack(TurtleStorage.DATA_PACK_NAME);
+        storagePack.add(out -> PackMetadataGenerator.forFeaturePack(out, Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION)));
+
+        var storageRegistryPatch = RegistryPatchGenerator.createWorldLookup(worldRegistries, Util.make(new RegistrySetBuilder(), builder -> {
+            builder.add(ITurtleUpgrade.REGISTRY, bs -> bs.register(
+                TurtleUpgradeProvider.id("shulker"),
+                new TurtleStorage(Ingredient.of(bs.lookup(Registries.ITEM).getOrThrow(PlatformHelper.get().getRecipeIngredients().shulkerBox())))
+            ));
+        }));
+        storagePack.add(o -> RegistriesDatapackGenerator.forWorldLayer(o, storageRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::patches)));
     }
 
     @SafeVarargs
@@ -127,5 +156,7 @@ public final class DataProviders {
          * @see net.minecraft.client.data.models.ModelProvider
          */
         void addModels(Consumer<BlockModelGenerators> blocks, Consumer<ItemModelGenerators> items);
+
+        GeneratorSink nestedDatapack(String name);
     }
 }

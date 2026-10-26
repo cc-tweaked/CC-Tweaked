@@ -135,7 +135,7 @@ public class OSAPI implements ILuaAPI {
      * @param args The parameters of the event.
      * @cc.tparam string name The name of the event to queue.
      * @cc.param ... The parameters of the event. These can be any primitive type (boolean, number, string) as well as
-     *               tables. Other types (like functions), as well as metatables, will not be preserved.
+     * tables. Other types (like functions), as well as metatables, will not be preserved.
      * @cc.see os.pullEvent To pull the event queued
      */
     @LuaFunction
@@ -408,7 +408,6 @@ public class OSAPI implements ILuaAPI {
      * <pre>{@code
      * os.date("%A %d %B %Y") -- See the reference above!
      * }</pre>
-     *
      * @cc.usage Convert a timestamp to a table.
      * <pre>{@code
      * os.date("!*t", 1242534247)

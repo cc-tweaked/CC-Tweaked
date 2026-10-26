@@ -24,7 +24,7 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 @Mod("cctest")
 public class TestMod {
     public TestMod(IEventBus modBus) {
-        TestHooks.init();
+        TestHooks.init("Forge");
 
         var bus = NeoForge.EVENT_BUS;
         bus.addListener(EventPriority.LOW, (ServerStartedEvent e) -> TestHooks.onServerStarted(e.getServer()));

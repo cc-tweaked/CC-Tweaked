@@ -73,7 +73,7 @@ public abstract class NonNegativeId implements TooltipProvider {
 
     @Override
     @SuppressWarnings("EqualsGetClass") // We want to distinguish different subclasses.
-    public final boolean equals(Object o) {
+    public final boolean equals(@Nullable Object o) {
         return this == o || (o != null && getClass() == o.getClass() && id == ((NonNegativeId) o).id);
     }
 

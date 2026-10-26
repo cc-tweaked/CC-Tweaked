@@ -212,6 +212,7 @@ dependencies {
     // Ensure our test fixture dependencies are on the classpath
     "testAdditionalRuntimeClasspath"(libs.bundles.kotlin)
     "testAdditionalRuntimeClasspath"(libs.bundles.test)
+    "testAdditionalRuntimeClasspath"(libs.openTestReporting)
 
     "testWithIris"(libs.iris.forge)
     "testWithIris"(libs.sodium.forge)
@@ -252,7 +253,11 @@ tasks.test {
 tasks.verifyClassesMatch {
     options.errorprone {
         option("ModLoader", "forge")
+        check("NullAway", net.ltgt.gradle.errorprone.CheckSeverity.OFF) // FIXME: Disable for now, as it seems to crash on ResourceUtils.
     }
+
+    // Forge adds Holder.Reference.hashCode(), so INVOKEVIRTUAL points to a different method. This is fine.
+    ignoredFiles.add("dan200/computercraft/api/upgrades/UpgradeData.class")
 }
 
 val runGametest = tasks.named<JavaExec>("runGametest") {

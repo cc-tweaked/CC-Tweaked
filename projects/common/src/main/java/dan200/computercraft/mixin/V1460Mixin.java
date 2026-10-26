@@ -7,6 +7,7 @@ package dan200.computercraft.mixin;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.templates.TypeTemplate;
+import dan200.computercraft.shared.datafix.ComponentizationFixers;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlockEntity;
 import dan200.computercraft.shared.peripheral.printer.PrinterBlockEntity;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
@@ -24,14 +25,14 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * Register our item-contianing block entities.
+ * Register our item-containing block entities.
  *
  * @see DiskDriveBlockEntity
  * @see PrinterBlockEntity
  * @see TurtleBlockEntity
  */
 @Mixin(V1460.class)
-class V1460Mixin {
+abstract class V1460Mixin {
     @Inject(at = @At("RETURN"), method = "registerBlockEntities")
     @SuppressWarnings("UnusedMethod")
     private void registerBlockEntities(Schema schema, CallbackInfoReturnable<Map<String, Supplier<TypeTemplate>>> ci) {
@@ -49,21 +50,27 @@ class V1460Mixin {
         ));
     }
 
-    private static TypeTemplate upgradeData(Schema schema) {
-        return DSL.or(
-            // Pre-1.20.5 we just use the upgrade ID.
-            DSL.constType(NamespacedSchema.namespacedString()),
-            // In newer versions this is represented as a component.
-            DSL.optionalFields("components", References.DATA_COMPONENTS.in(schema))
-        );
+    private static TypeTemplate upgradeData(Schema schema, ComponentizationFixers.UpgradeKeys keys) {
+        if (schema.getVersionKey() >= ComponentizationFixers.SCHEMA_VERSION) {
+            // In newer versions this is represented in one field.
+            return DSL.optional(DSL.field(keys.id(), ComponentizationFixers.upgradeDataType(schema)));
+        } else {
+            // Pre-1.20.5 we store the upgrade ID and item separately
+            return DSL.and(
+                DSL.optional(DSL.field(keys.id(), DSL.constType(NamespacedSchema.namespacedString()))),
+                DSL.optional(DSL.field(keys.item(), References.ITEM_STACK.in(schema)))
+            );
+        }
     }
 
     @Unique
     private static void registerTurtle(Schema schema, Map<String, Supplier<TypeTemplate>> map, String name) {
-        schema.register(map, name, () -> DSL.optionalFields(
-            "LeftUpgrade", upgradeData(schema),
-            "RightUpgrade", upgradeData(schema),
-            "Items", DSL.list(References.ITEM_STACK.in(schema))
+        schema.register(map, name, () -> DSL.and(
+            upgradeData(schema, ComponentizationFixers.TURTLE_UPGRADE_LEFT),
+            upgradeData(schema, ComponentizationFixers.TURTLE_UPGRADE_RIGHT),
+            DSL.optionalFields(
+                "Items", DSL.list(References.ITEM_STACK.in(schema))
+            )
         ));
     }
 

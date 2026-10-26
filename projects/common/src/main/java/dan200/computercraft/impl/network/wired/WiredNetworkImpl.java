@@ -8,13 +8,13 @@ import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.util.Nullability;
+import dan200.computercraft.core.util.ThreadUtils;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 final class WiredNetworkImpl {
-    final ReadWriteLock lock = new ReentrantReadWriteLock();
+    final ReadWriteLock lock = ThreadUtils.newReentrantReadWriteLock("WiredNetworkImpl.lock");
     Set<WiredNodeImpl> nodes;
     private Map<String, IPeripheral> peripherals = new HashMap<>();
 

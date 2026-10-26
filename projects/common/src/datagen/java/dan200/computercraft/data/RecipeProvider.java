@@ -30,9 +30,9 @@ import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.predicates.ItemPredicate;
-import net.minecraft.advancements.triggers.Criterion;
-import net.minecraft.advancements.triggers.InventoryChangeTrigger;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
@@ -52,6 +52,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.List;
@@ -61,6 +62,7 @@ import java.util.function.Consumer;
 
 import static dan200.computercraft.api.ComputerCraftTags.Items.COMPUTER;
 import static dan200.computercraft.api.ComputerCraftTags.Items.WIRED_MODEM;
+import static net.minecraft.advancements.triggers.InventoryChangeTrigger.TriggerInstance.hasItems;
 
 final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     private final RecipeIngredients ingredients;
@@ -124,8 +126,8 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     .group(name.toString())
                     .pattern("#T")
                     .define('T', turtleItem)
-                    .define('#', upgrade.getCraftingItem().item().value())
-                    .unlockedBy("has_items", has(turtleItem, upgrade.getCraftingItem().item().value()))
+                    .define('#', upgrade.getCraftingIngredient())
+                    .unlockedBy("has_items", hasItems(itemPredicate(turtleItem), itemPredicate(upgrade.getCraftingIngredient())))
                     .build(ImpostorShapedRecipe::new)
                     .save(
                         output,
@@ -156,8 +158,8 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     .pattern("#")
                     .pattern("P")
                     .define('P', pocket)
-                    .define('#', upgrade.getCraftingItem().item().value())
-                    .unlockedBy("has_items", has(pocket, upgrade.getCraftingItem().item().value()))
+                    .define('#', upgrade.getCraftingIngredient())
+                    .unlockedBy("has_items", hasItems(itemPredicate(pocket), itemPredicate(upgrade.getCraftingIngredient())))
                     .build(ImpostorShapedRecipe::new)
                     .save(
                         output,
@@ -448,16 +450,19 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .save(output);
     }
 
-    private static Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike... items) {
-        return InventoryChangeTrigger.TriggerInstance.hasItems(items);
-    }
-
     private ItemPredicate itemPredicate(ItemLike item) {
         return ItemPredicate.Builder.item().of(items, item).build();
     }
 
     private ItemPredicate itemPredicate(TagKey<Item> item) {
         return ItemPredicate.Builder.item().of(items, item).build();
+    }
+
+    private ItemPredicate itemPredicate(Ingredient ingredient) {
+        var holderSet = ((SlotDisplay.TagSlotDisplay) ingredient.display()).tag();
+        return holderSet instanceof HolderSet.Named<Item> named
+            ? itemPredicate(named.key())
+            : ItemPredicate.Builder.item().of(items, holderSet.stream().map(Holder::value).toArray(ItemLike[]::new)).build();
     }
 
     private static ItemStackTemplate playerHead(String name, String uuid) {

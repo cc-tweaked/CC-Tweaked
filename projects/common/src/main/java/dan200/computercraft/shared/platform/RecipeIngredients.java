@@ -21,6 +21,7 @@ import net.minecraft.world.item.Items;
  * @param dye         All dye items.
  * @param enderPearl  All {@link Items#ENDER_PEARL} items.
  * @param woodenChest All wooden chests (both normal and trapped chests).
+ * @param shulkerBox  All shulker boxes.
  */
 public record RecipeIngredients(
     TagKey<Item> redstone,
@@ -32,6 +33,7 @@ public record RecipeIngredients(
     TagKey<Item> ironIngot,
     TagKey<Item> dye,
     TagKey<Item> enderPearl,
-    TagKey<Item> woodenChest
+    TagKey<Item> woodenChest,
+    TagKey<Item> shulkerBox
 ) {
 }

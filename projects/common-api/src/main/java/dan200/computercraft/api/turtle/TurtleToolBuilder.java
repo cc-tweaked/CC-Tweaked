@@ -17,6 +17,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.Nullable;
 
@@ -33,24 +34,32 @@ import java.util.Optional;
  */
 public final class TurtleToolBuilder {
     private final ResourceKey<ITurtleUpgrade> id;
-    private final Item item;
+    private final Ingredient item;
     private Component adjective;
     private float damageMultiplier = TurtleToolSpec.DEFAULT_DAMAGE_MULTIPLIER;
     private @Nullable TagKey<Block> breakable;
     private boolean allowEnchantments = false;
     private TurtleToolDurability consumeDurability = TurtleToolDurability.NEVER;
 
-    private TurtleToolBuilder(ResourceKey<ITurtleUpgrade> id, Item item) {
+    private TurtleToolBuilder(ResourceKey<ITurtleUpgrade> id, Ingredient item) {
         this.id = id;
         adjective = Component.translatable(UpgradeBase.getDefaultAdjective(id.identifier()));
         this.item = item;
     }
 
     public static TurtleToolBuilder tool(Identifier id, Item item) {
+        return new TurtleToolBuilder(ResourceKey.create(ITurtleUpgrade.REGISTRY, id), Ingredient.of(item));
+    }
+
+    public static TurtleToolBuilder tool(Identifier id, Ingredient item) {
         return new TurtleToolBuilder(ResourceKey.create(ITurtleUpgrade.REGISTRY, id), item);
     }
 
     public static TurtleToolBuilder tool(ResourceKey<ITurtleUpgrade> id, Item item) {
+        return new TurtleToolBuilder(id, Ingredient.of(item));
+    }
+
+    public static TurtleToolBuilder tool(ResourceKey<ITurtleUpgrade> id, Ingredient item) {
         return new TurtleToolBuilder(id, item);
     }
 
@@ -130,7 +139,7 @@ public final class TurtleToolBuilder {
     public ITurtleUpgrade build() {
         return ComputerCraftAPIService.get().createTurtleTool(new TurtleToolSpec(
             adjective,
-            item.builtInRegistryHolder(),
+            item,
             damageMultiplier,
             allowEnchantments,
             consumeDurability,

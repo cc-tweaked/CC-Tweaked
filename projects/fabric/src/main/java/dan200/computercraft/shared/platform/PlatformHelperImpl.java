@@ -160,6 +160,15 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
+    public @Nullable ItemContainer getContainer(ItemStack stack) {
+        if (stack.is(ConventionalItemTags.SHULKER_BOXES)) {
+            return new FabricItemContainer(new ShulkerItemStorage(stack, 27));
+        }
+
+        return null;
+    }
+
+    @Override
     public RecipeIngredients getRecipeIngredients() {
         return new RecipeIngredients(
             ConventionalItemTags.REDSTONE_DUSTS,
@@ -171,7 +180,8 @@ public class PlatformHelperImpl implements PlatformHelper {
             ConventionalItemTags.IRON_INGOTS,
             ConventionalItemTags.DYES,
             ConventionalItemTags.ENDER_PEARLS,
-            ConventionalItemTags.WOODEN_CHESTS
+            ConventionalItemTags.WOODEN_CHESTS,
+            ConventionalItemTags.SHULKER_BOXES
         );
     }
 
@@ -225,7 +235,6 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    @SuppressWarnings("NullAway") // NullAway doesn't like the null here.
     public @Nullable IMedia getMedia(ItemStack stack) {
         return MediaLookup.get().find(stack, null);
     }

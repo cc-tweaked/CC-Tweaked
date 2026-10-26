@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WorldOpenFlows.class)
-class WorldOpenFlowsMixin {
+abstract class WorldOpenFlowsMixin {
     /**
      * Never prompt for backup/experimental options when running tests.
      *

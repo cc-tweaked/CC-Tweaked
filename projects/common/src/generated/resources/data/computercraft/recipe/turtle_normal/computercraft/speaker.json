@@ -5,7 +5,9 @@
   "key": {"#": "computercraft:speaker", "T": "computercraft:turtle_normal"},
   "pattern": ["#T"],
   "result": {
-    "components": {"computercraft:right_turtle_upgrade": {"id": "computercraft:speaker"}},
+    "components": {
+      "computercraft:right_turtle_upgrade": {"id": "computercraft:speaker", "item": {"id": "computercraft:speaker"}}
+    },
     "id": "computercraft:turtle_normal"
   }
 }

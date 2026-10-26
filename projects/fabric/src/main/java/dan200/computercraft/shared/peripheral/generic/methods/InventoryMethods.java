@@ -52,7 +52,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(@Nullable Object obj) {
             if (this == obj) return true;
             if (!(obj instanceof StorageWrapper other)) return false;
 
@@ -106,7 +106,6 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         return storage == null ? null : new StorageWrapper(storage);
     }
 
-    @SuppressWarnings("NullAway") // FIXME: Doesn't cope with @Nullable type parameter.
     private static @Nullable Storage<ItemVariant> extractContainerImpl(Level level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
         var internal = ItemStorage.SIDED.find(level, pos, state, blockEntity, null);
         if (internal != null) return internal;

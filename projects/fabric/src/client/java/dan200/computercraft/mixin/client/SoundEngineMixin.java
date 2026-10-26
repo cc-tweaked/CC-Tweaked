@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 @Mixin(SoundEngine.class)
-class SoundEngineMixin {
+abstract class SoundEngineMixin {
     @Nullable
     @Unique
     private static SoundEngine self;

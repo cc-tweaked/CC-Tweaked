@@ -30,6 +30,7 @@ import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity
 import dan200.computercraft.shared.turtle.core.TurtleBrain
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand
 import dan200.computercraft.shared.turtle.items.TurtleItem
+import dan200.computercraft.shared.util.DataComponentUtil
 import dan200.computercraft.shared.util.WaterloggableHelpers
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
@@ -37,15 +38,18 @@ import dan200.computercraft.test.core.computer.getApi
 import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.core.BlockPos
 import net.minecraft.core.HolderLookup
+import net.minecraft.core.component.DataComponentPatch
+import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.resources.Identifier
-import net.minecraft.world.entity.EntityType
+import net.minecraft.resources.ResourceKey
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.item.component.ItemContainerContents
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.block.BeehiveBlock
 import net.minecraft.world.level.block.Blocks
@@ -331,8 +335,7 @@ class Turtle_Test {
             val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
-                helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
-                    .getValue(Identifier.fromNamespaceAndPath("cctest", "wooden_pickaxe")),
+                helper.level.registryAccess().getOrThrow(WOODEN_PICKAXE).value(),
                 upgrade,
                 "Upgrade is a wooden pickaxe",
             )
@@ -359,10 +362,7 @@ class Turtle_Test {
 
             helper.assertUpgradeItem(
                 ItemStack(Items.WOODEN_PICKAXE),
-                UpgradeData.ofDefault(
-                    helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
-                        .get(Identifier.fromNamespaceAndPath("cctest", "wooden_pickaxe")).orElseThrow(),
-                ),
+                UpgradeData.ofDefault(helper.level.registryAccess().getOrThrow(WOODEN_PICKAXE)),
             )
         }
     }
@@ -779,16 +779,26 @@ class Turtle_Test {
     fun Data_fixers(helper: GameTestHelper) = helper.sequence {
         thenExecute {
             val overlay = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "trans_flag")
-            val upgrade = helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
-                .getValue(Identifier.withDefaultNamespace("diamond_pickaxe"))!!
+            val pickaxeUpgrade = UpgradeData.ofDefault(
+                helper.level.registryAccess().getOrThrow(id(Identifier.withDefaultNamespace("diamond_pickaxe"))),
+            )
+
+            val shulkerUpgrade = UpgradeData.of(
+                helper.level.registryAccess()
+                    .getOrThrow(id(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "shulker"))),
+                DataComponentUtil.createTemplate(Items.SHULKER_BOX, DataComponents.CONTAINER, ItemContainerContents.fromItems(listOf(ItemStack(Items.DIRT)))),
+                DataComponentPatch.EMPTY,
+            )
 
             val turtleBe = helper.getBlockEntity(BlockPos(1, 1, 1), TurtleBlockEntity::class.java)
             assertEquals(overlay, turtleBe.overlay)
-            assertEquals(upgrade, turtleBe.getUpgrade(TurtleSide.LEFT))
+            assertEquals(pickaxeUpgrade, turtleBe.access.getUpgradeWithData(TurtleSide.LEFT))
+            assertEquals(shulkerUpgrade, turtleBe.access.getUpgradeWithData(TurtleSide.RIGHT))
 
             val turtleItem = turtleBe.getItem(0)
             assertEquals(overlay, TurtleItem.getOverlay(turtleItem))
-            assertEquals(upgrade, TurtleItem.getUpgrade(turtleItem, TurtleSide.LEFT))
+            assertEquals(pickaxeUpgrade, TurtleItem.getUpgradeWithData(turtleItem, TurtleSide.LEFT))
+            assertEquals(shulkerUpgrade, TurtleItem.getUpgradeWithData(turtleItem, TurtleSide.RIGHT))
 
             val owner = (turtleBe.access as TurtleBrain).owningPlayer
             assertEquals(GameProfile(UUID.fromString("01986ee6-ca3c-3b64-bdcd-02039da5963f"), "Player436"), owner)
@@ -1078,6 +1088,13 @@ class Turtle_Test {
     fun Render_turtle_blocks(helper: GameTestHelper) = helper.sequence {
         thenExecute { helper.positionAtArmorStand() }
         thenScreenshot()
+    }
+
+    companion object {
+        private fun id(key: Identifier): ResourceKey<ITurtleUpgrade> =
+            ResourceKey.create(ITurtleUpgrade.REGISTRY, key)
+
+        private val WOODEN_PICKAXE = id(Identifier.fromNamespaceAndPath("cctest", "wooden_pickaxe"))
     }
 }
 

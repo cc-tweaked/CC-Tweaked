@@ -3,14 +3,14 @@ package com.example.examplemod;
 import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import dan200.computercraft.api.upgrades.UpgradeType;
-import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.Ingredient;
 
 /**
  * An example turtle upgrade.
  */
 // @start region=body
-public class ExampleTurtleUpgrade extends AbstractTurtleUpgrade {
-    public ExampleTurtleUpgrade(ItemStackTemplate stack) {
+public class ExampleTurtleUpgrade extends AbstractTurtleUpgrade.StackAware {
+    public ExampleTurtleUpgrade(Ingredient stack) {
         super(TurtleUpgradeType.PERIPHERAL, "upgrade.examplemod.example_turtle_upgrade.adjective", stack);
     }
 

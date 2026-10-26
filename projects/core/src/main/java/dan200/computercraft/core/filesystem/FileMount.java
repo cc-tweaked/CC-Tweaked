@@ -8,6 +8,7 @@ import com.google.common.base.Joiner;
 import dan200.computercraft.api.filesystem.FileAttributes;
 import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.core.util.Nullability;
 
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
@@ -58,7 +59,7 @@ public class FileMount implements Mount {
         if (path.isEmpty() && !created()) return;
 
         try (var stream = Files.newDirectoryStream(resolvePath(path))) {
-            stream.forEach(x -> contents.add(x.getFileName().toString()));
+            stream.forEach(x -> contents.add(Nullability.assertNonNull(x.getFileName()).toString()));
         } catch (IOException e) {
             throw remapException(path, e);
         }

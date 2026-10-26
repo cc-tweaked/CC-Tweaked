@@ -13,8 +13,8 @@ import net.minecraft.data.registries.RegistryPatchGenerator;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -34,7 +34,7 @@ public class TurtleUpgradeProvider {
 
     // Register our turtle upgrades to the RegistrySetBuilder.
     private static void addUpgrades(BootstrapContext<ITurtleUpgrade> upgrades) {
-        upgrades.register(ResourceKey.create(ITurtleUpgrade.REGISTRY, EXAMPLE_TURTLE_UPGRADE), new ExampleTurtleUpgrade(new ItemStackTemplate(Items.COMPASS)));
+        upgrades.register(ResourceKey.create(ITurtleUpgrade.REGISTRY, EXAMPLE_TURTLE_UPGRADE), new ExampleTurtleUpgrade(Ingredient.of(Items.COMPASS)));
     }
 
     // Finally use our WORLD_REGISTRY_BUILDER to build a set of registries with the upgrades, and then use

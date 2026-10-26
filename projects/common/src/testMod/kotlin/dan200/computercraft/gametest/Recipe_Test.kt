@@ -17,6 +17,7 @@ import dan200.computercraft.shared.recipe.CustomShapelessRecipe
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
 import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.util.context.ContextMap
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.Items
@@ -77,7 +78,7 @@ class Recipe_Test {
 
             for (recipe in recipes) {
                 // Ensure the ingredient appears in the recipe.
-                assertThat("Input is in ingredients", recipe.ingredients, Matchers.hasItem(item))
+                assertThat("Input is in ingredients", recipe.ingredientTemplates, Matchers.hasItem(item))
 
                 // Ensure the recipe can actually be crafted using the main recipe manager.
                 context.assertCraftable(recipe)
@@ -175,11 +176,17 @@ class Recipe_Test {
     }
 }
 
-private class BasicRecipe(val width: Int, val height: Int, val ingredients: List<ItemStackTemplate>, val result: ItemStackTemplate)
+private class BasicRecipe(val width: Int, val height: Int, val ingredients: List<UpgradeRecipeGenerator.InputItem>, val result: ItemStackTemplate) {
+    val ingredientItems: List<ItemStack>
+        get() = ingredients.map { it.display.resolveForFirstStack(ContextMap.EMPTY) }
+
+    val ingredientTemplates: List<ItemStackTemplate>
+        get() = ingredients.map { ItemStackTemplate.fromNonEmptyStack(it.display.resolveForFirstStack(ContextMap.EMPTY)) }
+}
 
 private fun GameTestHelper.assertCraftable(recipe: BasicRecipe) {
     assertCraftable(
-        recipe.ingredients.map(ItemStackTemplate::create),
+        recipe.ingredientItems,
         recipe.result.create(),
         width = recipe.width,
         height = recipe.height,

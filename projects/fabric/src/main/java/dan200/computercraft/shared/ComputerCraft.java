@@ -22,6 +22,7 @@ import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
+import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
@@ -40,11 +41,14 @@ import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ChunkLevel;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.ItemStack;
@@ -144,6 +148,13 @@ public class ComputerCraft {
 
     private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
         registry.register(type.type(), type.codec());
+
+        ResourceLoader.registerBuiltinPack(
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, TurtleStorage.DATA_PACK_NAME),
+            FabricLoader.getInstance().getModContainer(ComputerCraftAPI.MOD_ID).orElseThrow(),
+            Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION),
+            PackActivationType.NORMAL
+        );
     }
 
     private record BlockComponentImpl<T, C extends @Nullable Object>(

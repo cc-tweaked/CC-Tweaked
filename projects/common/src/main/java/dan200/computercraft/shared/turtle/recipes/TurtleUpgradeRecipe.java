@@ -23,9 +23,9 @@ import net.minecraft.world.level.Level;
 
 public final class TurtleUpgradeRecipe extends CustomRecipe {
     public static final MapCodec<TurtleUpgradeRecipe> CODEC = RegistryHelper.retrieveRegistryCodec(ITurtleUpgrade.REGISTRY)
-        .xmap(TurtleUpgradeRecipe::new, _ -> null);
+        .xmap(TurtleUpgradeRecipe::new, x -> x.upgradeRegistry);
     public static final StreamCodec<RegistryFriendlyByteBuf, TurtleUpgradeRecipe> STREAM_CODEC = RegistryHelper.retrieveRegistryStreamCodec(ITurtleUpgrade.REGISTRY)
-        .map(TurtleUpgradeRecipe::new, _ -> null);
+        .map(TurtleUpgradeRecipe::new, x -> x.upgradeRegistry);
     public static final RecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
     private final HolderLookup<ITurtleUpgrade> upgradeRegistry;

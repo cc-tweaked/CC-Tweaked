@@ -8,6 +8,7 @@ import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.impl.ComputerCraftAPIForgeService;
 import net.minecraft.core.Direction;
 import net.neoforged.neoforge.capabilities.BlockCapability;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The forge-specific entrypoint for ComputerCraft's API.
@@ -22,7 +23,7 @@ public final class ForgeComputerCraftAPI {
      * @param capability The capability to register.
      * @see GenericSource
      */
-    public static void registerGenericCapability(BlockCapability<?, Direction> capability) {
+    public static void registerGenericCapability(BlockCapability<? extends Object, @Nullable Direction> capability) {
         getInstance().registerGenericCapability(capability);
     }
 

@@ -7,8 +7,10 @@ package dan200.computercraft.shared.pocket.core;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.util.Nullability;
+import dan200.computercraft.impl.AbstractUpgradeHolder;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
@@ -161,14 +163,14 @@ public final class PocketBrain implements PocketComputerInternal {
     public void tick() {
         for (var holder : upgrades.values()) {
             if (holder.upgrade == null) continue;
-            holder.upgrade.upgrade().update(holder, computer.getPeripheral(holder.side));
+            holder.upgrade.getUpgrade().update(holder, computer.getPeripheral(holder.side));
         }
     }
 
     public boolean onRightClick(ServerLevel level) {
         for (var holder : upgrades.values()) {
             if (holder.upgrade == null) continue;
-            return holder.upgrade.upgrade().onRightClick(level, holder, computer.getPeripheral(holder.side));
+            return holder.upgrade.getUpgrade().onRightClick(level, holder, computer.getPeripheral(holder.side));
         }
 
         return false;
@@ -197,7 +199,7 @@ public final class PocketBrain implements PocketComputerInternal {
         private final DataComponentType<UpgradeData<IPocketUpgrade>> component;
         private final ComputerSide side;
 
-        private @Nullable UpgradeData<IPocketUpgrade> upgrade;
+        private @Nullable UpgradeHolder upgrade;
         private int lightColour = -1;
 
         private UpgradeAccess(DataComponentType<UpgradeData<IPocketUpgrade>> component, ComputerSide side) {
@@ -246,10 +248,29 @@ public final class PocketBrain implements PocketComputerInternal {
             lightColour = colour;
         }
 
+        private void requirePresent() {
+            if (!computer.getLevel().getServer().isSameThread()) {
+                throw new IllegalStateException("Must be called from the main thread");
+            }
+            if (!holder.isValid(computer)) throw new IllegalStateException("Pocket computer is not active");
+        }
+
         @Override
+        public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
+            return upgrade == null ? null : upgrade.getUpgradeData();
+        }
+
+        @Override
+        public @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle() {
+            requirePresent();
+            return upgrade == null ? null : upgrade.getHandle();
+        }
+
+        @Override
+        @Deprecated
         public DataComponentPatch getUpgradeData() {
             var upgrade = this.upgrade;
-            return upgrade == null ? DataComponentPatch.EMPTY : upgrade.data();
+            return upgrade == null ? DataComponentPatch.EMPTY : upgrade.getData();
         }
 
         @Override
@@ -257,22 +278,19 @@ public final class PocketBrain implements PocketComputerInternal {
             var stack = requireStack();
 
             var upgrade = this.upgrade;
-            if (upgrade == null || upgrade.data().equals(data)) return;
+            if (upgrade == null || upgrade.getData().equals(data)) return;
 
-            this.upgrade = UpgradeData.of(upgrade.holder(), data);
-            stack.set(component, upgrade);
+            upgrade.setData(data);
+            upgrade.recomputeItem();
+            stack.set(component, upgrade.getUpgradeData());
             holder.setChanged();
         }
 
         @Override
         public void invalidatePeripheral() {
-            var peripheral = upgrade == null ? null : upgrade.upgrade().createPeripheral(this);
+            var upgrade = this.upgrade;
+            var peripheral = upgrade == null ? null : upgrade.getUpgrade().createPeripheral(this);
             computer.setPeripheral(side, peripheral);
-        }
-
-        @Override
-        public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
-            return upgrade;
         }
 
         /**
@@ -299,12 +317,37 @@ public final class PocketBrain implements PocketComputerInternal {
          * @return Whether the upgrade changed.
          */
         private boolean setUpgradeDirect(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
-            if (Objects.equals(this.upgrade, upgrade)) return false;
+            var currentUpgrade = this.upgrade;
+            if (Objects.equals(currentUpgrade == null ? null : currentUpgrade.getUpgradeData(), upgrade)) return false;
 
-            this.upgrade = upgrade;
+            this.upgrade = upgrade == null ? null : new UpgradeHolder(upgrade);
             lightColour = -1;
             invalidatePeripheral();
             return true;
+        }
+
+        private final class UpgradeHolder extends AbstractUpgradeHolder<IPocketUpgrade> {
+            UpgradeHolder(UpgradeData<IPocketUpgrade> upgrade) {
+                super(upgrade);
+            }
+
+            @Override
+            protected void requireValid() {
+                if (upgrade != this) throw new IllegalStateException("Upgrade is no longer present");
+                requireStack();
+            }
+
+            @Override
+            public void setChanged() {
+                requireStack().set(component, getUpgradeData());
+                holder.setChanged();
+            }
+
+            @Override
+            public void remove() {
+                requireValid();
+                setUpgrade(null);
+            }
         }
     }
 }

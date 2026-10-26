@@ -23,9 +23,9 @@ import net.minecraft.world.level.Level;
 
 public final class PocketComputerUpgradeRecipe extends CustomRecipe {
     public static final MapCodec<PocketComputerUpgradeRecipe> CODEC = RegistryHelper.retrieveRegistryCodec(IPocketUpgrade.REGISTRY)
-        .xmap(PocketComputerUpgradeRecipe::new, _ -> null);
+        .xmap(PocketComputerUpgradeRecipe::new, x -> x.upgradeRegistry);
     public static final StreamCodec<RegistryFriendlyByteBuf, PocketComputerUpgradeRecipe> STREAM_CODEC = RegistryHelper.retrieveRegistryStreamCodec(IPocketUpgrade.REGISTRY)
-        .map(PocketComputerUpgradeRecipe::new, _ -> null);
+        .map(PocketComputerUpgradeRecipe::new, x -> x.upgradeRegistry);
     public static final RecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
     private final HolderLookup<IPocketUpgrade> upgradeRegistry;

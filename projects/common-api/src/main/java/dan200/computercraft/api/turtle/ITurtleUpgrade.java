@@ -35,12 +35,13 @@ import java.util.function.Function;
  * <h2>Example</h2>
  * <h3>Registering the upgrade type</h3>
  * First, let's create a new class that implements {@link ITurtleUpgrade}. It is recommended to subclass
- * {@link AbstractTurtleUpgrade}, as that provides a default implementation of most methods.
+ * {@link AbstractTurtleUpgrade.StackAware}, as that provides a default implementation of most methods.
  *
  * {@snippet class=com.example.examplemod.ExampleTurtleUpgrade region=body}
  *
  * Now we must construct a new upgrade type. In most cases, you can use one of the helper methods (e.g.
- * {@link UpgradeType#simpleWithCustomItem(Function)}), rather than defining your own implementation.
+ * {@link UpgradeType#simpleWithCustomIngredient(Function)}), rather than defining your own
+ * implementation.
  *
  * {@snippet class=com.example.examplemod.ExampleMod region=turtle_upgrades}
  *
@@ -60,7 +61,7 @@ import java.util.function.Function;
  * {@snippet file=data/examplemod/computercraft/turtle_upgrade/example_turtle_upgrade.json}
  *
  * The {@code "type"} field points to the ID of the upgrade type we've just registered, while the other fields are read
- * by the type itself. As our upgrade was defined with {@link UpgradeType#simpleWithCustomItem(Function)}, the
+ * by the type itself. As our upgrade was defined with {@link UpgradeType#simpleWithCustomIngredient(Function)}, the
  * {@code "item"} field will construct our upgrade with {@link Items#COMPASS}.
  * <p>
  * Similarly, {@linkplain dan200.computercraft.api.client.turtle.TurtleUpgradeModel the upgrade's model} is loaded from
@@ -85,6 +86,8 @@ import java.util.function.Function;
  *
  * <h4>Forge</h4>
  * {@snippet class=com.example.examplemod.ForgeExampleModDataGenerator region=turtle_upgrades}
+ *
+ * @see AbstractTurtleUpgrade.StackAware
  */
 public interface ITurtleUpgrade extends UpgradeBase {
     /**

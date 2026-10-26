@@ -420,7 +420,7 @@ fun GameTestHelper.assertCraftable(items: List<ItemStack>, result: ItemStack, wi
 
     val actualResult = recipe.get().value.assemble(input)
 
-    if (!ItemStack.isSameItemSameComponents(actualResult, result) || actualResult.count != result.count) {
+    if (!ItemStack.matches(actualResult, result)) {
         fail("Expected $items to craft ${result.toStringFull()}, got ${actualResult.toStringFull()}")
     }
 }
