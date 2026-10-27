@@ -30,7 +30,7 @@ dependencies {
 }
 
 val javadocOverview = tasks.register<Copy>("javadocOverview") {
-    from("src/overview.html")
+    from("src/overview.md")
     into(layout.buildDirectory.dir(name))
 
     expand(
@@ -49,7 +49,7 @@ tasks.javadoc {
         (this as StandardJavadocDocletOptions)
 
         inputs.files(javadocOverview)
-        overview(javadocOverview.get().destinationDir.resolve("overview.html").absolutePath)
+        overview(javadocOverview.get().destinationDir.resolve("overview.md").absolutePath)
 
         groups = mapOf(
             "Common" to listOf(
