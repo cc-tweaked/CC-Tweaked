@@ -7,11 +7,11 @@ package dan200.computercraft.gametest
 import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.api.pocket.IPocketUpgrade
-import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.client.pocket.ClientPocketComputers
 import dan200.computercraft.core.apis.TermAPI
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.impl.PocketUpgrades
+import dan200.computercraft.impl.UpgradeData
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.computer.core.ComputerState

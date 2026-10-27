@@ -6,7 +6,7 @@ package dan200.computercraft.shared.pocket.core;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.pocket.PocketComputer;
-import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.impl.UpgradeData;
 import org.jspecify.annotations.Nullable;
 
 /**

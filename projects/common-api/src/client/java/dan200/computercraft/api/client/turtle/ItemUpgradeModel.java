@@ -11,7 +11,7 @@ import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * A {@link TurtleUpgradeModel} that renders the upgrade's {@linkplain UpgradeData#getUpgradeItem()} item.
+ * A {@link TurtleUpgradeModel} that renders the upgrade's {@linkplain UpgradeHandle#getItem()} item.
  * <p>
  * This uses appropriate transformations for "flat" items, namely those extending the {@literal minecraft:item/generated}
  * model type. It will not appear correct for 3D models with additional depth, such as blocks.
@@ -57,11 +57,11 @@ public final class ItemUpgradeModel implements TurtleUpgradeModel {
     }
 
     @Override
-    public void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
+    public void renderForItem(UpgradeHandle<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
         renderer.appendModelIdentityElement(this);
 
         var childState = new TrackingItemStackRenderState();
-        resolver.updateForTopItem(childState, upgrade.getUpgradeItem().create(), ItemDisplayContext.NONE, null, null, seed);
+        resolver.updateForTopItem(childState, upgrade.getItem().create(), ItemDisplayContext.NONE, null, null, seed);
         if (!childState.isEmpty()) {
             renderer.appendModelIdentityElement(childState.getModelIdentity());
             renderer.appendModelIdentityElement(transform);

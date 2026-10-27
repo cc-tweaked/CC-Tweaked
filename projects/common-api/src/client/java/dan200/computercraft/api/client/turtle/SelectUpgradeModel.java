@@ -14,7 +14,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 /**
  * A {@link TurtleUpgradeModel} which selects between different models based on the value of a component in
- * {@linkplain UpgradeData#data() the upgrade's data}.
+ * {@linkplain UpgradeHandle#getData()}  the upgrade's data}.
  * <p>
  * This is the {@link TurtleUpgradeModel} equivalent of {@link SelectItemModel}.
  *
@@ -55,7 +55,7 @@ public final class SelectUpgradeModel<T> implements TurtleUpgradeModel {
         this.fallback = fallback;
     }
 
-    private TurtleUpgradeModel getModel(UpgradeData<ITurtleUpgrade> upgrade) {
+    private TurtleUpgradeModel getModel(UpgradeHandle<ITurtleUpgrade> upgrade) {
         var value = upgrade.get(component);
         if (value == null) return fallback;
 
@@ -64,7 +64,7 @@ public final class SelectUpgradeModel<T> implements TurtleUpgradeModel {
     }
 
     @Override
-    public void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
+    public void renderForItem(UpgradeHandle<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
         getModel(upgrade).renderForItem(upgrade, side, renderer, resolver, transform, seed);
     }
 

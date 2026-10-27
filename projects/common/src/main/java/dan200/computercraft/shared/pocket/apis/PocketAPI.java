@@ -7,8 +7,8 @@ package dan200.computercraft.shared.pocket.apis;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
+import dan200.computercraft.impl.UpgradeData;
 import dan200.computercraft.shared.pocket.core.PocketComputerInternal;
 import dan200.computercraft.shared.pocket.core.PocketSide;
 import net.minecraft.util.Prediction;
@@ -101,7 +101,7 @@ public class PocketAPI implements ILuaAPI {
         if (newUpgrade == null) return new Object[]{ false, "Cannot find a valid upgrade" };
 
         // Remove the current upgrade
-        if (previousUpgrade != null) storeItem(player, previousUpgrade.getUpgradeItem().create());
+        if (previousUpgrade != null) storeItem(player, previousUpgrade.getItem().create());
 
         // Set the new upgrade
         pocket.setUpgrade(side, newUpgrade);
@@ -143,7 +143,7 @@ public class PocketAPI implements ILuaAPI {
 
         pocket.setUpgrade(side, null);
 
-        storeItem(player, previousUpgrade.getUpgradeItem().create());
+        storeItem(player, previousUpgrade.getItem().create());
 
         return new Object[]{ true };
     }

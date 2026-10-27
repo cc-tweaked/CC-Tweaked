@@ -10,8 +10,8 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.impl.UpgradeData;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;
@@ -200,7 +200,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     private static @Nullable UpgradeData<ITurtleUpgrade> withPersistedData(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
-        return upgrade == null ? null : UpgradeData.of(upgrade.holder(), upgrade.getUpgradeItem(), upgrade.upgrade().getPersistedData(upgrade.data()));
+        return upgrade == null ? null : UpgradeData.of(upgrade.getUpgradeHolder(), upgrade.getItem(), upgrade.getUpgrade().getPersistedData(upgrade.getData()));
     }
 
     @Override
@@ -232,10 +232,6 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         updateInputsImmediately();
 
         onTileEntityChange();
-    }
-
-    public @Nullable ITurtleUpgrade getUpgrade(TurtleSide side) {
-        return brain.getUpgrade(side);
     }
 
     public int getColour() {
@@ -331,15 +327,12 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     private boolean hasPeripheralUpgradeOnSide(ComputerSide side) {
-        ITurtleUpgrade upgrade;
-        switch (side) {
-            case RIGHT -> upgrade = getUpgrade(TurtleSide.RIGHT);
-            case LEFT -> upgrade = getUpgrade(TurtleSide.LEFT);
-            default -> {
-                return false;
-            }
-        }
-        return upgrade != null && upgrade.getUpgradeType().isPeripheral();
+        var upgrade = switch (side) {
+            case RIGHT -> brain.getUpgrade(TurtleSide.RIGHT);
+            case LEFT -> brain.getUpgrade(TurtleSide.LEFT);
+            default -> null;
+        };
+        return upgrade != null && upgrade.getUpgrade().getUpgradeType().isPeripheral();
     }
 
     public void transferStateFrom(TurtleBlockEntity copy) {

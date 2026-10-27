@@ -8,7 +8,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.upgrades.UpgradeBase;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.util.SafeDispatchCodec;
 import net.minecraft.core.Holder;
@@ -52,16 +51,16 @@ public final class UpgradeManager<T extends UpgradeBase> {
 
         var holderCodec = RegistryFixedCodec.create(registry).xmap(x -> (Holder.Reference<T>) x, x -> x);
         Codec<UpgradeData<T>> fullCodec = RecordCodecBuilder.create(i -> i.group(
-            holderCodec.fieldOf("id").forGetter(UpgradeData::holder),
-            ItemStackTemplate.CODEC.optionalFieldOf("item").forGetter(x -> Optional.of(x.getUpgradeItem())),
-            DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY).forGetter(UpgradeData::data)
+            holderCodec.fieldOf("id").forGetter(UpgradeData::getUpgradeHolder),
+            ItemStackTemplate.CODEC.optionalFieldOf("item").forGetter(x -> Optional.of(x.getItem())),
+            DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY).forGetter(UpgradeData::getData)
         ).apply(i, (u, s, c) -> s.isPresent() ? UpgradeData.of(u, s.get(), c) : UpgradeData.of(u, c)));
         dataCodec = Codec.withAlternative(fullCodec, holderCodec, UpgradeData::ofDefault);
 
         dataStreamCodec = StreamCodec.composite(
-            ByteBufCodecs.holderRegistry(registry).map(x -> (Holder.Reference<T>) x, x -> x), UpgradeData::holder,
-            ItemStackTemplate.STREAM_CODEC, UpgradeData::getUpgradeItem,
-            DataComponentPatch.STREAM_CODEC, UpgradeData::data,
+            ByteBufCodecs.holderRegistry(registry).map(x -> (Holder.Reference<T>) x, x -> x), UpgradeData::getUpgradeHolder,
+            ItemStackTemplate.STREAM_CODEC, UpgradeData::getItem,
+            DataComponentPatch.STREAM_CODEC, UpgradeData::getData,
             UpgradeData::of
         );
     }
@@ -111,12 +110,12 @@ public final class UpgradeManager<T extends UpgradeBase> {
      */
     public String getOwner(@Nullable UpgradeData<T> first, @Nullable UpgradeData<T> second) {
         if (first != null) {
-            var mod = getOwner(first.holder());
+            var mod = getOwner(first.getUpgradeHolder());
             if (!mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 
         if (second != null) {
-            var mod = getOwner(second.holder());
+            var mod = getOwner(second.getUpgradeHolder());
             if (!mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 

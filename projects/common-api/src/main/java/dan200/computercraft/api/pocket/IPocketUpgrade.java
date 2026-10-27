@@ -6,13 +6,13 @@ package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -50,12 +50,12 @@ public interface IPocketUpgrade extends UpgradeBase {
      * Creates a peripheral for the pocket computer.
      * <p>
      * The peripheral created will be stored for the lifetime of the upgrade, will be passed an argument to
-     * {@link #update(IPocketAccess, IPeripheral)} and will be attached, detached and have methods called in the same
+     * {@link #update(IPocketAccess, MutableUpgradeHandle, IPeripheral)} and will be attached, detached and have methods called in the same
      * manner as an ordinary peripheral.
      *
      * @param access The access object for the pocket item stack.
      * @return The newly created peripheral.
-     * @see #update(IPocketAccess, IPeripheral)
+     * @see #update(IPocketAccess, MutableUpgradeHandle, IPeripheral)
      */
     @Nullable
     IPeripheral createPeripheral(IPocketAccess access);
@@ -64,24 +64,25 @@ public interface IPocketUpgrade extends UpgradeBase {
      * Called when the pocket computer item stack updates.
      *
      * @param access     The access object for the pocket item stack.
+     * @param handle     The handle for this upgrade, equal to {@link IPocketAccess#getUpgrade()}.
      * @param peripheral The peripheral for this upgrade.
      * @see #createPeripheral(IPocketAccess)
      */
-    default void update(IPocketAccess access, @Nullable IPeripheral peripheral) {
+    default void update(IPocketAccess access, MutableUpgradeHandle<IPocketUpgrade> handle, @Nullable IPeripheral peripheral) {
     }
 
     /**
      * Called when the pocket computer is right-clicked.
      *
-     * @param level      The world the computer is in.
      * @param access     The access object for the pocket item stack.
+     * @param handle     The handle for this upgrade, equal to {@link IPocketAccess#getUpgrade()}.
      * @param peripheral The peripheral for this upgrade.
      * @return {@code true} to stop the GUI from opening, otherwise false. You should always provide some code path
      * which returns {@code false}, such as requiring the player to be sneaking - otherwise they will be unable to
      * access the GUI.
      * @see #createPeripheral(IPocketAccess)
      */
-    default boolean onRightClick(ServerLevel level, IPocketAccess access, @Nullable IPeripheral peripheral) {
+    default boolean onRightClick(IPocketAccess access, MutableUpgradeHandle<IPocketUpgrade> handle, @Nullable IPeripheral peripheral) {
         return false;
     }
 }

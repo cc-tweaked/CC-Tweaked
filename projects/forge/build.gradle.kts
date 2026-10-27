@@ -257,7 +257,7 @@ tasks.verifyClassesMatch {
     }
 
     // Forge adds Holder.Reference.hashCode(), so INVOKEVIRTUAL points to a different method. This is fine.
-    ignoredFiles.add("dan200/computercraft/api/upgrades/UpgradeData.class")
+    ignoredFiles.add("dan200/computercraft/impl/UpgradeData.class")
 }
 
 val runGametest = tasks.named<JavaExec>("runGametest") {

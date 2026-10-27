@@ -8,7 +8,7 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeBase;
-import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.impl.UpgradeData;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.pocket.core.PocketSide;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
@@ -188,14 +188,14 @@ public class UpgradeRecipeGenerator<T> {
             if (left != null) {
                 recipes.add(turtle(
                     new InputItem(turtleWith(stack, null, right)),
-                    new InputItem(left.getUpgradeItem()),
+                    new InputItem(left.getItem()),
                     ItemStackTemplate.fromNonEmptyStack(stack)
                 ));
             }
 
             if (right != null) {
                 recipes.add(turtle(
-                    new InputItem(right.getUpgradeItem()),
+                    new InputItem(right.getItem()),
                     new InputItem(turtleWith(stack, left, null)),
                     ItemStackTemplate.fromNonEmptyStack(stack)
                 ));
@@ -210,7 +210,7 @@ public class UpgradeRecipeGenerator<T> {
 
             if (top != null) {
                 recipes.add(pocket(
-                    new InputItem(top.getUpgradeItem()),
+                    new InputItem(top.getItem()),
                     new InputItem(pocketWith(stack, back, null)),
                     ItemStackTemplate.fromNonEmptyStack(stack)
                 ));
@@ -219,7 +219,7 @@ public class UpgradeRecipeGenerator<T> {
             if (back != null) {
                 recipes.add(pocket(
                     new InputItem(pocketWith(stack, null, top)),
-                    new InputItem(back.getUpgradeItem()),
+                    new InputItem(back.getItem()),
                     ItemStackTemplate.fromNonEmptyStack(stack)
                 ));
             }

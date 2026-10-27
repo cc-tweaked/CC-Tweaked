@@ -13,11 +13,11 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.api.upgrades.UpgradeHandle;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.impl.AbstractUpgradeHolder;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.impl.UpgradeData;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
@@ -123,7 +123,7 @@ public class TurtleBrain implements TurtleAccessInternal {
         // Advance upgrades
         for (var side : TurtleSide.values()) {
             var upgrade = upgrades.get(side);
-            if (upgrade != null) upgrade.getUpgrade().update(this, side);
+            if (upgrade != null) upgrade.getUpgrade().update(this, side, upgrade.getHandle());
         }
     }
 
@@ -439,12 +439,6 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     @Override
-    public @Nullable ITurtleUpgrade getUpgrade(TurtleSide side) {
-        var upgrade = upgrades.get(side);
-        return upgrade == null ? null : upgrade.getUpgrade();
-    }
-
-    @Override
     public @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side) {
         var upgrade = upgrades.get(side);
         return upgrade == null ? null : upgrade.getUpgradeData();
@@ -506,7 +500,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     @Override
-    public @Nullable UpgradeHandle<ITurtleUpgrade> getUpgradeHandle(TurtleSide side) {
+    public @Nullable MutableUpgradeHandle<ITurtleUpgrade> getUpgrade(TurtleSide side) {
         requirePresent();
         var upgrade = upgrades.get(side);
         return upgrade == null ? null : upgrade.getHandle();

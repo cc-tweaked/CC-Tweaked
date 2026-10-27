@@ -11,7 +11,7 @@ import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.templates.TypeTemplate;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.OptionalDynamic;
-import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.impl.UpgradeData;
 import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutData;

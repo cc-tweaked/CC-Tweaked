@@ -9,11 +9,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -72,18 +72,12 @@ public class TurtleModem extends AbstractTurtleUpgrade {
     }
 
     @Override
-    public TurtleCommandResult useTool(ITurtleAccess turtle, TurtleSide side, TurtleVerb verb, Direction dir) {
-        return TurtleCommandResult.failure();
-    }
-
-    @Override
-    public void update(ITurtleAccess turtle, TurtleSide side) {
+    public void update(ITurtleAccess turtle, TurtleSide side, MutableUpgradeHandle<ITurtleUpgrade> handle) {
         // Advance the modem
         if (turtle.getLevel().isClientSide()) return;
 
         var peripheral = turtle.getPeripheral(side);
-        var handle = turtle.getUpgradeHandle(side);
-        if (!(peripheral instanceof Peripheral modem) || handle == null) return;
+        if (!(peripheral instanceof Peripheral modem)) return;
 
         var state = modem.getModemState();
         if (state.pollChanged()) {

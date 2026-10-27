@@ -6,8 +6,8 @@ package dan200.computercraft.impl;
 
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.api.upgrades.UpgradeBase;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeHandle;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
@@ -30,12 +30,12 @@ public abstract class AbstractUpgradeHolder<U extends UpgradeBase> {
 
     private @Nullable UpgradeData<U> upgradeData;
 
-    private final UpgradeHandle<U> handle;
+    private final MutableUpgradeHandle<U> handle;
 
     protected AbstractUpgradeHolder(UpgradeData<U> upgrade) {
-        this.upgrade = upgrade.holder();
-        item = upgrade.getUpgradeItem();
-        data = upgrade.data();
+        this.upgrade = upgrade.getUpgradeHolder();
+        item = upgrade.getItem();
+        data = upgrade.getData();
         handle = new UpgradeHandleImpl<>(this);
     }
 
@@ -87,7 +87,7 @@ public abstract class AbstractUpgradeHolder<U extends UpgradeBase> {
         this.upgradeData = null;
     }
 
-    public final UpgradeHandle<U> getHandle() {
+    public final MutableUpgradeHandle<U> getHandle() {
         return handle;
     }
 }

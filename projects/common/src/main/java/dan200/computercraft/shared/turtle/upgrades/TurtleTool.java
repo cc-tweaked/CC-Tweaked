@@ -7,7 +7,7 @@ package dan200.computercraft.shared.turtle.upgrades;
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.api.upgrades.UpgradeHandle;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.upgrades.TurtleToolSpec;
 import dan200.computercraft.shared.ModRegistry;
@@ -87,7 +87,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         return new ItemStackTemplate(item.item(), 1, upgradeData);
     }
 
-    private void setToolStack(ITurtleAccess turtle, UpgradeHandle<ITurtleUpgrade> upgrade, ItemStack stack) {
+    private void setToolStack(ITurtleAccess turtle, MutableUpgradeHandle<ITurtleUpgrade> upgrade, ItemStack stack) {
         // If the turtle has been removed, then don't write back the item.
         if (turtle.isRemoved()) return;
 
@@ -114,7 +114,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         upgrade.setItem(stack);
     }
 
-    private <T> T withEquippedItem(ITurtleAccess turtle, UpgradeHandle<ITurtleUpgrade> upgrade, Direction direction, Function<TurtlePlayer, T> action) {
+    private <T> T withEquippedItem(ITurtleAccess turtle, MutableUpgradeHandle<ITurtleUpgrade> upgrade, Direction direction, Function<TurtlePlayer, T> action) {
         var turtlePlayer = TurtlePlayer.getWithPosition(turtle, turtle.getPosition(), direction);
         turtlePlayer.loadInventory(upgrade.getItem().create());
 
@@ -127,10 +127,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     }
 
     @Override
-    public TurtleCommandResult useTool(ITurtleAccess turtle, TurtleSide side, TurtleVerb verb, Direction direction) {
-        var handle = turtle.getUpgradeHandle(side);
-        if (handle == null) return TurtleCommandResult.failure("Upgrade is not equipped");
-
+    public TurtleCommandResult useTool(ITurtleAccess turtle, TurtleSide side, MutableUpgradeHandle<ITurtleUpgrade> handle, TurtleVerb verb, Direction direction) {
         return switch (verb) {
             case ATTACK -> attack(turtle, handle, direction);
             case DIG -> dig(turtle, handle, direction);
@@ -155,7 +152,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
      * @param direction The direction we're attacking in.
      * @return Whether an attack occurred.
      */
-    private TurtleCommandResult attack(ITurtleAccess turtle, UpgradeHandle<ITurtleUpgrade> upgrade, Direction direction) {
+    private TurtleCommandResult attack(ITurtleAccess turtle, MutableUpgradeHandle<ITurtleUpgrade> upgrade, Direction direction) {
         // Create a fake player, and orient it appropriately
         var world = turtle.getLevel();
         var position = turtle.getPosition();
@@ -263,7 +260,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         return true;
     }
 
-    private TurtleCommandResult dig(ITurtleAccess turtle, UpgradeHandle<ITurtleUpgrade> upgrade, Direction direction) {
+    private TurtleCommandResult dig(ITurtleAccess turtle, MutableUpgradeHandle<ITurtleUpgrade> upgrade, Direction direction) {
         var level = (ServerLevel) turtle.getLevel();
 
         return withEquippedItem(turtle, upgrade, direction, turtlePlayer -> {

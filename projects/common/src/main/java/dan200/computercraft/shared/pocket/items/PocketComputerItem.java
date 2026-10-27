@@ -7,8 +7,8 @@ package dan200.computercraft.shared.pocket.items;
 import dan200.computercraft.annotations.FabricOverride;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
+import dan200.computercraft.impl.UpgradeData;
 import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.*;
@@ -265,7 +265,7 @@ public class PocketComputerItem extends Item {
 
     public static @Nullable IPocketUpgrade getUpgrade(ItemStack stack, PocketSide side) {
         var upgrade = getUpgradeWithData(stack, side);
-        return upgrade == null ? null : upgrade.upgrade();
+        return upgrade == null ? null : upgrade.getUpgrade();
     }
 
     public static @Nullable UpgradeData<IPocketUpgrade> getUpgradeWithData(ItemStack stack, PocketSide side) {

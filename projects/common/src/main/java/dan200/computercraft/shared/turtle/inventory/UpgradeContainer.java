@@ -7,8 +7,9 @@ package dan200.computercraft.shared.turtle.inventory;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.impl.UpgradeData;
+import dan200.computercraft.shared.turtle.core.TurtleAccessInternal;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -27,12 +28,12 @@ import java.util.List;
 class UpgradeContainer implements Container {
     private static final int SIZE = 2;
 
-    private final ITurtleAccess turtle;
+    private final TurtleAccessInternal turtle;
 
     private final List<@Nullable UpgradeData<ITurtleUpgrade>> lastUpgrade = Arrays.asList(null, null);
     private final NonNullList<ItemStack> lastStack = NonNullList.withSize(2, ItemStack.EMPTY);
 
-    UpgradeContainer(ITurtleAccess turtle) {
+    UpgradeContainer(TurtleAccessInternal turtle) {
         this.turtle = turtle;
     }
 
@@ -58,7 +59,7 @@ class UpgradeContainer implements Container {
     }
 
     private ItemStack setUpgradeStack(int slot, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
-        var stack = upgrade == null ? ItemStack.EMPTY : upgrade.getUpgradeItem().create();
+        var stack = upgrade == null ? ItemStack.EMPTY : upgrade.getItem().create();
         lastUpgrade.set(slot, upgrade);
         lastStack.set(slot, stack);
         return stack;

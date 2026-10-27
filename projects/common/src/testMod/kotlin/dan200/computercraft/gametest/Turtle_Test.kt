@@ -12,11 +12,12 @@ import dan200.computercraft.api.detail.VanillaDetailRegistries
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.api.turtle.ITurtleUpgrade
 import dan200.computercraft.api.turtle.TurtleSide
-import dan200.computercraft.api.upgrades.UpgradeData
+import dan200.computercraft.api.upgrades.UpgradeHandle
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.gametest.core.TestHooks
 import dan200.computercraft.impl.TurtleUpgrades
+import dan200.computercraft.impl.UpgradeData
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.shared.ModRegistry
@@ -333,16 +334,15 @@ class Turtle_Test {
             helper.assertContainerExactly(BlockPos(2, 1, 2), listOf(ItemStack(Items.COBBLESTONE)))
 
             val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java).access
-            val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
                 helper.level.registryAccess().getOrThrow(WOODEN_PICKAXE).value(),
-                upgrade,
+                turtle.getUpgrade(TurtleSide.LEFT)?.upgrade,
                 "Upgrade is a wooden pickaxe",
             )
 
             val item = ItemStack(Items.WOODEN_PICKAXE)
             item.damageValue = 1
-            helper.assertUpgradeItem(item, turtle.getUpgradeWithData(TurtleSide.LEFT)!!)
+            helper.assertUpgradeItem(item, turtle.getUpgrade(TurtleSide.LEFT)!!)
         }
     }
 
@@ -379,11 +379,10 @@ class Turtle_Test {
             helper.assertContainerExactly(BlockPos(2, 1, 2), listOf(ItemStack(Items.STONE)))
 
             val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java).access
-            val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
                 helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
                     .getValue(Identifier.fromNamespaceAndPath("cctest", "netherite_pickaxe")),
-                upgrade,
+                turtle.getUpgrade(TurtleSide.LEFT)?.upgrade,
                 "Upgrade is a netherite pickaxe",
             )
 
@@ -395,13 +394,13 @@ class Turtle_Test {
                 1,
             )
 
-            helper.assertUpgradeItem(item, turtle.getUpgradeWithData(TurtleSide.LEFT)!!)
+            helper.assertUpgradeItem(item, turtle.getUpgrade(TurtleSide.LEFT)!!)
         }
     }
 
-    private fun GameTestHelper.assertUpgradeItem(expected: ItemStack, upgrade: UpgradeData<ITurtleUpgrade>) {
-        if (!expected.matches(upgrade.upgradeItem)) {
-            fail("Invalid upgrade item\n Expected => ${expected.componentsPatch}\n    Actual => ${upgrade.upgradeItem.components}")
+    private fun GameTestHelper.assertUpgradeItem(expected: ItemStack, upgrade: UpgradeHandle<ITurtleUpgrade>) {
+        if (!expected.matches(upgrade.item)) {
+            fail("Invalid upgrade item\n Expected => ${expected.componentsPatch}\n    Actual => ${upgrade.item.components}")
         }
     }
 
@@ -788,8 +787,8 @@ class Turtle_Test {
 
             val turtleBe = helper.getBlockEntity(BlockPos(1, 1, 1), TurtleBlockEntity::class.java)
             assertEquals(overlay, turtleBe.overlay)
-            assertEquals(pickaxeUpgrade, turtleBe.access.getUpgradeWithData(TurtleSide.LEFT))
-            assertEquals(shulkerUpgrade, turtleBe.access.getUpgradeWithData(TurtleSide.RIGHT))
+            assertEquals(pickaxeUpgrade, UpgradeData.of(turtleBe.access.getUpgrade(TurtleSide.LEFT)!!))
+            assertEquals(shulkerUpgrade, UpgradeData.of(turtleBe.access.getUpgrade(TurtleSide.RIGHT)!!))
 
             val turtleItem = turtleBe.getItem(0)
             assertEquals(overlay, TurtleItem.getOverlay(turtleItem))
@@ -950,7 +949,7 @@ class Turtle_Test {
             assertEquals(
                 helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
                     .getValue(Identifier.withDefaultNamespace("diamond_pickaxe")),
-                turtle.getUpgrade(TurtleSide.LEFT),
+                turtle.access.getUpgrade(TurtleSide.LEFT)?.upgrade,
             )
         }
     }

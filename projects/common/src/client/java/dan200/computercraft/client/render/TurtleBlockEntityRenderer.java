@@ -105,10 +105,10 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
 
     private void extractUpgrade(ITurtleAccess turtle, TurtleSide side, ItemStackRenderState state) {
         state.clear();
-        var upgrade = turtle.getUpgradeWithData(side);
+        var upgrade = turtle.getUpgrade(side);
         if (upgrade == null) return;
 
-        TurtleUpgradeModelManager.get(Minecraft.getInstance().getModelManager(), upgrade.holder())
+        TurtleUpgradeModelManager.get(Minecraft.getInstance().getModelManager(), upgrade.getUpgradeHolder())
             .renderForItem(upgrade, side, state, itemModelResolver, ItemTransform.NO_TRANSFORM, 31);
     }
 

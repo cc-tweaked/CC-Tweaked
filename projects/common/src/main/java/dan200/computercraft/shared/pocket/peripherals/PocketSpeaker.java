@@ -7,6 +7,8 @@ package dan200.computercraft.shared.pocket.peripherals;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
@@ -25,7 +27,7 @@ public class PocketSpeaker extends AbstractPocketUpgrade {
     }
 
     @Override
-    public void update(IPocketAccess access, @Nullable IPeripheral peripheral) {
+    public void update(IPocketAccess access, MutableUpgradeHandle<IPocketUpgrade> handle, @Nullable IPeripheral peripheral) {
         if (peripheral instanceof PocketSpeakerPeripheral speaker) speaker.update();
     }
 

@@ -6,8 +6,8 @@ package dan200.computercraft.shared.pocket.recipes;
 
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
+import dan200.computercraft.impl.UpgradeData;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.pocket.core.PocketSide;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;

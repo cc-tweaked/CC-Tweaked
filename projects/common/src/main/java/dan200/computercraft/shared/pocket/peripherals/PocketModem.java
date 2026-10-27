@@ -10,6 +10,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
@@ -35,7 +37,7 @@ public class PocketModem extends AbstractPocketUpgrade {
     }
 
     @Override
-    public void update(IPocketAccess access, @Nullable IPeripheral peripheral) {
+    public void update(IPocketAccess access, MutableUpgradeHandle<IPocketUpgrade> handle, @Nullable IPeripheral peripheral) {
         if (!(peripheral instanceof PocketModemPeripheral modem)) return;
 
         var state = modem.getModemState();

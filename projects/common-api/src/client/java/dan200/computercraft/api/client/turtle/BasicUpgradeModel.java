@@ -10,7 +10,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.StandaloneModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import net.minecraft.client.renderer.item.CuboidItemModelWrapper;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -57,7 +57,7 @@ public final class BasicUpgradeModel implements TurtleUpgradeModel {
     }
 
     @Override
-    public void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
+    public void renderForItem(UpgradeHandle<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
         renderer.appendModelIdentityElement(this);
         renderer.appendModelIdentityElement(side);
         renderer.appendModelIdentityElement(transform);

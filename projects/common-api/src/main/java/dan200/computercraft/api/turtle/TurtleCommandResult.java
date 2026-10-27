@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.turtle;
 
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import net.minecraft.core.Direction;
 import org.jspecify.annotations.Nullable;
 
@@ -11,7 +12,7 @@ import org.jspecify.annotations.Nullable;
  * Used to indicate the result of executing a turtle command.
  *
  * @see TurtleCommand#execute(ITurtleAccess)
- * @see ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)
+ * @see ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, MutableUpgradeHandle, TurtleVerb, Direction)
  */
 public final class TurtleCommandResult {
     private static final TurtleCommandResult EMPTY_SUCCESS = new TurtleCommandResult(true, null, null);
@@ -32,7 +33,7 @@ public final class TurtleCommandResult {
      * @param results The results of executing this command.
      * @return A successful command result with the given values.
      */
-    public static TurtleCommandResult success(@Nullable Object[] results) {
+    public static TurtleCommandResult success(@Nullable Object @Nullable [] results) {
         if (results == null || results.length == 0) return EMPTY_SUCCESS;
         return new TurtleCommandResult(true, null, results);
     }

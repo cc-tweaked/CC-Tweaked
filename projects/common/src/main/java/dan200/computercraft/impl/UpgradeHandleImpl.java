@@ -4,8 +4,10 @@
 
 package dan200.computercraft.impl;
 
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeHandle;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.item.ItemStackTemplate;
 
@@ -15,7 +17,7 @@ import net.minecraft.world.item.ItemStackTemplate;
  * @param <U> The type of upgrade.
  * @see AbstractUpgradeHolder
  */
-final class UpgradeHandleImpl<U extends UpgradeBase> implements UpgradeHandle<U> {
+final class UpgradeHandleImpl<U extends UpgradeBase> implements MutableUpgradeHandle<U> {
     private final AbstractUpgradeHolder<U> holder;
 
     UpgradeHandleImpl(AbstractUpgradeHolder<U> holder) {
@@ -23,9 +25,9 @@ final class UpgradeHandleImpl<U extends UpgradeBase> implements UpgradeHandle<U>
     }
 
     @Override
-    public U getUpgrade() {
+    public Holder.Reference<U> getUpgradeHolder() {
         holder.requireValid();
-        return holder.getUpgrade();
+        return holder.getUpgradeHolder();
     }
 
     @Override

@@ -24,8 +24,8 @@ public class REIComputerCraft implements REICommonPlugin {
 
             var left = TurtleItem.getUpgradeWithData(stack, TurtleSide.LEFT);
             var right = TurtleItem.getUpgradeWithData(stack, TurtleSide.RIGHT);
-            if (left != null) hash = hash * 31 + left.holder().key().identifier().hashCode();
-            if (right != null) hash = hash * 31 + right.holder().key().identifier().hashCode();
+            if (left != null) hash = hash * 31 + left.getUpgradeHolder().key().identifier().hashCode();
+            if (right != null) hash = hash * 31 + right.getUpgradeHolder().key().identifier().hashCode();
 
             return hash;
         }, ModRegistry.Items.TURTLE_NORMAL.get(), ModRegistry.Items.TURTLE_ADVANCED.get());
@@ -35,8 +35,8 @@ public class REIComputerCraft implements REICommonPlugin {
 
             var top = PocketComputerItem.getUpgradeWithData(stack, PocketSide.TOP);
             var back = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BACK);
-            if (top != null) hash = hash * 31 + top.holder().key().identifier().hashCode();
-            if (back != null) hash = hash * 31 + back.holder().key().identifier().hashCode();
+            if (top != null) hash = hash * 31 + top.getUpgradeHolder().key().identifier().hashCode();
+            if (back != null) hash = hash * 31 + back.getUpgradeHolder().key().identifier().hashCode();
 
             return hash;
         }, ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());

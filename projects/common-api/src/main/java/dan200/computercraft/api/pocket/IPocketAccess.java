@@ -4,7 +4,7 @@
 
 package dan200.computercraft.api.pocket;
 
-import dan200.computercraft.api.upgrades.UpgradeHandle;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
@@ -39,7 +39,7 @@ public interface IPocketAccess extends PocketComputer {
      * @return The currently equipped upgrade.
      * @since 1.121.0
      */
-    @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle();
+    @Nullable MutableUpgradeHandle<IPocketUpgrade> getUpgrade();
 
     /**
      * Remove the current peripheral and create a new one.

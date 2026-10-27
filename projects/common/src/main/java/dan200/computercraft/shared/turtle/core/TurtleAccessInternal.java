@@ -5,7 +5,11 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.impl.UpgradeData;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An internal version of {@link ITurtleAccess}.
@@ -23,4 +27,14 @@ public interface TurtleAccessInternal extends ITurtleAccess {
      * @see net.minecraft.world.Container#getItem(int)
      */
     ItemStack getItemSnapshot(int slot);
+
+    @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side);
+
+    /**
+     * Set the upgrade for a given side and its upgrade data.
+     *
+     * @param side    The side to set the upgrade on.
+     * @param upgrade The upgrade to set, may be {@code null} to clear.
+     */
+    void setUpgrade(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade);
 }

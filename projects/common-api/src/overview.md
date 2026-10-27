@@ -63,7 +63,7 @@ and fix any deprecations before updating Minecraft.
 
  - `UpgradeBase.getCraftingItem` has been removed in favour of [dan200.computercraft.api.upgrades.UpgradeBase#getCraftingIngredient()],
 
-   - Remove implementations of `getUpgradeItem` from your upgrade. For compatibility with older saves, you may want to
+   - Remove implementations of `getItem` from your upgrade. For compatibility with older saves, you may want to
      keep your implementation of [dan200.computercraft.api.upgrades.UpgradeBase#getUpgradeItem(DataComponentPatch)].
    - Replace usages of `AbstractTurtleUpgrade.StackAware` with `AbstractTurtleUpgrade` and similarly
      `AbstractPocketUpgrade.StackAware` with `AbstractPocketUpgrade.StackAware`.
@@ -72,9 +72,9 @@ and fix any deprecations before updating Minecraft.
    - Replace usages of `UpgradeType.simpleWithCustomItem` with [dan200.computercraft.api.upgrades.UpgradeType#simpleWithCustomIngredient].
 
  - `ITurtleAccess.getUpgradeData`/`IPocketAccess.getUpgradeData` and `ITurtleAccess.setUpgradeData`/`IPocketAccess.setUpgradeData`
-   have been removed. Replace these with a call to [dan200.computercraft.api.turtle.ITurtleAccess#getUpgradeHandle(TurtleSide)]/
-   [dan200.computercraft.api.pocket.IPocketAccess#getUpgradeHandle()], then [dan200.computercraft.api.upgrades.UpgradeHandle#getData()]
-   and [dan200.computercraft.api.upgrades.UpgradeHandle#setData(DataComponentPatch)].
+   have been removed. Replace these with a call to [dan200.computercraft.api.turtle.ITurtleAccess#getUpgrade(TurtleSide)]/
+   [dan200.computercraft.api.pocket.IPocketAccess#getUpgrade()], then [dan200.computercraft.api.upgrades.UpgradeHandle#getData()]
+   and [dan200.computercraft.api.upgrades.MutableUpgradeHandle#setData(DataComponentPatch)].
 
    Note these new methods can only be called on the main/server thread. You should **NOT** interact with them from off-thread
    peripheral calls.

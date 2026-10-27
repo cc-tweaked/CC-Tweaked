@@ -1,16 +1,15 @@
-// SPDX-FileCopyrightText: 2023 The CC: Tweaked Developers
+// SPDX-FileCopyrightText: 2026 The CC: Tweaked Developers
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.api.upgrades;
+package dan200.computercraft.impl;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.upgrades.UpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentGetter;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.ItemStackTemplate;
 import org.jspecify.annotations.Nullable;
 
@@ -19,7 +18,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @param <T> The type of upgrade, either {@link ITurtleUpgrade} or {@link IPocketUpgrade}.
  */
-public final class UpgradeData<T extends UpgradeBase> implements DataComponentGetter {
+public final class UpgradeData<T extends UpgradeBase> implements UpgradeHandle<T> {
     private final Holder.Reference<T> upgrade;
     private final DataComponentPatch data;
     private final @Nullable ItemStackTemplate stack;
@@ -74,8 +73,12 @@ public final class UpgradeData<T extends UpgradeBase> implements DataComponentGe
         return new UpgradeData<>(upgrade, data, stack);
     }
 
+    public static <T extends UpgradeBase> UpgradeData<T> of(UpgradeHandle<T> upgrade) {
+        return upgrade instanceof UpgradeData<T> data ? data : UpgradeData.of(upgrade.getUpgradeHolder(), upgrade.getItem(), upgrade.getData());
+    }
+
     /**
-     * Create an {@link UpgradeData} containing the default {@linkplain #data() data} for an upgrade.
+     * Create an {@link UpgradeData} containing the default {@linkplain #getData() data} for an upgrade.
      *
      * @param holder The upgrade instance.
      * @param <T>    The type of upgrade.
@@ -90,17 +93,9 @@ public final class UpgradeData<T extends UpgradeBase> implements DataComponentGe
      *
      * @return The current upgrade
      */
-    public Holder.Reference<T> holder() {
+    @Override
+    public Holder.Reference<T> getUpgradeHolder() {
         return upgrade;
-    }
-
-    /**
-     * Get the current upgrade.
-     *
-     * @return The current upgrade.
-     */
-    public T upgrade() {
-        return holder().value();
     }
 
     /**
@@ -108,7 +103,8 @@ public final class UpgradeData<T extends UpgradeBase> implements DataComponentGe
      *
      * @return The upgrade data.
      */
-    public DataComponentPatch data() {
+    @Override
+    public DataComponentPatch getData() {
         return data;
     }
 
@@ -117,8 +113,9 @@ public final class UpgradeData<T extends UpgradeBase> implements DataComponentGe
      *
      * @return This upgrade's item.
      */
-    public ItemStackTemplate getUpgradeItem() {
-        return stack == null ? upgrade().getUpgradeItem(data) : stack;
+    @Override
+    public ItemStackTemplate getItem() {
+        return stack == null ? getUpgrade().getUpgradeItem(data) : stack;
     }
 
     @Override
@@ -126,7 +123,7 @@ public final class UpgradeData<T extends UpgradeBase> implements DataComponentGe
         if (obj == this) return true;
         return obj instanceof UpgradeData<?> that
             && upgrade == that.upgrade && data.equals(that.data)
-            && ((stack == null && that.stack == null) || getUpgradeItem().equals(that.getUpgradeItem()));
+            && ((stack == null && that.stack == null) || getItem().equals(that.getItem()));
     }
 
     @Override
@@ -137,17 +134,5 @@ public final class UpgradeData<T extends UpgradeBase> implements DataComponentGe
     @Override
     public String toString() {
         return "UpgradeData[upgrade=" + upgrade.key().identifier() + ", data=" + data + ", stack=" + stack + "]";
-    }
-
-    /**
-     * Get a component from the upgrade's {@link #data()} .
-     *
-     * @param component The component get.
-     * @param <U>       The type of the component's value.
-     * @return The component, or {@code null} if not present.
-     */
-    @Override
-    public <U> @Nullable U get(DataComponentType<? extends U> component) {
-        return data().get(DataComponentMap.EMPTY, component);
     }
 }

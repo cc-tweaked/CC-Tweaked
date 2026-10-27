@@ -73,9 +73,9 @@ public class JEIComputerCraft implements IModPlugin {
         // Add left and right upgrades to the identifier
         var left = TurtleItem.getUpgradeWithData(stack, TurtleSide.LEFT);
         var right = TurtleItem.getUpgradeWithData(stack, TurtleSide.RIGHT);
-        if (left != null) name.append(left.holder().key().identifier());
+        if (left != null) name.append(left.getUpgradeHolder().key().identifier());
         if (left != null && right != null) name.append('|');
-        if (right != null) name.append(right.holder().key().identifier());
+        if (right != null) name.append(right.getUpgradeHolder().key().identifier());
 
         return name.toString();
     };
@@ -89,9 +89,9 @@ public class JEIComputerCraft implements IModPlugin {
         // Add the upgrade to the identifier
         var top = PocketComputerItem.getUpgradeWithData(stack, PocketSide.TOP);
         var back = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BACK);
-        if (top != null) name.append(top.holder().key().identifier());
+        if (top != null) name.append(top.getUpgradeHolder().key().identifier());
         if (top != null && back != null) name.append('|');
-        if (back != null) name.append(back.holder().key().identifier());
+        if (back != null) name.append(back.getUpgradeHolder().key().identifier());
 
         return name.toString();
     };

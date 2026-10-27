@@ -12,8 +12,6 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.cuboid.MissingCuboidModel;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.FileToIdConverter;
-import org.jetbrains.annotations.Contract;
-import org.jspecify.annotations.Nullable;
 
 /**
  * The model manager for {@link TurtleUpgradeModel}s.
@@ -36,8 +34,7 @@ public final class TurtleUpgradeModelManager {
      * @param upgrade      The turtle upgrade
      * @return The turtle upgrade model.
      */
-    @Contract("_, null -> null; _, !null -> !null")
-    public static @Nullable TurtleUpgradeModel get(ModelManager modelManager, Holder.@Nullable Reference<ITurtleUpgrade> upgrade) {
-        return upgrade == null ? null : loader.get(modelManager, upgrade.key().identifier());
+    public static TurtleUpgradeModel get(ModelManager modelManager, Holder.Reference<ITurtleUpgrade> upgrade) {
+        return loader.get(modelManager, upgrade.key().identifier());
     }
 }

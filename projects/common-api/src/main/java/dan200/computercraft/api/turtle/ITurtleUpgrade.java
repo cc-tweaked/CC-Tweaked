@@ -6,6 +6,7 @@ package dan200.computercraft.api.turtle;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.ComputerCraftAPIService;
@@ -124,8 +125,8 @@ public interface ITurtleUpgrade extends UpgradeBase {
      * Will only be called for peripheral upgrades. Creates a peripheral for a turtle being placed using this upgrade.
      * <p>
      * The peripheral created will be stored for the lifetime of the upgrade and will be passed as an argument to
-     * {@link #update(ITurtleAccess, TurtleSide)}. It will be attached, detached and have methods called in the same
-     * manner as a Computer peripheral.
+     * {@link #update(ITurtleAccess, TurtleSide, MutableUpgradeHandle)}. It will be attached, detached and have methods
+     * called in the same manner as a Computer peripheral.
      *
      * @param turtle Access to the turtle that the peripheral is being created for.
      * @param side   Which side of the turtle (left or right) that the upgrade resides on.
@@ -146,6 +147,7 @@ public interface ITurtleUpgrade extends UpgradeBase {
      *
      * @param turtle    Access to the turtle that the tool resides on.
      * @param side      Which side of the turtle (left or right) the tool resides on.
+     * @param handle    The upgrade handle, equal to {@link ITurtleAccess#getUpgrade(TurtleSide)} for the tool's side.
      * @param verb      Which action (dig or attack) the turtle is being called on to perform.
      * @param direction Which world direction the action should be performed in, relative to the turtles
      *                  position. This will either be up, down, or the direction the turtle is facing, depending on
@@ -155,7 +157,7 @@ public interface ITurtleUpgrade extends UpgradeBase {
      * a swinging animation. You may return {@code null} if this turtle is a Peripheral  and this method is not expected
      * to be called.
      */
-    default TurtleCommandResult useTool(ITurtleAccess turtle, TurtleSide side, TurtleVerb verb, Direction direction) {
+    default TurtleCommandResult useTool(ITurtleAccess turtle, TurtleSide side, MutableUpgradeHandle<ITurtleUpgrade> handle, TurtleVerb verb, Direction direction) {
         return TurtleCommandResult.failure();
     }
 
@@ -164,8 +166,9 @@ public interface ITurtleUpgrade extends UpgradeBase {
      *
      * @param turtle Access to the turtle that the upgrade resides on.
      * @param side   Which side of the turtle (left or right) the upgrade resides on.
+     * @param handle    The upgrade handle, equal to {@link ITurtleAccess#getUpgrade(TurtleSide)} for the upgrade's side.
      */
-    default void update(ITurtleAccess turtle, TurtleSide side) {
+    default void update(ITurtleAccess turtle, TurtleSide side, MutableUpgradeHandle<ITurtleUpgrade> handle) {
     }
 
     /**

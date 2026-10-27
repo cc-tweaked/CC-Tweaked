@@ -6,11 +6,11 @@ package dan200.computercraft.shared.pocket.core;
 
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.api.upgrades.UpgradeHandle;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.impl.AbstractUpgradeHolder;
+import dan200.computercraft.impl.UpgradeData;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
@@ -162,14 +162,14 @@ public final class PocketBrain implements PocketComputerInternal {
     public void tick() {
         for (var holder : upgrades.values()) {
             if (holder.upgrade == null) continue;
-            holder.upgrade.getUpgrade().update(holder, computer.getPeripheral(holder.side));
+            holder.upgrade.getUpgrade().update(holder, holder.upgrade.getHandle(), computer.getPeripheral(holder.side));
         }
     }
 
     public boolean onRightClick(ServerLevel level) {
         for (var holder : upgrades.values()) {
             if (holder.upgrade == null) continue;
-            return holder.upgrade.getUpgrade().onRightClick(level, holder, computer.getPeripheral(holder.side));
+            return holder.upgrade.getUpgrade().onRightClick(holder, holder.upgrade.getHandle(), computer.getPeripheral(holder.side));
         }
 
         return false;
@@ -181,7 +181,7 @@ public final class PocketBrain implements PocketComputerInternal {
 
     @Override
     public @Nullable UpgradeData<IPocketUpgrade> getUpgrade(PocketSide side) {
-        return getUpgradeAccess(side).getUpgrade();
+        return getUpgradeAccess(side).getUpgradeData();
     }
 
     @Override
@@ -254,12 +254,12 @@ public final class PocketBrain implements PocketComputerInternal {
             if (!holder.isValid(computer)) throw new IllegalStateException("Pocket computer is not active");
         }
 
-        private @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
+        private @Nullable UpgradeData<IPocketUpgrade> getUpgradeData() {
             return upgrade == null ? null : upgrade.getUpgradeData();
         }
 
         @Override
-        public @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle() {
+        public @Nullable MutableUpgradeHandle<IPocketUpgrade> getUpgrade() {
             requirePresent();
             return upgrade == null ? null : upgrade.getHandle();
         }

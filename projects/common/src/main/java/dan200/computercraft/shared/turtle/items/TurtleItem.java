@@ -8,8 +8,8 @@ import dan200.computercraft.annotations.FabricOverride;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.impl.UpgradeData;
 import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
@@ -46,7 +46,7 @@ public class TurtleItem extends BlockItem {
 
     public static @Nullable ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side) {
         var upgrade = getUpgradeWithData(stack, side);
-        return upgrade == null ? null : upgrade.upgrade();
+        return upgrade == null ? null : upgrade.getUpgrade();
     }
 
     public static @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(ItemStack stack, TurtleSide side) {

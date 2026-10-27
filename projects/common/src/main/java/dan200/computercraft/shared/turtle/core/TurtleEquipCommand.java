@@ -5,8 +5,8 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.impl.UpgradeData;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 
 public class TurtleEquipCommand implements TurtleCommand {
@@ -19,7 +19,7 @@ public class TurtleEquipCommand implements TurtleCommand {
     @Override
     public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Determine the upgrade to replace
-        var oldUpgrade = turtle.getUpgradeWithData(side);
+        var oldUpgrade = turtle.getUpgrade(side);
 
         // Determine the upgrade to equipLeft
         UpgradeData<ITurtleUpgrade> newUpgrade;
@@ -33,8 +33,8 @@ public class TurtleEquipCommand implements TurtleCommand {
 
         // Do the swapping:
         if (newUpgrade != null) turtle.getInventory().removeItem(turtle.getSelectedSlot(), 1);
-        if (oldUpgrade != null) TurtleUtil.storeItemOrDrop(turtle, oldUpgrade.getUpgradeItem().create());
-        turtle.setUpgrade(side, newUpgrade);
+        if (oldUpgrade != null) TurtleUtil.storeItemOrDrop(turtle, oldUpgrade.getItem().create());
+        ((TurtleAccessInternal) turtle).setUpgrade(side, newUpgrade);
 
         // Animate
         if (newUpgrade != null || oldUpgrade != null) {

@@ -9,7 +9,7 @@ import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import dan200.computercraft.impl.client.ComputerCraftAPIClientService;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.ItemModel;
@@ -67,7 +67,7 @@ public interface TurtleUpgradeModel {
      * @param seed      The current model seed.
      * @see ItemModel#update(ItemStackRenderState, ItemStack, ItemModelResolver, ItemDisplayContext, ClientLevel, ItemOwner, int)
      */
-    void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed);
+    void renderForItem(UpgradeHandle<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed);
 
     /**
      * An unbaked turtle model. Much like other unbaked models (e.g. {@link ItemModel.Unbaked}), this should resolve

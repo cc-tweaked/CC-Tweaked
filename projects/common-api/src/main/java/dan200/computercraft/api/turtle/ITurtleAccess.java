@@ -8,8 +8,7 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.api.upgrades.UpgradeHandle;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
@@ -221,47 +220,15 @@ public interface ITurtleAccess {
     void playAnimation(TurtleAnimation animation);
 
     /**
-     * Returns the upgrade on the specified side of the turtle, if there is one.
-     *
-     * @param side The side to get the upgrade from.
-     * @return The upgrade on the specified side of the turtle, if there is one.
-     * @see #getUpgradeWithData(TurtleSide)
-     * @see #setUpgrade(TurtleSide, UpgradeData)
-     */
-    @Nullable
-    ITurtleUpgrade getUpgrade(TurtleSide side);
-
-    /**
-     * Returns the upgrade on the specified side of the turtle, along with its {@linkplain UpgradeHandle#getItem() item}
-     * and {@linkplain UpgradeHandle#getData() data}.
-     *
-     * @param side The side to get the upgrade from.
-     * @return The upgrade on the specified side of the turtle, along with its upgrade data, if there is one.
-     * @see #getUpgradeHandle(TurtleSide)
-     * @see #setUpgrade(TurtleSide, UpgradeData)
-     */
-    @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side);
-
-    /**
      * Get a handle to the equipped upgrade.
      * <p>
      * This function is not thread safe and must be called from the server thread.
      *
      * @param side The side to get the upgrade from.
      * @return The currently equipped upgrade.
-     * @see #setUpgrade(TurtleSide, UpgradeData)
      * @since 1.121.0
      */
-    @Nullable UpgradeHandle<ITurtleUpgrade> getUpgradeHandle(TurtleSide side);
-
-    /**
-     * Set the upgrade for a given side and its upgrade data.
-     *
-     * @param side    The side to set the upgrade on.
-     * @param upgrade The upgrade to set, may be {@code null} to clear.
-     * @see #getUpgradeWithData(TurtleSide)
-     */
-    void setUpgrade(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade);
+    @Nullable MutableUpgradeHandle<ITurtleUpgrade> getUpgrade(TurtleSide side);
 
     /**
      * Returns the peripheral created by the upgrade on the specified side of the turtle, if there is one.

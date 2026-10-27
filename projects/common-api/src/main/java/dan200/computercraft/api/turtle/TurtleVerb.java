@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.turtle;
 
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import net.minecraft.core.Direction;
 
 /**
@@ -11,7 +12,7 @@ import net.minecraft.core.Direction;
  * a turtle.
  *
  * @see ITurtleUpgrade#getType()
- * @see ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)
+ * @see ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, MutableUpgradeHandle, TurtleVerb, Direction)
  */
 public enum TurtleVerb {
     /**

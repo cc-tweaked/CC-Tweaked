@@ -5,10 +5,8 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
-import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.turtle.TurtleUpgradeType;
+import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
@@ -52,7 +50,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade {
     }
 
     @Override
-    public void update(ITurtleAccess turtle, TurtleSide turtleSide) {
+    public void update(ITurtleAccess turtle, TurtleSide turtleSide, MutableUpgradeHandle<ITurtleUpgrade> upgrade) {
         var peripheral = turtle.getPeripheral(turtleSide);
         if (peripheral instanceof Peripheral speaker) speaker.update();
     }

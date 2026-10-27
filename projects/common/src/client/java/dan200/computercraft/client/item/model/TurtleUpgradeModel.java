@@ -43,7 +43,7 @@ public record TurtleUpgradeModel(TurtleSide side, Matrix4fc transformation, Item
         if (upgrade == null) return;
 
         // TODO: How do we apply "transformation" here?
-        TurtleUpgradeModelManager.get(Minecraft.getInstance().getModelManager(), upgrade.holder())
+        TurtleUpgradeModelManager.get(Minecraft.getInstance().getModelManager(), upgrade.getUpgradeHolder())
             .renderForItem(upgrade, side, state, resolver, base.getTransform(context), seed);
     }
 

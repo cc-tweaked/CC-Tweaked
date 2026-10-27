@@ -8,7 +8,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.api.upgrades.UpgradeHandle;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.generic.methods.AbstractInventoryMethods;
@@ -68,8 +68,8 @@ public final class TurtleStorage extends AbstractTurtleUpgrade {
             this.inventoryMethods = new InventoryMethods(turtle.getLevel().registryAccess());
         }
 
-        private UpgradeHandle<ITurtleUpgrade> getHandle() throws LuaException {
-            var upgrade = turtle.getUpgradeHandle(side);
+        private MutableUpgradeHandle<ITurtleUpgrade> getHandle() throws LuaException {
+            var upgrade = turtle.getUpgrade(side);
             if (upgrade == null || !(upgrade.getUpgrade() instanceof TurtleStorage)) {
                 throw new LuaException("Upgrade is not equipped");
             }
@@ -163,7 +163,7 @@ public final class TurtleStorage extends AbstractTurtleUpgrade {
             return moveAndUpdate(handle, stack, turtleInventory, fromSlot.orElse(turtle.getSelectedSlot() + 1), getContainer(stack), toSlot, limit);
         }
 
-        private int moveAndUpdate(UpgradeHandle<ITurtleUpgrade> handle, ItemStack stack, ItemContainer from, int fromSlot, ItemContainer to, Optional<Integer> toSlot, Optional<Integer> limit) throws LuaException {
+        private int moveAndUpdate(MutableUpgradeHandle<ITurtleUpgrade> handle, ItemStack stack, ItemContainer from, int fromSlot, ItemContainer to, Optional<Integer> toSlot, Optional<Integer> limit) throws LuaException {
             var moved = AbstractInventoryMethods.move(from, fromSlot, to, toSlot, limit);
             if (moved > 0) handle.setItem(stack);
             return moved;

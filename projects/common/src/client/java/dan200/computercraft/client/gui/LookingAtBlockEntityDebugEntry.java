@@ -84,8 +84,10 @@ public final class LookingAtBlockEntityDebugEntry extends DebugEntryLookingAt {
     }
 
     private static void addTurtleUpgrade(List<String> out, TurtleBlockEntity turtle, TurtleSide side) {
-        var upgrade = turtle.getAccess().getUpgradeWithData(side);
-        if (upgrade != null) out.add(String.format("Upgrade[%s]: %s", side, upgrade.holder().key().identifier()));
+        var upgrade = turtle.getAccess().getUpgrade(side);
+        if (upgrade != null) {
+            out.add(String.format("Upgrade[%s]: %s", side, upgrade.getUpgradeHolder().key().identifier()));
+        }
     }
 
 }
