@@ -16,7 +16,6 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.util.DataComponentUtil;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -255,8 +254,7 @@ public final class PocketBrain implements PocketComputerInternal {
             if (!holder.isValid(computer)) throw new IllegalStateException("Pocket computer is not active");
         }
 
-        @Override
-        public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
+        private @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
             return upgrade == null ? null : upgrade.getUpgradeData();
         }
 
@@ -264,26 +262,6 @@ public final class PocketBrain implements PocketComputerInternal {
         public @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle() {
             requirePresent();
             return upgrade == null ? null : upgrade.getHandle();
-        }
-
-        @Override
-        @Deprecated
-        public DataComponentPatch getUpgradeData() {
-            var upgrade = this.upgrade;
-            return upgrade == null ? DataComponentPatch.EMPTY : upgrade.getData();
-        }
-
-        @Override
-        public void setUpgradeData(DataComponentPatch data) {
-            var stack = requireStack();
-
-            var upgrade = this.upgrade;
-            if (upgrade == null || upgrade.getData().equals(data)) return;
-
-            upgrade.setData(data);
-            upgrade.recomputeItem();
-            stack.set(component, upgrade.getUpgradeData());
-            holder.setChanged();
         }
 
         @Override
@@ -300,8 +278,7 @@ public final class PocketBrain implements PocketComputerInternal {
          *
          * @param upgrade The new upgrade to set it to, may be {@code null}.
          */
-        @Override
-        public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
+        private void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
             var stack = requireStack();
 
             if (!setUpgradeDirect(upgrade)) return;

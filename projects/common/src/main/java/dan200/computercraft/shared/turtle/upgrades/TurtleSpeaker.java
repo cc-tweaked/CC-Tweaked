@@ -18,7 +18,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public class TurtleSpeaker extends AbstractTurtleUpgrade.StackAware {
+public class TurtleSpeaker extends AbstractTurtleUpgrade {
     private static final class Peripheral extends UpgradeSpeakerPeripheral {
         final ITurtleAccess turtle;
 

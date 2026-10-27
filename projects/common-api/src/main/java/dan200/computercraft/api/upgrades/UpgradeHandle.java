@@ -88,9 +88,7 @@ public interface UpgradeHandle<U extends UpgradeBase> {
     /**
      * Remove this upgrade, unequipping it and destroying the item.
      * <p>
-     * This is typically used when the item is consumed (e.g. a tool using all durability). This is equivalent to
-     * calling {@link ITurtleAccess#setUpgrade(TurtleSide, UpgradeData)} or {@link IPocketAccess#setUpgrade(UpgradeData)}
-     * with {@code null}.
+     * This is typically used when the item is consumed (e.g. a tool using all durability).
      */
     void remove();
 }

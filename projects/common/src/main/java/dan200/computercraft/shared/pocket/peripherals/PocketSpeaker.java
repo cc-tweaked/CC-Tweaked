@@ -13,7 +13,7 @@ import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jspecify.annotations.Nullable;
 
-public class PocketSpeaker extends AbstractPocketUpgrade.StackAware {
+public class PocketSpeaker extends AbstractPocketUpgrade {
     public PocketSpeaker(Ingredient item) {
         super(UpgradeSpeakerPeripheral.ADJECTIVE, item);
     }

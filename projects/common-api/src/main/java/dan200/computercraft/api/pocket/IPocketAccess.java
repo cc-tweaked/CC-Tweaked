@@ -4,11 +4,7 @@
 
 package dan200.computercraft.api.pocket;
 
-import dan200.computercraft.api.upgrades.UpgradeBase;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeHandle;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.world.item.ItemStackTemplate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
@@ -36,64 +32,14 @@ public interface IPocketAccess extends PocketComputer {
     void setLight(int colour);
 
     /**
-     * Get the currently equipped upgrade.
-     *
-     * @return The currently equipped upgrade.
-     * @see #setUpgrade(UpgradeData)
-     * @see #getUpgradeHandle()
-     */
-    @Nullable UpgradeData<IPocketUpgrade> getUpgrade();
-
-    /**
      * Get a handle to the equipped upgrade.
      * <p>
      * This function is not thread safe and must be called from the server thread.
      *
      * @return The currently equipped upgrade.
-     * @see #setUpgrade(UpgradeData)
      * @since 1.121.0
      */
     @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle();
-
-    /**
-     * Set the upgrade for this pocket computer, also updating the item stack.
-     * <p>
-     * This method can only be called from the main server thread, when this computer is {@linkplain #isActive() is
-     * active}.
-     *
-     * @param upgrade The new upgrade to set it to, may be {@code null}.
-     * @see #getUpgrade()
-     * @see #getUpgradeHandle()
-     */
-    void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade);
-
-    /**
-     * Get the upgrade-specific NBT.
-     * <p>
-     * This is persisted between computer reboots and chunk loads.
-     *
-     * @return The upgrade's NBT.
-     * @see #setUpgradeData(DataComponentPatch)
-     * @see UpgradeBase#getUpgradeItem(DataComponentPatch)
-     * @see UpgradeBase#getUpgradeData(ItemStackTemplate)
-     * @see #getUpgrade()
-     * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#getData()}.
-     */
-    @Deprecated(since = "1.121.0")
-    DataComponentPatch getUpgradeData();
-
-    /**
-     * Update the upgrade-specific data.
-     * <p>
-     * This method can only be called from the main server thread, when this computer is {@linkplain #isActive() is
-     * active}.
-     *
-     * @param data The new upgrade data.
-     * @see #getUpgradeData()
-     * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#setData(DataComponentPatch)}.
-     */
-    @Deprecated(since = "1.121.0")
-    void setUpgradeData(DataComponentPatch data);
 
     /**
      * Remove the current peripheral and create a new one.

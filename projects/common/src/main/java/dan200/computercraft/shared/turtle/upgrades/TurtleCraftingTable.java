@@ -14,7 +14,7 @@ import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.world.item.crafting.Ingredient;
 
 
-public class TurtleCraftingTable extends AbstractTurtleUpgrade.StackAware {
+public class TurtleCraftingTable extends AbstractTurtleUpgrade {
     public TurtleCraftingTable(Ingredient stack) {
         super(TurtleUpgradeType.PERIPHERAL, "upgrade.minecraft.crafting_table.adjective", stack);
     }

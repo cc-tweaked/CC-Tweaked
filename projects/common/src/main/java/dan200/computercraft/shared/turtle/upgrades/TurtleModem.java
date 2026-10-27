@@ -20,7 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public class TurtleModem extends AbstractTurtleUpgrade.StackAware {
+public class TurtleModem extends AbstractTurtleUpgrade {
     public static final MapCodec<TurtleModem> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         Ingredient.CODEC.fieldOf("item").forGetter(AbstractTurtleUpgrade::getCraftingIngredient),
         Codec.BOOL.fieldOf("advanced").forGetter(TurtleModem::advanced)

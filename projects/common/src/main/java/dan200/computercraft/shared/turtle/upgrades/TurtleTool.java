@@ -51,7 +51,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 
-public class TurtleTool extends AbstractTurtleUpgrade.StackAware {
+public class TurtleTool extends AbstractTurtleUpgrade {
     public static final MapCodec<TurtleTool> CODEC = TurtleToolSpec.CODEC.xmap(TurtleTool::new, x -> x.spec);
 
     private static final TurtleCommandResult UNBREAKABLE = TurtleCommandResult.failure("Cannot break unbreakable block");

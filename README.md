@@ -50,13 +50,13 @@ dependencies {
   // Vanilla (i.e. for multi-loader systems)
   compileOnly("cc.tweaked:cc-tweaked-$mcVersion-common-api:$cctVersion")
 
-  // Forge Gradle
+  // NeoForge
   compileOnly("cc.tweaked:cc-tweaked-$mcVersion-forge-api:$cctVersion")
   runtimeOnly("cc.tweaked:cc-tweaked-$mcVersion-forge:$cctVersion")
 
-  // Fabric Loom
-  modCompileOnly("cc.tweaked:cc-tweaked-$mcVersion-fabric-api:$cctVersion")
-  modRuntimeOnly("cc.tweaked:cc-tweaked-$mcVersion-fabric:$cctVersion")
+  // Fabric
+  compileOnly("cc.tweaked:cc-tweaked-$mcVersion-fabric-api:$cctVersion")
+  runtimeOnly("cc.tweaked:cc-tweaked-$mcVersion-fabric:$cctVersion")
 }
 ```
 

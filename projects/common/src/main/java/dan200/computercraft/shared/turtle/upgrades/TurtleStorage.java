@@ -25,7 +25,7 @@ import java.util.Optional;
 /**
  * Turtle storage upgrade.
  */
-public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
+public final class TurtleStorage extends AbstractTurtleUpgrade {
     public static final String ADJECTIVE = "upgrade.computercraft.storage.adjective";
 
     public static final String DATA_PACK_NAME = "turtle_storage";

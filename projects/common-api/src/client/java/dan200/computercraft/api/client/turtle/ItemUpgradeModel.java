@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.cuboid.ItemTransform;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -30,8 +29,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * A {@link TurtleUpgradeModel} that renders the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(DataComponentPatch)
- * upgrade item}.
+ * A {@link TurtleUpgradeModel} that renders the upgrade's {@linkplain UpgradeData#getUpgradeItem()} item.
  * <p>
  * This uses appropriate transformations for "flat" items, namely those extending the {@literal minecraft:item/generated}
  * model type. It will not appear correct for 3D models with additional depth, such as blocks.

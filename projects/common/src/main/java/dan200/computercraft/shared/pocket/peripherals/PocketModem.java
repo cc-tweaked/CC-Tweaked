@@ -16,7 +16,7 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeriph
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jspecify.annotations.Nullable;
 
-public class PocketModem extends AbstractPocketUpgrade.StackAware {
+public class PocketModem extends AbstractPocketUpgrade {
     public static final MapCodec<PocketModem> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         Ingredient.CODEC.fieldOf("item").forGetter(AbstractPocketUpgrade::getCraftingIngredient),
         Codec.BOOL.fieldOf("advanced").forGetter(x -> x.advanced)

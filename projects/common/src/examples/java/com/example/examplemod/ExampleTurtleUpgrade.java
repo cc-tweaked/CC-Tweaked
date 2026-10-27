@@ -9,7 +9,7 @@ import net.minecraft.world.item.crafting.Ingredient;
  * An example turtle upgrade.
  */
 // @start region=body
-public class ExampleTurtleUpgrade extends AbstractTurtleUpgrade.StackAware {
+public class ExampleTurtleUpgrade extends AbstractTurtleUpgrade {
     public ExampleTurtleUpgrade(Ingredient stack) {
         super(TurtleUpgradeType.PERIPHERAL, "upgrade.examplemod.example_turtle_upgrade.adjective", stack);
     }

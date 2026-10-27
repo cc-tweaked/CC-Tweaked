@@ -403,10 +403,6 @@ class Turtle_Test {
         if (!expected.matches(upgrade.upgradeItem)) {
             fail("Invalid upgrade item\n Expected => ${expected.componentsPatch}\n    Actual => ${upgrade.upgradeItem.components}")
         }
-
-        if (!ItemStack(expected.item).matches(upgrade.upgrade().craftingItem)) {
-            fail("Original upgrade item has changed (is now ${upgrade.upgrade().craftingItem})")
-        }
     }
 
     /**

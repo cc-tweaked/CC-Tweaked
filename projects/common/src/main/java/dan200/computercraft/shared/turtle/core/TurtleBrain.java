@@ -27,7 +27,6 @@ import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.FluidTags;
@@ -511,25 +510,6 @@ public class TurtleBrain implements TurtleAccessInternal {
         requirePresent();
         var upgrade = upgrades.get(side);
         return upgrade == null ? null : upgrade.getHandle();
-    }
-
-    @Override
-    @Deprecated
-    public DataComponentPatch getUpgradeData(TurtleSide side) {
-        var upgrade = upgrades.get(side);
-        return upgrade == null ? DataComponentPatch.EMPTY : upgrade.getData();
-    }
-
-    @Override
-    @Deprecated
-    public void setUpgradeData(TurtleSide side, DataComponentPatch data) {
-        var upgrade = upgrades.get(side);
-        if (upgrade == null || Objects.equals(upgrade.getData(), data)) return;
-
-        upgrade.setData(data);
-        upgrade.recomputeItem();
-
-        BlockEntityHelpers.updateBlock(owner);
     }
 
     public Vec3 getRenderOffset(float f) {

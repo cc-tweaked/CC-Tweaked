@@ -12,7 +12,6 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeHandle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
@@ -271,28 +270,4 @@ public interface ITurtleAccess {
      * @return The peripheral created by the upgrade on the specified side of the turtle, {@code null} if none exists.
      */
     @Nullable IPeripheral getPeripheral(TurtleSide side);
-
-    /**
-     * Get an upgrade-specific NBT compound, which can be used to store arbitrary data.
-     * <p>
-     * This will be persisted across turtle restarts and chunk loads, as well as being synced to the client. You can
-     * call {@link #setUpgrade(TurtleSide, UpgradeData)} to modify it.
-     *
-     * @param side The side to get the upgrade data for.
-     * @return The upgrade-specific data.
-     * @deprecated Use {@link #getUpgradeHandle(TurtleSide)} and {@link UpgradeHandle#getData()}.
-     */
-    @Deprecated(since = "1.121.0")
-    DataComponentPatch getUpgradeData(TurtleSide side);
-
-    /**
-     * Update the upgrade-specific data.
-     *
-     * @param side The side to set the upgrade data for.
-     * @param data The new upgrade data.
-     * @see #getUpgradeData(TurtleSide)
-     * @deprecated Use {@link #getUpgradeHandle(TurtleSide)} and {@link UpgradeHandle#setData(DataComponentPatch)}.
-     */
-    @Deprecated(since = "1.121.0")
-    void setUpgradeData(TurtleSide side, DataComponentPatch data);
 }

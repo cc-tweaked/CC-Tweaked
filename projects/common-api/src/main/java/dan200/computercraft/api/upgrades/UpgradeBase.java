@@ -4,11 +4,8 @@
 
 package dan200.computercraft.api.upgrades;
 
-import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleSide;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -41,85 +38,45 @@ public interface UpgradeBase {
     Component getAdjective();
 
     /**
-     * Return an item stack representing the type of item that a computer must be crafted
-     * with to create a version which holds this upgrade. This item stack is also used
-     * to determine the upgrade given by {@code turtle.equipLeft()} or {@code pocket.equipBack()}
-     * <p>
-     * This should be constant over a session (or at least a datapack reload). It is recommended
-     * that you cache the stack too, in order to prevent constructing it every time the method
-     * is called.
-     *
-     * @return The item stack to craft with.
-     * @deprecated Prefer {@link #getCraftingIngredient()}.
-     */
-    @Deprecated(since = "1.121.0")
-    ItemStackTemplate getCraftingItem();
-
-    /**
      * Returns an ingredient representing the item(s) that a computer must be crafted with to create a version which
      * holds this upgrade.
      * <p>
-     * This should be constant over a session (or at least a datapack reload).
+     * This should be constant for a given upgrade.
      *
      * @return The ingredient for this upgrade.
      * @since 1.121.0
      */
-    default Ingredient getCraftingIngredient() {
-        return Ingredient.of(getCraftingItem().item().value());
-    }
+    Ingredient getCraftingIngredient();
 
     /**
      * Returns the item stack representing a currently equipped turtle upgrade.
      * <p>
-     * Historically, upgrades did not store the item they were equipped with. Instead, {@link #getUpgradeData(ItemStackTemplate)}
-     * could be used to extract data from the equipped item, then {@link #getUpgradeItem(DataComponentPatch)} could be used to
-     * reconstruct it.
+     * Historically, upgrades did not store the item they were equipped with. Instead, one could extract data from the
+     * equipped item, then call {@link #getUpgradeItem(DataComponentPatch)} to reconstruct it.
      * <p>
      * As of CC: Tweaked 1.121.0, upgrades now store the item they were originally equipped with. This function is
-     * used to reconstruct the item from older saves, or if the upgrade still uses the legacy
-     * {@link ITurtleAccess#setUpgradeData(TurtleSide, DataComponentPatch)}/{@link IPocketAccess#setUpgradeData(DataComponentPatch)} API.
+     * used to reconstruct the item from older saves.
      *
-     * @param upgradeData The current upgrade data. This should <strong>NOT</strong> be mutated.
-     * @return The item stack returned when unequipping.
+     * @param upgradeData The current upgrade data.
+     * @return The item provided by this upgrade.
      */
     default ItemStackTemplate getUpgradeItem(DataComponentPatch upgradeData) {
-        return getCraftingItem();
-    }
-
-    /**
-     * Extract upgrade data from an {@link ItemStack}.
-     * <p>
-     * This upgrade data will be available with {@link UpgradeHandle#getData()} or
-     * {@link IPocketAccess#getUpgradeData()}.
-     * <p>
-     * This should be an inverse to {@link #getUpgradeItem(DataComponentPatch)}.
-     *
-     * @param stack The stack that was equipped by the turtle or pocket computer. This will have the same item as
-     *              {@link #getCraftingItem()}.
-     * @return The upgrade data that should be set on the turtle or pocket computer.
-     * @deprecated Upgrades now store their item by default, so this function does not need to be implemented.
-     */
-    @Deprecated(since = "1.121.0")
-    default DataComponentPatch getUpgradeData(ItemStackTemplate stack) {
-        return DataComponentPatch.EMPTY;
+        var items = getCraftingIngredient().items().findFirst().orElseThrow(() -> new IllegalStateException("No item preset"));
+        return new ItemStackTemplate(items.value());
     }
 
     /**
      * Determine if an item is suitable for being used for this upgrade.
      * <p>
-     * When un-equipping an upgrade, we return {@link #getCraftingItem()} rather than
-     * the original stack. In order to prevent people losing items with enchantments (or
-     * repairing items with non-0 damage), we impose additional checks on the item.
-     * <p>
-     * The default check requires that any NBT is exactly the same as the crafting item,
-     * but this may be relaxed for your upgrade.
+     * This is used <em>in addition to</em> {@link #getCraftingIngredient()} to determine whether an item is suitable
+     * as an upgrade. This may be used to check additional properties of an item (e.g. the presence/absence of a
+     * component) that is not possible with vanilla's {@link Ingredient}s.
      *
-     * @param stack The stack to check. This is guaranteed to be non-empty and have the same item as
-     *              {@link #getCraftingItem()}.
+     * @param stack The stack to check. This is guaranteed to be non-empty and match {@link #getCraftingIngredient()}.
      * @return If this stack may be used to equip this upgrade.
      */
     default boolean isItemSuitable(ItemStack stack) {
-        return stack.is(getCraftingItem().item()) && stack.getComponentsPatch().equals(getCraftingItem().components());
+        return true;
     }
 
     /**

@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
  * You then write a JSON file in your mod's {@literal data/} folder. This is then parsed when the world is loaded, and
  * the upgrade registered internally.
  *
- * @see AbstractPocketUpgrade.StackAware
+ * @see AbstractPocketUpgrade
  */
 public interface IPocketUpgrade extends UpgradeBase {
     ResourceKey<Registry<IPocketUpgrade>> REGISTRY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade"));

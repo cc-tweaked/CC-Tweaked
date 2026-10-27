@@ -47,18 +47,6 @@ public final class UpgradeData<T extends UpgradeBase> implements DataComponentGe
     }
 
     /**
-     * Create a new {@link UpgradeData} with an item and upgrade data.
-     *
-     * @param upgrade The current upgrade.
-     * @param data    The upgrade's data.
-     * @deprecated Use {@link UpgradeData#of(Holder.Reference, ItemStackTemplate, DataComponentPatch)}.
-     */
-    @Deprecated(since = "1.121.0")
-    public UpgradeData(Holder.Reference<T> upgrade, DataComponentPatch data) {
-        this(upgrade, data, null);
-    }
-
-    /**
      * A utility method to construct a new {@link UpgradeData} instance.
      *
      * @param upgrade The upgrade.
@@ -68,10 +56,8 @@ public final class UpgradeData<T extends UpgradeBase> implements DataComponentGe
      * @deprecated Use {@link #of(Holder.Reference, ItemStackTemplate, DataComponentPatch)}
      */
     @Deprecated(since = "1.121.0")
-    public static <T extends UpgradeBase> UpgradeData<T> of(
-        Holder.Reference<T> upgrade, DataComponentPatch data
-    ) {
-        return new UpgradeData<>(upgrade, data);
+    public static <T extends UpgradeBase> UpgradeData<T> of(Holder.Reference<T> upgrade, DataComponentPatch data) {
+        return new UpgradeData<>(upgrade, data, null);
     }
 
     /**
@@ -96,8 +82,7 @@ public final class UpgradeData<T extends UpgradeBase> implements DataComponentGe
      * @return The default upgrade data.
      */
     public static <T extends UpgradeBase> UpgradeData<T> ofDefault(Holder.Reference<T> holder) {
-        var upgrade = holder.value();
-        return of(holder, upgrade.getCraftingItem(), upgrade.getUpgradeData(upgrade.getCraftingItem()));
+        return of(holder, holder.value().getUpgradeItem(DataComponentPatch.EMPTY), DataComponentPatch.EMPTY);
     }
 
     /**

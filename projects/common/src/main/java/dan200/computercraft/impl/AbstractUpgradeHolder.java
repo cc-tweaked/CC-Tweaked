@@ -6,7 +6,6 @@ package dan200.computercraft.impl;
 
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeHandle;
@@ -86,14 +85,6 @@ public abstract class AbstractUpgradeHolder<U extends UpgradeBase> {
     final void setItem(ItemStackTemplate item) {
         this.item = item;
         this.upgradeData = null;
-    }
-
-    /**
-     * Recompute the item from the upgrade's data. This should be called from methods like
-     * {@link ITurtleAccess#setUpgradeData(TurtleSide, DataComponentPatch)} to support upgrades that do not preserve their item.
-     */
-    public final void recomputeItem() {
-        setItem(upgrade.value().getUpgradeItem(data));
     }
 
     public final UpgradeHandle<U> getHandle() {

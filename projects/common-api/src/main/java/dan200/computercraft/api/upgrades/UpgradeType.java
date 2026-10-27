@@ -7,9 +7,6 @@ package dan200.computercraft.api.upgrades;
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
@@ -63,7 +60,7 @@ public sealed interface UpgradeType<T extends UpgradeBase> permits UpgradeTypeIm
     /**
      * Create an upgrade type for an upgrade that takes no arguments.
      * <p>
-     * If you might want to vary the item, it's suggested you use {@link #simpleWithCustomItem(Function)} instead.
+     * If you might want to vary the item, it's suggested you use {@link #simpleWithCustomIngredient(Function)} instead.
      *
      * @param instance Generate a new upgrade with a specific ID.
      * @param <T>      The type of the generated upgrade.
@@ -71,21 +68,6 @@ public sealed interface UpgradeType<T extends UpgradeBase> permits UpgradeTypeIm
      */
     static <T extends UpgradeBase> UpgradeType<T> simple(T instance) {
         return create(MapCodec.unit(instance));
-    }
-
-    /**
-     * Create an upgrade type for a simple upgrade whose crafting item can be specified.
-     *
-     * @param factory Generate a new upgrade with a specific ID and crafting item. The returned upgrade's
-     *                {@link UpgradeBase#getCraftingItem()} <strong>MUST</strong> equal the provided item.
-     * @param <T>     The type of the generated upgrade.
-     * @return A new upgrade type.
-     * @see #simple(UpgradeBase)  For upgrades whose crafting stack should not vary.
-     */
-    static <T extends UpgradeBase> UpgradeType<T> simpleWithCustomItem(Function<ItemStackTemplate, T> factory) {
-        return create(Item.CODEC
-            .xmap(x -> factory.apply(new ItemStackTemplate(x, 1, DataComponentPatch.EMPTY)), x -> x.getCraftingItem().item())
-            .fieldOf("item"));
     }
 
     /**

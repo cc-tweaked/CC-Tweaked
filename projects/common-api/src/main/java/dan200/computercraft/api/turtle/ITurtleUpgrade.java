@@ -35,7 +35,7 @@ import java.util.function.Function;
  * <h2>Example</h2>
  * <h3>Registering the upgrade type</h3>
  * First, let's create a new class that implements {@link ITurtleUpgrade}. It is recommended to subclass
- * {@link AbstractTurtleUpgrade.StackAware}, as that provides a default implementation of most methods.
+ * {@link AbstractTurtleUpgrade}, as that provides a default implementation of most methods.
  *
  * {@snippet class=com.example.examplemod.ExampleTurtleUpgrade region=body}
  *
@@ -87,26 +87,13 @@ import java.util.function.Function;
  * <h4>Forge</h4>
  * {@snippet class=com.example.examplemod.ForgeExampleModDataGenerator region=turtle_upgrades}
  *
- * @see AbstractTurtleUpgrade.StackAware
+ * @see AbstractTurtleUpgrade
  */
 public interface ITurtleUpgrade extends UpgradeBase {
     /**
      * The registry in which turtle upgrades are stored.
      */
     ResourceKey<Registry<ITurtleUpgrade>> REGISTRY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_upgrade"));
-
-    /**
-     * Create a {@link ResourceKey} for a turtle upgrade given a {@link Identifier}.
-     * <p>
-     * This should only be called from within data generation code. Do not hard code references to your upgrades!
-     *
-     * @param id The id of the turtle upgrade.
-     * @return The upgrade registry key.
-     */
-    @Deprecated(forRemoval = true)
-    static ResourceKey<ITurtleUpgrade> createKey(Identifier id) {
-        return ResourceKey.create(REGISTRY, id);
-    }
 
     /**
      * The registry key for turtle upgrade types.
