@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -187,27 +188,47 @@ public class ComputerTestDelegate {
 
     private static class DynamicNodeBuilder {
         private final String name;
-        private final URI uri;
+        private final @Nullable URI uri;
         private final Map<String, DynamicNodeBuilder> children;
         private final Executable executor;
 
-        DynamicNodeBuilder(String name, String path) {
+        DynamicNodeBuilder(String name, @Nullable String path) {
             this.name = name;
             this.uri = getUri(path);
             this.children = new HashMap<>();
             this.executor = null;
         }
 
-        DynamicNodeBuilder(String name, String path, Executable executor) {
+        DynamicNodeBuilder(String name, @Nullable String path, Executable executor) {
             this.name = name;
             this.uri = getUri(path);
             this.children = Map.of();
             this.executor = executor;
         }
 
-        private static URI getUri(String path) {
-            // Unfortunately ?line=xxx doesn't appear to work with IntelliJ, so don't worry about getting it working.
-            return path == null ? null : new File("src/test/resources" + path.substring(0, path.indexOf(':'))).toURI();
+        /**
+         * Decode our Lua location ({@code @path:line:col} into a {@code UriSource}-compatible URI.
+         *
+         * @param path The path to parse.
+         * @return The URI, or {@code null} if not present.
+         */
+        private static @Nullable URI getUri(@Nullable String path) {
+            if (path == null || !path.startsWith("@")) return null;
+
+            var parts = Splitter.on(':').splitToList(path);
+            if (parts.size() != 3) {
+                LOG.warn("Invalid path '{}'", path);
+                return null;
+            }
+
+            var uri = new File("src/test/resources" + parts.get(0).substring(1)).toURI();
+            try {
+                return new URI(
+                    uri.getScheme(), uri.getAuthority(), uri.getPath(), "line=" + parts.get(1) + "&column=" + parts.get(2), null
+                );
+            } catch (URISyntaxException e) {
+                throw new IllegalStateException("Invalid URI", e);
+            }
         }
 
         DynamicNodeBuilder get(String name) {
