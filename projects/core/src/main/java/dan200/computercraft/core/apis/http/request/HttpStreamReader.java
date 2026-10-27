@@ -34,17 +34,17 @@ import java.util.Optional;
  * @see HTTPAPI#request(IArguments)
  */
 public final class HttpStreamReader {
-    private final HttpRequest request;
     private final HttpBodyStream stream;
+    private final String address;
     private final boolean binary;
 
     private boolean isClosed = false;
     private final ByteBuffer single = ByteBuffer.allocate(1);
 
-    public HttpStreamReader(HttpRequest request, HttpBodyStream stream) {
-        this.request = request;
+    public HttpStreamReader(HttpBodyStream stream, String address, boolean binary) {
         this.stream = stream;
-        this.binary = request.isBinary();
+        this.address = address;
+        this.binary = binary;
     }
 
     private void checkOpen() throws LuaException {
@@ -64,7 +64,7 @@ public final class HttpStreamReader {
     public void close() throws LuaException {
         checkOpen();
         isClosed = true;
-        request.partialClosed();
+        stream.closeStream();
     }
 
     private abstract class ContentPoller implements ILuaCallback {
@@ -72,7 +72,7 @@ public final class HttpStreamReader {
 
         @Override
         public MethodResult resume(@Nullable Object[] args) throws LuaException {
-            if (args.length < 2 || !Objects.equals(args[0], HttpRequest.CONTENT_EVENT) || !Objects.equals(args[1], request.address)) {
+            if (args.length < 2 || !Objects.equals(args[0], HttpRequest.CONTENT_EVENT) || !Objects.equals(args[1], address)) {
                 return pull;
             }
 

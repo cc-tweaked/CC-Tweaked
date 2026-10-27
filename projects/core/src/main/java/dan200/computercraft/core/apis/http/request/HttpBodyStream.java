@@ -16,6 +16,11 @@ import java.nio.ByteBuffer;
  */
 public interface HttpBodyStream {
     /**
+     * Close this stream.
+     */
+    void closeStream();
+
+    /**
      * Return whether the producer has stopped writing to the stream, so no more content will be written to it.
      *
      * @return Whether the stream has stopped producing content.

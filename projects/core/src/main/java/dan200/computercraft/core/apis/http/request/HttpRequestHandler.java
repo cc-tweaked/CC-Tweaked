@@ -269,7 +269,7 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> i
         var headers = decodeHeaders();
 
         // Prepare to queue an event
-        var reader = new HttpStreamReader(request, this);
+        var reader = new HttpStreamReader(this, request.address, request.isBinary());
         var stream = new HttpResponseHandle(reader, status.code(), status.reasonPhrase(), headers);
 
         if (status.code() >= 200 && status.code() < 400) {
@@ -277,6 +277,11 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> i
         } else {
             request.partialFailure(status.reasonPhrase(), stream);
         }
+    }
+
+    @Override
+    public void closeStream() {
+        request.partialClosed();
     }
 
     @Override
@@ -379,7 +384,7 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> i
         }
     }
 
-    public void close() {
+    void close() {
         isActive = false;
         synchronized (responseBodyLock) {
             responseBodyDone = true;
