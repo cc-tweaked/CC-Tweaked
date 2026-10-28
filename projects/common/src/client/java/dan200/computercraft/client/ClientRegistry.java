@@ -22,6 +22,7 @@ import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.render.monitor.MonitorBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleOverlay;
 import dan200.computercraft.client.turtle.TurtleOverlayManager;
+import dan200.computercraft.client.turtle.TurtleShulkerModel;
 import dan200.computercraft.client.turtle.TurtleUpgradeModelManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
@@ -115,6 +116,7 @@ public final class ClientRegistry {
         register.register(BasicUpgradeModel.ID, BasicUpgradeModel.CODEC);
         register.register(ItemUpgradeModel.ID, ItemUpgradeModel.CODEC);
         register.register(SelectUpgradeModel.ID, SelectUpgradeModel.CODEC);
+        register.register(TurtleShulkerModel.ID, TurtleShulkerModel.CODEC);
     }
 
     private static final Identifier[] EXTRA_MODELS = {

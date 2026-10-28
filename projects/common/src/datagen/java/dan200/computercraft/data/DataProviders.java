@@ -14,7 +14,6 @@ import dan200.computercraft.client.model.LecternPrintoutModel;
 import dan200.computercraft.client.turtle.TurtleOverlay;
 import dan200.computercraft.data.client.BlockModelProvider;
 import dan200.computercraft.data.client.ItemModelProvider;
-import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.inventory.UpgradeSlot;
 import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
 import net.minecraft.DetectedVersion;
@@ -38,9 +37,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.util.InclusiveRange;
-import net.minecraft.util.Util;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 
 import java.util.Arrays;
@@ -120,12 +117,9 @@ public final class DataProviders {
         var storagePack = generator.nestedDatapack(TurtleStorage.DATA_PACK_NAME);
         storagePack.add(out -> PackMetadataGenerator.forFeaturePack(out, Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION)));
 
-        var storageRegistryPatch = RegistryPatchGenerator.createWorldLookup(worldRegistries, Util.make(new RegistrySetBuilder(), builder -> {
-            builder.add(ITurtleUpgrade.REGISTRY, bs -> bs.register(
-                TurtleUpgradeProvider.id("shulker"),
-                new TurtleStorage(Ingredient.of(bs.lookup(Registries.ITEM).getOrThrow(PlatformHelper.get().getRecipeIngredients().shulkerBox())))
-            ));
-        }));
+        var storageRegistryPatch = RegistryPatchGenerator.createWorldLookup(
+            worldRegistries, new RegistrySetBuilder().add(ITurtleUpgrade.REGISTRY, TurtleUpgradeProvider::registerStorage)
+        );
         storagePack.add(o -> RegistriesDatapackGenerator.forWorldLayer(o, storageRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::patches)));
     }
 

@@ -11,13 +11,18 @@ import dan200.computercraft.api.client.turtle.ItemUpgradeModel;
 import dan200.computercraft.api.client.turtle.SelectUpgradeModel;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.client.turtle.TurtleShulkerModel;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.upgrades.TurtleCraftingTable;
 import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
 import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
+import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -37,7 +42,10 @@ class TurtleUpgradeProvider {
     private static final ResourceKey<ITurtleUpgrade> DIAMOND_SHOVEL = vanilla("diamond_shovel");
     private static final ResourceKey<ITurtleUpgrade> DIAMOND_SWORD = vanilla("diamond_sword");
 
-    static ResourceKey<ITurtleUpgrade> id(String id) {
+    private static final ResourceKey<ITurtleUpgrade> SHULKER = id("shulker");
+    private static final ResourceKey<ITurtleUpgrade> BUNDLE = id("bundle");
+
+    private static ResourceKey<ITurtleUpgrade> id(String id) {
         return ResourceKey.create(ITurtleUpgrade.REGISTRY, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, id));
     }
 
@@ -59,6 +67,11 @@ class TurtleUpgradeProvider {
         tool(DIAMOND_SWORD, Items.DIAMOND_SWORD).breakable(ComputerCraftTags.Blocks.TURTLE_SWORD_BREAKABLE).damageMultiplier(9.0f).register(upgrades);
     }
 
+    public static void registerStorage(BootstrapContext<ITurtleUpgrade> upgrades) {
+        upgrades.register(SHULKER, new TurtleStorage(Ingredient.of(upgrades.lookup(Registries.ITEM).getOrThrow(PlatformHelper.get().getRecipeIngredients().shulkerBox()))));
+        upgrades.register(BUNDLE, new TurtleStorage(Ingredient.of(upgrades.lookup(Registries.ITEM).getOrThrow(ItemTags.BUNDLES))));
+    }
+
     public static void addModels(BiConsumer<Identifier, TurtleUpgradeModel.Unbaked> out) {
         out.accept(SPEAKER.identifier(), BasicUpgradeModel.unbaked(
             Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
@@ -77,6 +90,9 @@ class TurtleUpgradeProvider {
         out.accept(DIAMOND_HOE.identifier(), ItemUpgradeModel.unbaked());
         out.accept(DIAMOND_SHOVEL.identifier(), ItemUpgradeModel.unbaked());
         out.accept(DIAMOND_SWORD.identifier(), ItemUpgradeModel.unbaked());
+
+        out.accept(SHULKER.identifier(), TurtleShulkerModel.unbaked());
+        out.accept(BUNDLE.identifier(), ItemUpgradeModel.unbaked());
     }
 
     private static TurtleUpgradeModel.Unbaked createModemModel(String type) {
