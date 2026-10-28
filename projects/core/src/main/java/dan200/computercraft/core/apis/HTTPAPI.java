@@ -29,9 +29,6 @@ import static dan200.computercraft.core.util.ArgumentHelpers.assertBetween;
  * @hidden
  */
 public class HTTPAPI implements ILuaAPI {
-    private static final double DEFAULT_TIMEOUT = 30;
-    private static final double MAX_TIMEOUT = 60;
-
     private final IAPIEnvironment apiEnvironment;
     private final HttpHandler handler;
 
@@ -205,11 +202,11 @@ public class HTTPAPI implements ILuaAPI {
      *
      * @param timeoutArg The (optional) timeout, in seconds.
      * @return The parsed timeout value, in milliseconds.
-     * @throws LuaException If the timeout is in-range.
+     * @throws LuaException If the timeout is out of range.
      */
     private static int getTimeout(Optional<Double> timeoutArg) throws LuaException {
-        double timeout = timeoutArg.orElse(DEFAULT_TIMEOUT);
-        assertBetween(timeout, 0, MAX_TIMEOUT, "timeout out of range (%s)");
+        double timeout = timeoutArg.orElse((double) Math.min(CoreConfig.httpDefaultTimeout, CoreConfig.httpMaxTimeout));
+        assertBetween(timeout, 0, CoreConfig.httpMaxTimeout, "timeout out of range (%s)");
         return (int) (timeout * 1000);
     }
 }

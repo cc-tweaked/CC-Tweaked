@@ -245,6 +245,8 @@ public final class LanguageProvider implements DataProvider {
         addConfigGroup(ConfigSpec.serverSpec, "http", "HTTP");
         addConfigEntry(ConfigSpec.httpEnabled, "Enable the HTTP API");
         addConfigEntry(ConfigSpec.httpWebsocketEnabled, "Enable websockets");
+        addConfigEntry(ConfigSpec.httpDefaultTimeout, "Default HTTP timeout (seconds)");
+        addConfigEntry(ConfigSpec.httpMaxTimeout, "Maximum HTTP timeout (seconds)");
         addConfigEntry(ConfigSpec.httpRules, "Allow/deny rules");
         addConfigEntry(ConfigSpec.httpMaxRequests, "Maximum concurrent requests");
         addConfigEntry(ConfigSpec.httpMaxWebsockets, "Maximum concurrent websockets");

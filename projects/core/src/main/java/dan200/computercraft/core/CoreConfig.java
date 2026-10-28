@@ -18,4 +18,7 @@ public final class CoreConfig {
     public static String defaultComputerSettings = "";
 
     public static boolean httpWebsocketEnabled = true;
+
+    public static int httpDefaultTimeout = 30;
+    public static int httpMaxTimeout = 60;
 }

@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 public final class ConfigSpec {
     private static final int MODEM_MAX_RANGE = 100000;
 
+    private static final int MAX_HTTP_TIMEOUT = Integer.MAX_VALUE / 1000;
+
     public static final ConfigFile serverSpec;
 
     public static final ConfigFile.Value<Integer> computerSpaceLimit;
@@ -44,6 +46,8 @@ public final class ConfigSpec {
 
     public static final ConfigFile.Value<Boolean> httpEnabled;
     public static final ConfigFile.Value<Boolean> httpWebsocketEnabled;
+    public static final ConfigFile.Value<Integer> httpDefaultTimeout;
+    public static final ConfigFile.Value<Integer> httpMaxTimeout;
     public static final ConfigFile.Value<List<? extends UnmodifiableConfig>> httpRules;
 
     public static final ConfigFile.Value<Integer> httpMaxRequests;
@@ -198,6 +202,17 @@ public final class ConfigSpec {
             httpWebsocketEnabled = builder
                 .comment("Enable use of http websockets. This requires the \"http_enable\" option to also be true.")
                 .define("websocket_enabled", CoreConfig.httpWebsocketEnabled);
+
+            httpDefaultTimeout = builder
+                .comment("""
+                    The default timeout for HTTP requests, in seconds. This is used when a program does
+                    not specify a timeout. If this is greater than "max_timeout", then "max_timeout" is
+                    used instead.""")
+                .defineInRange("default_timeout", CoreConfig.httpDefaultTimeout, 1, MAX_HTTP_TIMEOUT);
+
+            httpMaxTimeout = builder
+                .comment("The maximum timeout a program may specify for an HTTP request, in seconds.")
+                .defineInRange("max_timeout", CoreConfig.httpMaxTimeout, 1, MAX_HTTP_TIMEOUT);
 
             httpRules = builder
                 .comment("""
@@ -406,6 +421,8 @@ public final class ConfigSpec {
 
         // HTTP
         CoreConfig.httpWebsocketEnabled = httpWebsocketEnabled.get();
+        CoreConfig.httpDefaultTimeout = httpDefaultTimeout.get();
+        CoreConfig.httpMaxTimeout = httpMaxTimeout.get();
 
         var proxyHost = httpProxyHost.get();
         NettyHttp.ProxyConfig proxyConfig;
