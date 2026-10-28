@@ -94,8 +94,9 @@ final class ShulkerItemStorage extends BasicSlottedStorage {
             super.onFinalCommit();
 
             var tag = BlockItem.getBlockEntityData(stack);
-            if (tag == null) BlockItem.setBlockEntityData(stack, BlockEntityType.SHULKER_BOX, tag = new CompoundTag());
+            if (tag == null) tag = new CompoundTag();
             ContainerHelper.saveAllItems(tag, items);
+            BlockItem.setBlockEntityData(stack, BlockEntityType.SHULKER_BOX, tag);
         }
     }
 }

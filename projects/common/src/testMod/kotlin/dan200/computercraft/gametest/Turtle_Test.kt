@@ -877,6 +877,20 @@ class Turtle_Test {
     }
 
     /**
+     * Assert we can push and pull items from a shulker box.
+     */
+    @GameTest
+    fun Turtle_shulker_push_pull(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            callPeripheral("left", "pullItems").assertArrayEquals(32)
+            callPeripheral("left", "list")
+                .assertArrayEquals(mapOf(1 to mapOf("name" to "minecraft:dirt", "count" to 32)))
+            callPeripheral("left", "pushItems", 1).assertArrayEquals(32)
+            callPeripheral("left", "list").assertArrayEquals(emptyMap<Any, Any>())
+        }
+    }
+
+    /**
      * Tests a turtle can break a block that explodes, causing the turtle itself to explode.
      *
      * @see [#585](https://github.com/cc-tweaked/CC-Tweaked/issues/585).

@@ -98,9 +98,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     public void setupComputer(ServerComputer computer) {
-        for (var side : TurtleSide.values()) {
-            computer.setPeripheral(toDirection(side), getPeripheral(side));
-        }
+        for (var side : TurtleSide.values()) applyUpgradePeripheral(computer, toDirection(side), upgrades.get(side));
     }
 
     public void update() {
@@ -488,16 +486,36 @@ public class TurtleBrain implements TurtleAccessInternal {
             holder = null;
         }
 
-        // Create peripheral and update the computer. We *always* create a peripheral, even if the computer is not
-        // active, so that getPeripheral doesn't return null.
+        // Create peripheral and update the computer.
         if (owner.getLevel() != null && !owner.getLevel().isClientSide) {
-            var peripheral = holder == null ? null : (holder.peripheral = holder.getUpgrade().createPeripheral(this, side));
+            // We *always* create a peripheral, even if the computer is not active, so that getPeripheral doesn't return
+            // null.
+            if (holder != null) holder.getOrCreatePeripheral();
 
             var computer = owner.getServerComputer();
-            if (computer != null) computer.setPeripheral(toDirection(side), peripheral);
+            if (computer != null) applyUpgradePeripheral(computer, toDirection(side), holder);
         }
 
         return true;
+    }
+
+    /**
+     * Apply an upgrade's peripheral to the computer.
+     *
+     * @param computer The computer to apply the upgrade to.
+     * @param side     The side to apply the upgrade to.
+     * @param holder   The upgrade holder, or {@code null}.
+     */
+    private void applyUpgradePeripheral(ServerComputer computer, ComputerSide side, @Nullable UpgradeHolder holder) {
+        if (holder == null) {
+            computer.setPeripheral(side, null);
+        } else {
+            // setPeripheral may do nothing if the peripherals are equal (even if not the same object). We set the
+            // peripheral, then override the holder's with whatever the computer has attached.
+            var peripheral = holder.getOrCreatePeripheral();
+            computer.setPeripheral(side, peripheral);
+            holder.peripheral = computer.getPeripheral(side);
+        }
     }
 
     @Override
@@ -752,6 +770,8 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     private final class UpgradeHolder extends AbstractUpgradeHolder<ITurtleUpgrade> {
         private final TurtleSide side;
+
+        private boolean checkedPeripheral;
         private @Nullable IPeripheral peripheral;
 
         private UpgradeHolder(TurtleSide side, UpgradeData<ITurtleUpgrade> upgrade) {
@@ -773,6 +793,15 @@ public class TurtleBrain implements TurtleAccessInternal {
         @Override
         protected void remove() {
             setUpgradeWithData(side, null);
+        }
+
+        private @Nullable IPeripheral getOrCreatePeripheral() {
+            var peripheral = this.peripheral;
+            if (!checkedPeripheral) {
+                peripheral = this.peripheral = getUpgrade().createPeripheral(TurtleBrain.this, side);
+                checkedPeripheral = true;
+            }
+            return peripheral;
         }
     }
 }
