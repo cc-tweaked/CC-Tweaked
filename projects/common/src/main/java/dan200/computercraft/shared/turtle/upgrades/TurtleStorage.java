@@ -7,8 +7,10 @@ package dan200.computercraft.shared.turtle.upgrades;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.api.upgrades.UpgradeHandle;
+import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
+import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.generic.methods.AbstractInventoryMethods;
@@ -65,20 +67,29 @@ public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
             this.side = side;
         }
 
-        private UpgradeHandle<ITurtleUpgrade> getHandle() throws LuaException {
+        private PlatformHelper.ItemReference getItem() throws LuaException {
             var upgrade = turtle.getUpgradeHandle(side);
             if (upgrade == null || !(upgrade.getUpgrade() instanceof TurtleStorage)) {
                 throw new LuaException("Upgrade is not equipped");
             }
-            return upgrade;
+
+            return new PlatformHelper.ItemReference() {
+                private ItemStack stack = upgrade.getItem();
+
+                @Override
+                public ItemStack get() {
+                    return stack;
+                }
+
+                @Override
+                public void set(ItemStack stack) {
+                    upgrade.setItem(this.stack = stack);
+                }
+            };
         }
 
-        private ItemStack getStack() throws LuaException {
-            return getHandle().getItem();
-        }
-
-        private static ItemContainer getContainer(ItemStack stack) throws LuaException {
-            var container = PlatformHelper.get().getContainer(stack);
+        private static ItemContainer getContainer(PlatformHelper.ItemReference item) throws LuaException {
+            var container = PlatformHelper.get().getContainer(item);
             if (container == null) throw new LuaException("Upgrade is not a container");
             return container;
         }
@@ -95,7 +106,7 @@ public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
          */
         @LuaFunction(mainThread = true)
         public int size() throws LuaException {
-            return InventoryMethods.INSTANCE.size(getContainer(getStack()));
+            return InventoryMethods.INSTANCE.size(getContainer(getItem()));
         }
 
         /**
@@ -110,7 +121,7 @@ public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
          */
         @LuaFunction(mainThread = true)
         public Map<Integer, Map<String, ?>> list() throws LuaException {
-            return InventoryMethods.INSTANCE.list(getContainer(getStack()));
+            return InventoryMethods.INSTANCE.list(getContainer(getItem()));
         }
 
         /**
@@ -125,7 +136,7 @@ public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
         @Nullable
         @LuaFunction(mainThread = true)
         public Map<?, ?> getItemDetail(int slot) throws LuaException {
-            return InventoryMethods.INSTANCE.getItemDetail(getContainer(getStack()), slot);
+            return InventoryMethods.INSTANCE.getItemDetail(getContainer(getItem()), slot);
         }
 
         /**
@@ -139,9 +150,8 @@ public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
          */
         @LuaFunction(mainThread = true)
         public int pushItems(int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot) throws LuaException {
-            var handle = getHandle();
-            var stack = handle.getItem();
-            return moveAndUpdate(handle, stack, getContainer(stack), fromSlot, turtleInventory, toSlot, limit);
+            var item = getItem();
+            return moveAndUpdate(item, getContainer(item), fromSlot, turtleInventory, toSlot, limit);
         }
 
         /**
@@ -155,14 +165,13 @@ public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
          */
         @LuaFunction(mainThread = true)
         public int pullItems(Optional<Integer> fromSlot, Optional<Integer> limit, Optional<Integer> toSlot) throws LuaException {
-            var handle = getHandle();
-            var stack = handle.getItem();
-            return moveAndUpdate(handle, stack, turtleInventory, fromSlot.orElse(turtle.getSelectedSlot() + 1), getContainer(stack), toSlot, limit);
+            var item = getItem();
+            return moveAndUpdate(item, turtleInventory, fromSlot.orElse(turtle.getSelectedSlot() + 1), getContainer(item), toSlot, limit);
         }
 
-        private int moveAndUpdate(UpgradeHandle<ITurtleUpgrade> handle, ItemStack stack, ItemContainer from, int fromSlot, ItemContainer to, Optional<Integer> toSlot, Optional<Integer> limit) throws LuaException {
+        private int moveAndUpdate(PlatformHelper.ItemReference item, ItemContainer from, int fromSlot, ItemContainer to, Optional<Integer> toSlot, Optional<Integer> limit) throws LuaException {
             var moved = AbstractInventoryMethods.move(from, fromSlot, to, toSlot, limit);
-            if (moved > 0) handle.setItem(stack);
+            item.set(item.get()); // The item may have been modified in-place. Force it to be updated here.
             return moved;
         }
 

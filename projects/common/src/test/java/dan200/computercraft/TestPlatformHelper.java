@@ -172,7 +172,7 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
 
     @Nullable
     @Override
-    public ItemContainer getContainer(ItemStack stack) {
+    public ItemContainer getContainer(ItemReference item) {
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 

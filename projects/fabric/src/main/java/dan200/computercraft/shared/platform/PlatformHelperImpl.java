@@ -29,8 +29,10 @@ import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
@@ -146,12 +148,37 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public @Nullable ItemContainer getContainer(ItemStack stack) {
-        if (stack.is(ConventionalItemTags.SHULKER_BOXES)) {
-            return new FabricItemContainer(new ShulkerItemStorage(stack, 27));
+    public @Nullable ItemContainer getContainer(ItemReference item) {
+        var stackStorage = new ItemReferenceStorage(item);
+        var storage = ItemStorage.ITEM.find(stackStorage.stack, ContainerItemContext.ofSingleSlot(stackStorage));
+        return storage != null ? new FabricItemContainer(storage) : null;
+    }
+
+    private static final class ItemReferenceStorage extends SingleStackStorage {
+        private final ItemReference reference;
+        private ItemStack stack;
+
+        private ItemReferenceStorage(ItemReference reference) {
+            this.reference = reference;
+            this.stack = reference.get();
         }
 
-        return null;
+        @Override
+        protected ItemStack getStack() {
+            return stack;
+        }
+
+        @Override
+        protected void setStack(ItemStack stack) {
+            this.stack = stack;
+        }
+
+        @Override
+        protected void onFinalCommit() {
+            // The current stack may be temporarily set to invalid values (e.g. the empty stack when swapping the item).
+            // We only update the reference after a final commit.
+            reference.set(stack);
+        }
     }
 
     @Override

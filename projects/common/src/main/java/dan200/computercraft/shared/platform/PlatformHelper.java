@@ -49,6 +49,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Abstraction layer for Forge and Fabric. See implementations for more details.
@@ -193,15 +194,23 @@ public interface PlatformHelper {
     ItemContainer getContainer(ServerLevel level, BlockPos pos, Direction side);
 
     /**
+     * A mutable reference to an item. This is used by {@link #getContainer(ItemReference)} to update an item
+     * in-place.
+     */
+    interface ItemReference extends Supplier<ItemStack> {
+        void set(ItemStack stack);
+    }
+
+    /**
      * Get access to a {@link ItemContainer} for an {@link ItemStack}, for instance shulker boxes or bundles.
      * <p>
-     * Updates to the container should modify the item in-place.
+     * Updates to the container may either mutate the item in-place or change it with {@link ItemReference#set(ItemStack)}.
      *
-     * @param stack The stack.
+     * @param item The stack.
      * @return The container, or {@code null} if none exists.
      */
     @Nullable
-    ItemContainer getContainer(ItemStack stack);
+    ItemContainer getContainer(ItemReference item);
 
     /**
      * Get the {@link RecipeIngredients} for this loader.

@@ -130,10 +130,6 @@ public class ComputerCraft {
         ComputerCraftAPI.registerGenericSource(new InventoryMethods());
 
         Peripherals.addGenericLookup(InventoryMethods::extractContainer);
-    }
-
-    private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
-        registry.register(type.type(), type.codec());
 
         ResourceManagerHelper.registerBuiltinResourcePack(
             ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, TurtleStorage.DATA_PACK_NAME),
@@ -141,6 +137,10 @@ public class ComputerCraft {
             Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION),
             ResourcePackActivationType.NORMAL
         );
+    }
+
+    private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
+        registry.register(type.type(), type.codec());
     }
 
     private record ReloadListener(String name, PreparableReloadListener listener)

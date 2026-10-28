@@ -145,8 +145,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public @Nullable ItemContainer getContainer(ItemStack stack) {
-        var handler = stack.getCapability(Capabilities.ItemHandler.ITEM);
+    public @Nullable ItemContainer getContainer(ItemReference item) {
+        var handler = item.get().getCapability(Capabilities.ItemHandler.ITEM);
         return handler == null ? null : new ForgeItemContainer(handler);
     }
 
