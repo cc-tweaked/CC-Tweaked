@@ -266,6 +266,16 @@ tasks.verifyClassesMatch {
 
 val runGametest = tasks.named<JavaExec>("runGametest") {
     usesService(MinecraftRunnerService.get(gradle))
+
+    val serverProperties = file("run/gametest/server.properties")
+    doFirst {
+        // Unlike vanilla/Fabric, Forge doesn't enable all datapacks on a test server, so make sure the turtle storage
+        // pack is present.
+        if (!serverProperties.exists()) {
+            serverProperties.parentFile.mkdirs()
+            serverProperties.writeText("initial-enabled-packs=computercraft/turtle_storage")
+        }
+    }
 }
 cct.jacoco(runGametest)
 tasks.check { dependsOn(runGametest) }

@@ -880,7 +880,7 @@ class Turtle_Test {
      * Assert we can push and pull items from a shulker box.
      */
     @GameTest
-    fun Turtle_shulker_push_pull(helper: GameTestHelper) = helper.sequence {
+    fun Shulker_push_pull(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
             callPeripheral("left", "pullItems").assertArrayEquals(32)
             callPeripheral("left", "list")

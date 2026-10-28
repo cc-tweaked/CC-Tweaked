@@ -27,7 +27,7 @@
         {pos: [4, 0, 2], state: "minecraft:polished_andesite"},
         {pos: [4, 0, 3], state: "minecraft:polished_andesite"},
         {pos: [4, 0, 4], state: "minecraft:polished_andesite"},
-        {pos: [2, 1, 2], state: "computercraft:turtle_normal{facing:south,waterlogged:false}", nbt: {ComputerId: 1, Fuel: 0, Items: [{Count: 32b, Slot: 0b, id: "minecraft:dirt"}], Label: "turtle_test.turtle_shulker_push_pull", LeftUpgrade: "computercraft:shulker", LeftUpgradeItem: {Count: 1b, id: "minecraft:shulker_box"}, On: 1b, Owner: {LowerId: -8206256985233105631L, Name: "Player889", UpperId: -6771803214216546387L}, Slot: 0, id: "computercraft:turtle_normal"}}
+        {pos: [2, 1, 2], state: "computercraft:turtle_normal{facing:south,waterlogged:false}", nbt: {ComputerId: 1, Fuel: 0, Items: [{Count: 32b, Slot: 0b, id: "minecraft:dirt"}], Label: "turtle_test.shulker_push_pull", LeftUpgrade: "computercraft:shulker", LeftUpgradeItem: {Count: 1b, id: "minecraft:shulker_box"}, On: 1b, Owner: {LowerId: -8206256985233105631L, Name: "Player889", UpperId: -6771803214216546387L}, Slot: 0, id: "computercraft:turtle_normal"}}
     ],
     entities: [],
     palette: [
