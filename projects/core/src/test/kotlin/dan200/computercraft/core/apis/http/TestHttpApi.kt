@@ -25,11 +25,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeoutOrNull
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.assertThrows
 import java.lang.ref.Reference
 import java.nio.ByteBuffer
@@ -251,7 +249,7 @@ class TestHttpApi {
             runWithServer { server, _ ->
                 val (_, response, reader) = streaming(server, "/stream?limit=1&lines=false")
                 assertRead(reader.readLine(Optional.empty()), "Hello, world!")
-                assertRead(reader.readLine(Optional.empty()), "")
+                assertNull(reader.readLine(Optional.empty()).await())
                 reader.close()
                 Reference.reachabilityFence(response)
             }
