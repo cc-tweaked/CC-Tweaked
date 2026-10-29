@@ -204,7 +204,7 @@ final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> {
             reader.read().then(x -> {
                 isReading = false;
 
-                if (waiting) {
+                if (waiting || buffers.isEmpty()) {
                     environment.queueEvent(CONTENT_EVENT, address);
                     waiting = false;
                 }

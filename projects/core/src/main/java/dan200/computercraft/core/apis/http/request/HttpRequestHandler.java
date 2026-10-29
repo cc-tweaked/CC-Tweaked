@@ -151,6 +151,8 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> i
                         request.failure("Response is too large");
                         return;
                     }
+
+                    var isEmpty = !responseBody.isReadable();
                     responseBody.addComponent(true, partial.retain());
                     if (streaming) {
                         if (responseBody.readableBytes() >= MAX_STREAM_BUFFER_CACHE) {
@@ -181,9 +183,9 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> i
                                 });
                             }
                         }
-                        if (waitingBody) {
+                        if (waitingBody || isEmpty) {
                             waitingBody = false;
-                            request.partialContent();
+                            request.streamingContent();
                         }
                     }
                 }
@@ -205,7 +207,7 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> i
 
                         sendResponse();
                     } else {
-                        request.partialClosed();
+                        request.streamingClosed();
                     }
                 }
             }
@@ -273,15 +275,15 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> i
         var stream = new HttpResponseHandle(reader, status.code(), status.reasonPhrase(), headers);
 
         if (status.code() >= 200 && status.code() < 400) {
-            request.partialSuccess(stream);
+            request.streamingSuccess(stream);
         } else {
-            request.partialFailure(status.reasonPhrase(), stream);
+            request.streamingFailure(status.reasonPhrase(), stream);
         }
     }
 
     @Override
     public void closeStream() {
-        request.partialClosed();
+        request.streamingClosed();
     }
 
     @Override

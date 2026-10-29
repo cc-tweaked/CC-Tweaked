@@ -260,27 +260,27 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
         close(Connecting.class, () -> environment.queueEvent(SUCCESS_EVENT, address, object));
     }
 
-    void partialFailure(String message, HttpResponseHandle object) {
+    void streamingFailure(String message, HttpResponseHandle object) {
         transformState(Connecting.class, connecting -> {
             environment.queueEvent(FAILURE_EVENT, address, message, object);
             return new Streaming(connecting.channel.channel(), connecting.handler);
         });
-        GlobalCleaner.register(object, this::partialClosed);
+        GlobalCleaner.register(object, this::streamingClosed);
     }
 
-    void partialSuccess(HttpResponseHandle object) {
+    void streamingSuccess(HttpResponseHandle object) {
         transformState(Connecting.class, connecting -> {
             environment.queueEvent(SUCCESS_EVENT, address, object);
             return new Streaming(connecting.channel.channel(), connecting.handler);
         });
-        GlobalCleaner.register(object, this::partialClosed);
+        GlobalCleaner.register(object, this::streamingClosed);
     }
 
-    void partialContent() {
+    void streamingContent() {
         if (!isClosed()) environment.queueEvent(CONTENT_EVENT, address);
     }
 
-    void partialClosed() {
+    void streamingClosed() {
         close(Streaming.class, () -> environment.queueEvent(CONTENT_EVENT, address)); // wakeup readers for them to return
     }
 

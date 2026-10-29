@@ -94,7 +94,7 @@ public final class HttpStreamReader {
      * @param countArg    The number of bytes to read. This may be 0 to determine we are at the end of the request. When
      *                    absent, a single byte will be read.
      * @param blockingArg When {@code false}, this function will read at most {@code count} bytes and return immediately,
-     *                    rather than waiting for more content to be available.
+     *                    rather than waiting for more content to be available. See [`http_content`] for more details.
      * @return The read bytes.
      * @throws LuaException When trying to read a negative number of bytes.
      * @throws LuaException When trying to read too many bytes.
@@ -121,7 +121,7 @@ public final class HttpStreamReader {
             throw new LuaException("Cannot read more than " + stream.getMaxReadable() + " bytes");
         }
 
-        // Fast path for non-blocking reads or if the stream has sufficient contents/is readable.
+        // Fast path for non-blocking reads or if the stream has sufficient contents/is finished.
         var finished = stream.isFinished();
         var readable = stream.getReadable();
         if (finished && readable == 0) return MethodResult.of();
