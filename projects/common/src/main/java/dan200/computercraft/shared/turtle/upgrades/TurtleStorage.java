@@ -45,6 +45,10 @@ public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
      * {@link #pullItems(Optional, Optional, Optional)} and {@link #pushItems(int, Optional, Optional)} transfer to/from
      * the turtle's inventory, rather than taking an inventory name.
      *
+     * > [!INFO]
+     * > This upgrade and peripheral is currently experimental. It is only enabled with the
+     * > `computercraft/turtle_storage` datapack, and methods are subject to change.
+     *
      * @cc.module turtle_storage
      * @cc.since 1.121.0
      */

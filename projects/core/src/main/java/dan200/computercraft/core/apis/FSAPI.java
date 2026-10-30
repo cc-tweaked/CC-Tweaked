@@ -318,7 +318,8 @@ public class FSAPI implements ILuaAPI {
      * <p>
      * The mode may also have a "b" at the end, which opens the file in "binary
      * mode". This changes {@link ReadHandle#read(Optional)} and {@link WriteHandle#write(IArguments)}
-     * to read/write single bytes as numbers rather than strings.
+     * to read/write single bytes as numbers rather than strings. This option exists for backwards compatibility with
+     * older programs, and is not recommended with new code.
      *
      * @param path The path to the file to open.
      * @param mode The mode to open the file with.

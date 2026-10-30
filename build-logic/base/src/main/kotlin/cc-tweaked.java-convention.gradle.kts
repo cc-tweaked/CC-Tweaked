@@ -74,6 +74,7 @@ tasks.withType(JavaCompile::class.java).configureEach {
     options.errorprone {
         check("MissingOverride", CheckSeverity.ERROR)
         check("AddNullMarkedToPackageInfo", CheckSeverity.ERROR)
+        check("SystemOut", CheckSeverity.WARN)
         check("InvalidBlockTag", CheckSeverity.OFF) // Broken by @cc.xyz
         check("InlineMeSuggester", CheckSeverity.OFF) // Minecraft uses @Deprecated liberally
         // Too many false positives right now. Maybe we need an indirection for it later on.
