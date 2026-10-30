@@ -8,8 +8,10 @@ import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.core.util.GlobalCleaner;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -30,24 +32,26 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
     private static final Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
     private static final String SUCCESS_EVENT = "http_success";
     private static final String FAILURE_EVENT = "http_failure";
+    static final String CONTENT_EVENT = "http_content";
 
     private static final int MAX_REDIRECTS = 16;
 
     private final IAPIEnvironment environment;
     private final NetworkUtils network;
 
-    private final String address;
+    final String address;
     private final ByteBuf postBuffer;
     private final HttpHeaders headers;
     private final boolean binary;
     private final int timeout;
+    private final boolean streaming;
 
     final AtomicInteger redirects;
 
     public HttpRequest(
         ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, NetworkUtils network,
         String address, HttpUri uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers,
-        boolean binary, boolean followRedirects, int timeout
+        boolean binary, boolean followRedirects, int timeout, boolean streaming
     ) {
         super(limiter, new Init(uri, method));
         this.environment = environment;
@@ -60,6 +64,7 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
         this.binary = binary;
         redirects = new AtomicInteger(followRedirects ? MAX_REDIRECTS : 0);
         this.timeout = timeout;
+        this.streaming = streaming;
 
         if (postBody != null) {
             if (!headers.contains(HttpHeaderNames.CONTENT_TYPE)) {
@@ -135,6 +140,9 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
         }
     }
 
+    private sealed interface OpenRequestState extends State {
+    }
+
     /**
      * Connecting to the remote server. This includes reading the body. A {@link #SUCCESS_EVENT}/{@link #FAILURE_EVENT}
      * has not been queued yet.
@@ -143,7 +151,15 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
      * @param handler The request handler. We keep a reference to this to dispose of the request body.
      * @see #connect(HttpUri, HttpMethod, NetworkUtils.ConnectionInfo, long)
      */
-    private record Connecting(ChannelFuture channel, HttpRequestHandler handler) implements State {
+    private record Connecting(ChannelFuture channel, HttpRequestHandler handler) implements OpenRequestState {
+        @Override
+        public void close() {
+            closeChannel(channel);
+            handler.close();
+        }
+    }
+
+    private record Streaming(Channel channel, HttpRequestHandler handler) implements OpenRequestState {
         @Override
         public void close() {
             closeChannel(channel);
@@ -195,7 +211,7 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
         environment.observe(Metrics.HTTP_REQUESTS);
         environment.observe(Metrics.HTTP_UPLOAD, requestBodySize);
 
-        var handler = new HttpRequestHandler(this, uri.getUri(), method, conn.options());
+        var handler = new HttpRequestHandler(this, uri.getUri(), method, streaming, conn.options());
         var connectFuture = network
             .connect(conn, ch -> {
                 var p = ch.pipeline();
@@ -219,7 +235,21 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
     }
 
     void failure(String message) {
-        close(Connecting.class, () -> environment.queueEvent(FAILURE_EVENT, address, message));
+        transformState(OpenRequestState.class, state -> {
+            state.close();
+
+            if (state instanceof Connecting) {
+                // If we're still connecting/reading content, then queue a failure event.
+                environment.queueEvent(FAILURE_EVENT, address, message);
+            } else if (state instanceof Streaming) {
+                // If we're streaming, then close the channel and wake up readers.
+                environment.queueEvent(CONTENT_EVENT, address);
+            } else {
+                LOG.error("Unexpected transition: expected state to be an open request, but is {}. Closing", state);
+            }
+
+            return null;
+        });
     }
 
     void failure(String message, HttpResponseHandle object) {
@@ -230,7 +260,31 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
         close(Connecting.class, () -> environment.queueEvent(SUCCESS_EVENT, address, object));
     }
 
-    static long getHeaderSize(HttpHeaders headers) {
+    void streamingFailure(String message, HttpResponseHandle object) {
+        transformState(Connecting.class, connecting -> {
+            environment.queueEvent(FAILURE_EVENT, address, message, object);
+            return new Streaming(connecting.channel.channel(), connecting.handler);
+        });
+        GlobalCleaner.register(object, this::streamingClosed);
+    }
+
+    void streamingSuccess(HttpResponseHandle object) {
+        transformState(Connecting.class, connecting -> {
+            environment.queueEvent(SUCCESS_EVENT, address, object);
+            return new Streaming(connecting.channel.channel(), connecting.handler);
+        });
+        GlobalCleaner.register(object, this::streamingClosed);
+    }
+
+    void streamingContent() {
+        if (!isClosed()) environment.queueEvent(CONTENT_EVENT, address);
+    }
+
+    void streamingClosed() {
+        close(Streaming.class, () -> environment.queueEvent(CONTENT_EVENT, address)); // wakeup readers for them to return
+    }
+
+    public static long getHeaderSize(HttpHeaders headers) {
         long size = 0;
         for (var header : headers) {
             size += header.getKey() == null ? 0 : header.getKey().length();
