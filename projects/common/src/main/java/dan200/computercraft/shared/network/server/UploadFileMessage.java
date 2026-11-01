@@ -42,6 +42,11 @@ public class UploadFileMessage extends ComputerServerMessage {
 
     UploadFileMessage(AbstractContainerMenu menu, UUID uuid, int flag, @Nullable List<FileUpload> files, List<FileSlice> slices) {
         super(menu);
+
+        if (files != null && files.size() > MAX_FILES) throw new IllegalArgumentException("Too many files");
+        // We expect to have at most one slice per file in a packet.
+        if (slices.size() > MAX_FILES) throw new IllegalArgumentException("Too many file slices");
+
         this.uuid = uuid;
         this.flag = flag;
         this.files = files;
@@ -76,13 +81,14 @@ public class UploadFileMessage extends ComputerServerMessage {
         }
 
         var nSlices = buf.readVarInt();
+        if (nSlices > MAX_FILES) throw new DecoderException("Too many file slices");
         var slices = this.slices = new ArrayList<>(nSlices);
         for (var i = 0; i < nSlices; i++) {
             int fileId = buf.readUnsignedByte();
             var offset = buf.readVarInt();
 
             var size = buf.readUnsignedShort();
-            if (size > MAX_PACKET_SIZE) throw new DecoderException("File is too large");
+            if (size > MAX_PACKET_SIZE || size > buf.readableBytes()) throw new DecoderException("File is too large");
 
             var buffer = ByteBuffer.allocateDirect(size);
             buf.readBytes(buffer);
@@ -129,7 +135,7 @@ public class UploadFileMessage extends ComputerServerMessage {
         List<FileSlice> slices = new ArrayList<>(files.size());
         for (var fileId = 0; fileId < files.size(); fileId++) {
             var file = files.get(fileId);
-            var contents = file.getBytes();
+            var contents = file.getBytes().duplicate();
             var capacity = contents.limit();
 
             var currentOffset = 0;
@@ -150,8 +156,6 @@ public class UploadFileMessage extends ComputerServerMessage {
                 currentOffset += canWrite;
                 remaining -= canWrite;
             }
-
-            contents.position(0).limit(capacity);
         }
 
         send.accept(first
