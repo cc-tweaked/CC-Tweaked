@@ -10,10 +10,8 @@ import dan200.computercraft.core.apis.http.options.AddressPredicate.HostRange;
 import dan200.computercraft.core.apis.http.options.AddressPredicate.PrivatePattern;
 import org.jspecify.annotations.Nullable;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.*;
+import java.util.Arrays;
 import java.util.OptionalInt;
 import java.util.regex.Pattern;
 
@@ -73,8 +71,7 @@ public final class AddressRule {
         var address = socketAddress.getAddress();
         if (address == null) throw new IllegalStateException("Socket address must be resolved");
 
-        var ipv4Address = address instanceof Inet6Address inet6 && InetAddresses.is6to4Address(inet6)
-            ? InetAddresses.get6to4IPv4Address(inet6) : null;
+        var ipv4Address = address instanceof Inet6Address inet6 ? getEmbeddedV4Address(inet6) : null;
 
         for (var rule : rules) {
             if (!rule.matches(domain, port, address, ipv4Address)) continue;
@@ -82,5 +79,51 @@ public final class AddressRule {
         }
 
         return options.toOptions();
+    }
+
+    /**
+     * Extract any IPv4 address embedded inside an IPv6 address. This includes:
+     * <ul>
+     *     <li>{@linkplain #isIPv4MappedAddress(Inet6Address) IPv4-mapped addresses} ({@code ::ffff:1.2.3.4})</li>
+     *     <li>{@linkplain InetAddresses#isCompatIPv4Address(Inet6Address) IPv4-compatibility addresses} ({@code ::1.2.3.4})</li>
+     *     <li>{@linkplain InetAddresses#is6to4Address(Inet6Address) 6-to-4 addresses} ({@code 2002:1.2.3.4}</li>
+     * </ul>
+     * <p>
+     * This also extracts {@linkplain InetAddresses#isTeredoAddress(Inet6Address) Teredo addresses}, and does
+     * <em>not</em> extract NAT64. However, these are both blocked by {@link AddressPredicate.PrivatePattern} by
+     * default.
+     *
+     * @param address The IPv6 address to extract from.
+     * @return The IPv4 address or {@code null}
+     */
+    private static @Nullable Inet4Address getEmbeddedV4Address(Inet6Address address) {
+        if (InetAddresses.hasEmbeddedIPv4ClientAddress(address)) {
+            return InetAddresses.getEmbeddedIPv4ClientAddress(address);
+        }
+
+        if (isIPv4MappedAddress(address)) {
+            try {
+                return (Inet4Address) InetAddress.getByAddress(Arrays.copyOfRange(address.getAddress(), 12, 16));
+            } catch (UnknownHostException e) {
+                throw new IllegalStateException("getByAddress should not fail", e);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check whether an IP address is an IPv4-mapped address (of the form {@code ::ffff:aabb:ccdd}).
+     *
+     * @param address The IPv6 address.
+     * @return Whether this is an IPv4-mapped address.
+     * @see InetAddresses#isMappedIPv4Address(String)
+     */
+    private static boolean isIPv4MappedAddress(Inet6Address address) {
+        var bytes = address.getAddress();
+        for (var i = 0; i < 10; i++) {
+            if (bytes[i] != 0) return false;
+        }
+        return bytes[10] == (byte) 0xff && bytes[11] == (byte) 0xff;
     }
 }

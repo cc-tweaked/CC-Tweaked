@@ -17,11 +17,23 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     private final Component adjective;
     private final Ingredient ingredient;
 
+    /**
+     * Create a new {@link IPocketUpgrade}.
+     *
+     * @param adjective  The adjective of the upgrade.
+     * @param ingredient The ingredient the upgrade is crafted with.
+     */
     protected AbstractPocketUpgrade(Component adjective, Ingredient ingredient) {
         this.adjective = adjective;
         this.ingredient = ingredient;
     }
 
+    /**
+     * Create a new {@link IPocketUpgrade}.
+     *
+     * @param adjective  The adjective of the upgrade.
+     * @param ingredient The ingredient the upgrade is crafted with.
+     */
     protected AbstractPocketUpgrade(String adjective, Ingredient ingredient) {
         this(Component.translatable(adjective), ingredient);
     }

@@ -66,7 +66,9 @@ end
 @tparam[opt] { [string] = string } headers Additional headers to send as part
 of this request.
 @tparam[opt=false] boolean binary Whether the [response handle][`fs.ReadHandle`]
-should be opened in binary mode.
+should be opened in binary mode, meaning [`read()`][`fs.ReadHandle.read`] will
+return a number rather than a string. This option exists for backwards
+compatibility with older programs, and is not recommended with new code.
 
 @tparam[2] {
   url = string, headers? = { [string] = string },
@@ -120,7 +122,9 @@ end
 @tparam[opt] { [string] = string } headers Additional headers to send as part
 of this request.
 @tparam[opt=false] boolean binary Whether the [response handle][`fs.ReadHandle`]
-should be opened in binary mode.
+should be opened in binary mode, meaning [`read()`][`fs.ReadHandle.read`] will
+return a number rather than a string. This option exists for backwards
+compatibility with older programs, and is not recommended with new code.
 
 @tparam[2] {
   url = string, body? = string, headers? = { [string] = string },
@@ -170,7 +174,9 @@ request. If specified, a `POST` request will be made instead.
 @tparam[opt] { [string] = string } headers Additional headers to send as part
 of this request.
 @tparam[opt=false] boolean binary Whether the [response handle][`fs.ReadHandle`]
-should be opened in binary mode.
+should be opened in binary mode, meaning [`read()`][`fs.ReadHandle.read`] will
+return a number rather than a string. This option exists for backwards
+compatibility with older programs, and is not recommended with new code.
 
 @tparam[2] {
   url = string, body? = string, headers? = { [string] = string },

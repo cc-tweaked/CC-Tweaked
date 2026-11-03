@@ -69,7 +69,6 @@ class Recipe_Test {
         val registries = context.level.registryAccess()
         val turtleUpgrades = registries.lookupOrThrow(ITurtleUpgrade.REGISTRY)
         val pocketUpgrades = registries.lookupOrThrow(IPocketUpgrade.REGISTRY)
-
         val generator = UpgradeRecipeGenerator(::BasicRecipe, registries)
 
         fun checkUsage(message: String, size: Int, item: ItemStackTemplate) {

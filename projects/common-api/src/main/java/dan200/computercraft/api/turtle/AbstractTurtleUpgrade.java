@@ -17,14 +17,28 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
     private final Component adjective;
     private final Ingredient ingredient;
 
+    /**
+     * Create a new {@link ITurtleUpgrade}.
+     *
+     * @param type       The type of upgrade.
+     * @param adjective  The adjective of the upgrade.
+     * @param ingredient The ingredient the upgrade is crafted with.
+     */
     protected AbstractTurtleUpgrade(TurtleUpgradeType type, Component adjective, Ingredient ingredient) {
         this.type = type;
         this.adjective = adjective;
         this.ingredient = ingredient;
     }
 
-    protected AbstractTurtleUpgrade(TurtleUpgradeType type, String adjective, Ingredient item) {
-        this(type, Component.translatable(adjective), item);
+    /**
+     * Create a new {@link ITurtleUpgrade}.
+     *
+     * @param type       The type of upgrade.
+     * @param adjective  The adjective of the upgrade.
+     * @param ingredient The ingredient the upgrade is crafted with.
+     */
+    protected AbstractTurtleUpgrade(TurtleUpgradeType type, String adjective, Ingredient ingredient) {
+        this(type, Component.translatable(adjective), ingredient);
     }
 
     @Override

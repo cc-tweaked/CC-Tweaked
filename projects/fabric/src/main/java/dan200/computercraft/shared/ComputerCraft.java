@@ -144,10 +144,6 @@ public class ComputerCraft {
         ComputerCraftAPI.registerGenericSource(InventoryMethods::new);
 
         Peripherals.addGenericLookup(InventoryMethods::extractContainer);
-    }
-
-    private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
-        registry.register(type.type(), type.codec());
 
         ResourceLoader.registerBuiltinPack(
             Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, TurtleStorage.DATA_PACK_NAME),
@@ -155,6 +151,10 @@ public class ComputerCraft {
             Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION),
             PackActivationType.NORMAL
         );
+    }
+
+    private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
+        registry.register(type.type(), type.codec());
     }
 
     private record BlockComponentImpl<T, C extends @Nullable Object>(

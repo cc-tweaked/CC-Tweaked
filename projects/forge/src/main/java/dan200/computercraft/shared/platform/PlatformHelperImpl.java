@@ -70,6 +70,7 @@ import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
 import net.neoforged.neoforge.server.permission.nodes.PermissionType;
 import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.item.ItemStackResourceHandler;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import org.jspecify.annotations.Nullable;
 
@@ -161,9 +162,36 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public @Nullable ItemContainer getContainer(ItemStack stack) {
-        var handler = ItemAccess.forStack(stack).getCapability(Capabilities.Item.ITEM);
+    public @Nullable ItemContainer getContainer(ItemReference item) {
+        var handler = ItemAccess.forHandlerIndex(new ItemReferenceHandler(item), 0).getCapability(Capabilities.Item.ITEM);
         return handler == null ? null : new ForgeItemContainer(handler);
+    }
+
+    private static final class ItemReferenceHandler extends ItemStackResourceHandler {
+        private final ItemReference reference;
+        private ItemStack stack;
+
+        private ItemReferenceHandler(ItemReference reference) {
+            this.reference = reference;
+            this.stack = reference.get();
+        }
+
+        @Override
+        protected ItemStack getStack() {
+            return stack;
+        }
+
+        @Override
+        protected void setStack(ItemStack stack) {
+            this.stack = stack;
+        }
+
+        @Override
+        protected void onRootCommit(ItemStack state) {
+            // The current stack may be temporarily set to invalid values (e.g. the empty stack when swapping the item).
+            // We only update the reference after a final commit.
+            reference.set(stack);
+        }
     }
 
     @Override

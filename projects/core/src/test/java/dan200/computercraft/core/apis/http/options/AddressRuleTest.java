@@ -5,6 +5,7 @@
 package dan200.computercraft.core.apis.http.options;
 
 import dan200.computercraft.core.apis.http.NettyHttp;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -36,6 +37,9 @@ public class AddressRuleTest {
         "10.0.0.1",
         // IPv4-mapped address. This is converted to IPv4 by getByName.
         "0:0:0:0:0:ffff:c0a8:172",
+        // However, results which are resolved via DNS name bypass this, as they're constructed via JNI:
+        // https://github.com/openjdk/jdk/blob/6c8f70f22e1621f7cd32a03150bee0f602e1a699/src/java.base/windows/native/libnet/Inet6AddressImpl.c#L204-L224
+        "0.0.0.0.0.ffff.7f00.0001.backname.io",
         // 6to4 address
         "2002:7f00:0001::", // 127.0.0.1
         // Multicast
@@ -69,6 +73,8 @@ public class AddressRuleTest {
     }
 
     private Options apply(Iterable<AddressRule> rules, String host, int port) {
-        return AddressRule.apply(rules, host, new InetSocketAddress(host, port));
+        var address = new InetSocketAddress(host, port);
+        Assumptions.assumeTrue(address.getAddress() != null, "Address is not resolved");
+        return AddressRule.apply(rules, host, address);
     }
 }
