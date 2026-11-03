@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.pocket;
 
+import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -23,6 +24,15 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     private final @Nullable ItemStack stack;
     private final Ingredient ingredient;
 
+    /**
+     * Create a new {@link IPocketUpgrade} with a custom adjective.
+     *
+     * @param id        The id of the upgrade.
+     * @param adjective The adjective of the upgrade.
+     * @param stack     The stack the upgrade is crafted with.
+     * @deprecated Use {@link AbstractTurtleUpgrade.StackAware}
+     */
+    @Deprecated
     protected AbstractPocketUpgrade(ResourceLocation id, String adjective, ItemStack stack) {
         this.id = id;
         this.adjective = adjective;
@@ -30,13 +40,22 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
         this.ingredient = Ingredient.of(stack);
     }
 
-    protected AbstractPocketUpgrade(ResourceLocation id, String adjective, Ingredient ingredient) {
+    private AbstractPocketUpgrade(ResourceLocation id, String adjective, Ingredient ingredient) {
         this.id = id;
         this.adjective = adjective;
         this.stack = null; // We need to lazily resolve the ingredient, so don't set the stack.
         this.ingredient = ingredient;
     }
 
+    /**
+     * Create a new {@link IPocketUpgrade} with the {@linkplain IPocketUpgrade#getDefaultAdjective(ResourceLocation)
+     * default adjective}.
+     *
+     * @param id    The id of the upgrade.
+     * @param stack The stack the upgrade is crafted with.
+     * @deprecated Use {@link AbstractTurtleUpgrade.StackAware}
+     */
+    @Deprecated
     protected AbstractPocketUpgrade(ResourceLocation id, ItemStack stack) {
         this(id, UpgradeBase.getDefaultAdjective(id), stack);
     }

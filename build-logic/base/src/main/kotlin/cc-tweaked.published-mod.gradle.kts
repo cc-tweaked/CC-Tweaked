@@ -72,7 +72,7 @@ modrinth {
     projectId = "gu7yAYhd"
     versionNumber = modVersion
     versionName = modVersion
-    versionType = if (isUnstable) "alpha" else "release"
+    versionType = if (isUnstable) "beta" else "release"
     uploadFile.setProvider(modPublishing.output)
     gameVersions.add(mcVersion)
     changelog =

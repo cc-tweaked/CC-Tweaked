@@ -24,6 +24,16 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
     private final @Nullable ItemStack stack;
     private final Ingredient ingredient;
 
+    /**
+     * Create a new {@link ITurtleUpgrade} with a custom adjective.
+     *
+     * @param id        The id of the upgrade.
+     * @param type      The type of upgrade.
+     * @param adjective The adjective of the upgrade.
+     * @param stack     The stack the upgrade is crafted with.
+     * @deprecated Use {@link AbstractTurtleUpgrade.StackAware}
+     */
+    @Deprecated
     protected AbstractTurtleUpgrade(ResourceLocation id, TurtleUpgradeType type, String adjective, ItemStack stack) {
         this.id = id;
         this.type = type;
@@ -32,7 +42,7 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
         this.ingredient = Ingredient.of(stack);
     }
 
-    protected AbstractTurtleUpgrade(ResourceLocation id, TurtleUpgradeType type, String adjective, Ingredient ingredient) {
+    private AbstractTurtleUpgrade(ResourceLocation id, TurtleUpgradeType type, String adjective, Ingredient ingredient) {
         this.id = id;
         this.type = type;
         this.adjective = adjective;
@@ -40,6 +50,16 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
         this.ingredient = ingredient;
     }
 
+    /**
+     * Create a new {@link ITurtleUpgrade} with the {@linkplain ITurtleUpgrade#getDefaultAdjective(ResourceLocation)
+     * default adjective}.
+     *
+     * @param id    The id of the upgrade.
+     * @param type  The type of upgrade.
+     * @param stack The stack the upgrade is crafted with.
+     * @deprecated Use {@link AbstractTurtleUpgrade.StackAware}
+     */
+    @Deprecated
     protected AbstractTurtleUpgrade(ResourceLocation id, TurtleUpgradeType type, ItemStack stack) {
         this(id, type, UpgradeBase.getDefaultAdjective(id), stack);
     }
