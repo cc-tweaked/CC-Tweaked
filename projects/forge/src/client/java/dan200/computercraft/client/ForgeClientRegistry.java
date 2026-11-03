@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * Registers textures and models for items.
  */
-@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT)
 public final class ForgeClientRegistry {
     private static final Object lock = new Object();
     private static boolean gatheredModellers = false;

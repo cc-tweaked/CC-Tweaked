@@ -15,6 +15,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ServiceLoader;
 
 /**
  * Bootstrap Minecraft before running these tests.
@@ -24,14 +25,33 @@ import java.lang.annotation.Target;
 @ExtendWith(WithMinecraft.Setup.class)
 public @interface WithMinecraft {
     class Setup implements Extension, BeforeAllCallback {
+        private static boolean setup = false;
+
         @Override
         public void beforeAll(ExtensionContext context) {
             bootstrap();
         }
 
-        public static void bootstrap() {
+        public static synchronized void bootstrap() {
+            if (setup) return;
+            setup = true;
+
+            var hooks = ServiceLoader.load(SetupHook.class, SetupHook.class.getClassLoader())
+                .stream().map(ServiceLoader.Provider::get).toList();
+
+            for (var hook : hooks) hook.beforeBootstrap();
             SharedConstants.tryDetectVersion();
             Bootstrap.bootStrap();
+            for (var hook : hooks) hook.afterBootstrap();
         }
+    }
+
+    /**
+     * Additional hooks to run as part of bootstrap.
+     */
+    interface SetupHook {
+        void beforeBootstrap();
+
+        void afterBootstrap();
     }
 }

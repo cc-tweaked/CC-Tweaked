@@ -22,6 +22,15 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
     private final @Nullable ItemStack stack;
     private final Ingredient ingredient;
 
+    /**
+     * Create a new {@link ITurtleUpgrade}.
+     *
+     * @param type      The type of upgrade.
+     * @param adjective The adjective of the upgrade.
+     * @param stack     The stack the upgrade is crafted with.
+     * @deprecated Use {@link AbstractTurtleUpgrade.StackAware}
+     */
+    @Deprecated
     protected AbstractTurtleUpgrade(TurtleUpgradeType type, Component adjective, ItemStack stack) {
         this.type = type;
         this.adjective = adjective;
@@ -29,13 +38,22 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
         this.ingredient = Ingredient.of(stack);
     }
 
-    protected AbstractTurtleUpgrade(TurtleUpgradeType type, Component adjective, Ingredient ingredient) {
+    private AbstractTurtleUpgrade(TurtleUpgradeType type, Component adjective, Ingredient ingredient) {
         this.type = type;
         this.adjective = adjective;
         this.stack = null; // We need to lazily resolve the ingredient, so don't set the stack.
         this.ingredient = ingredient;
     }
 
+    /**
+     * Create a new {@link ITurtleUpgrade}.
+     *
+     * @param type      The type of upgrade.
+     * @param adjective The adjective of the upgrade.
+     * @param stack     The stack the upgrade is crafted with.
+     * @deprecated Use {@link AbstractTurtleUpgrade.StackAware}
+     */
+    @Deprecated
     protected AbstractTurtleUpgrade(TurtleUpgradeType type, String adjective, ItemStack stack) {
         this(type, Component.translatable(adjective), stack);
     }

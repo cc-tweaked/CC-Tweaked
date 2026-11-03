@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.pocket;
 
+import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -21,18 +22,34 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     private final @Nullable ItemStack stack;
     private final Ingredient ingredient;
 
+    /**
+     * Create a new {@link IPocketUpgrade}.
+     *
+     * @param adjective The adjective of the upgrade.
+     * @param stack     The stack the upgrade is crafted with.
+     * @deprecated Use {@link AbstractTurtleUpgrade.StackAware}
+     */
+    @Deprecated
     protected AbstractPocketUpgrade(Component adjective, ItemStack stack) {
         this.adjective = adjective;
         this.stack = stack;
         this.ingredient = Ingredient.of(stack);
     }
 
-    protected AbstractPocketUpgrade(Component adjective, Ingredient ingredient) {
+    private AbstractPocketUpgrade(Component adjective, Ingredient ingredient) {
         this.adjective = adjective;
         this.stack = null; // We need to lazily resolve the ingredient, so don't set the stack.
         this.ingredient = ingredient;
     }
 
+    /**
+     * Create a new {@link IPocketUpgrade}.
+     *
+     * @param adjective The adjective of the upgrade.
+     * @param stack The stack the upgrade is crafted with.
+     * @deprecated Use {@link AbstractTurtleUpgrade.StackAware}
+     */
+    @Deprecated
     protected AbstractPocketUpgrade(String adjective, ItemStack stack) {
         this(Component.translatable(adjective), stack);
     }

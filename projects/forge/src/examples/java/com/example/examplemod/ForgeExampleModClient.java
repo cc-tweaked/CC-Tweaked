@@ -9,7 +9,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 /**
  * The client-side entry point for the Forge version of our example mod.
  */
-@EventBusSubscriber(modid = ExampleMod.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ExampleMod.MOD_ID, value = Dist.CLIENT)
 public class ForgeExampleModClient {
     // @start region=turtle_modellers
     @SubscribeEvent

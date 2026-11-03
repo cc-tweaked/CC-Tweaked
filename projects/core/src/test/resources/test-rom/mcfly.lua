@@ -438,7 +438,9 @@ local tests_locked = false
 local test_list = {}
 local test_map, test_count = {}, 0
 
-local function format_loc(info) return ("%s:%d"):format(info.short_src, info.currentline) end
+local function format_loc(info)
+    return ("%s:%d:%d"):format(info.source, info.currentline, info.currentcolumn)
+end
 
 --- Add a new test to our queue.
 --

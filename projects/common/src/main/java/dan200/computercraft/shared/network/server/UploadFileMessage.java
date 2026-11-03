@@ -10,9 +10,12 @@ import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.NetworkMessages;
+import dan200.computercraft.shared.network.codec.MoreStreamCodecs;
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -35,6 +38,13 @@ public class UploadFileMessage extends ComputerServerMessage {
     public static final int MAX_FILES = 32;
     public static final int MAX_FILE_NAME = 128;
 
+    private static final StreamCodec<ByteBuf, List<FileSlice>> FILE_SLICE_STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.VAR_INT, FileSlice::fileId,
+        ByteBufCodecs.VAR_INT, FileSlice::offset,
+        MoreStreamCodecs.byteBuffer(MAX_PACKET_SIZE), FileSlice::bytes,
+        FileSlice::new
+    ).apply(ByteBufCodecs.list(MAX_FILES));
+
     static final @VisibleForTesting int FLAG_FIRST = 1;
     static final @VisibleForTesting int FLAG_LAST = 2;
 
@@ -46,6 +56,11 @@ public class UploadFileMessage extends ComputerServerMessage {
 
     UploadFileMessage(AbstractContainerMenu menu, UUID uuid, int flag, @Nullable List<FileUpload> files, List<FileSlice> slices) {
         super(menu.containerId);
+
+        if (files != null && files.size() > MAX_FILES) throw new IllegalArgumentException("Too many files");
+        // We expect to have at most one slice per file in a packet.
+        if (slices.size() > MAX_FILES) throw new IllegalArgumentException("Too many file slices");
+
         this.uuid = uuid;
         this.flag = flag;
         this.files = files;
@@ -79,21 +94,7 @@ public class UploadFileMessage extends ComputerServerMessage {
             files = null;
         }
 
-        var nSlices = buf.readVarInt();
-        var slices = this.slices = new ArrayList<>(nSlices);
-        for (var i = 0; i < nSlices; i++) {
-            int fileId = buf.readUnsignedByte();
-            var offset = buf.readVarInt();
-
-            var size = buf.readUnsignedShort();
-            if (size > MAX_PACKET_SIZE) throw new DecoderException("File is too large");
-
-            var buffer = ByteBuffer.allocateDirect(size);
-            buf.readBytes(buffer);
-            buffer.flip();
-
-            slices.add(new FileSlice(fileId, offset, buffer));
-        }
+        slices = FILE_SLICE_STREAM_CODEC.decode(buf);
     }
 
     private void write(FriendlyByteBuf buf) {
@@ -111,15 +112,7 @@ public class UploadFileMessage extends ComputerServerMessage {
             }
         }
 
-        buf.writeVarInt(slices.size());
-        for (var slice : slices) {
-            buf.writeByte(slice.fileId());
-            buf.writeVarInt(slice.offset());
-
-            var bytes = slice.bytes().duplicate();
-            buf.writeShort(bytes.remaining());
-            buf.writeBytes(bytes);
-        }
+        FILE_SLICE_STREAM_CODEC.encode(buf, slices);
     }
 
     public static void send(AbstractContainerMenu container, List<FileUpload> files, Consumer<UploadFileMessage> send) {
@@ -132,7 +125,7 @@ public class UploadFileMessage extends ComputerServerMessage {
         List<FileSlice> slices = new ArrayList<>(files.size());
         for (var fileId = 0; fileId < files.size(); fileId++) {
             var file = files.get(fileId);
-            var contents = file.getBytes();
+            var contents = file.getBytes().duplicate();
             var capacity = contents.limit();
 
             var currentOffset = 0;
@@ -153,8 +146,6 @@ public class UploadFileMessage extends ComputerServerMessage {
                 currentOffset += canWrite;
                 remaining -= canWrite;
             }
-
-            contents.position(0).limit(capacity);
         }
 
         send.accept(first
