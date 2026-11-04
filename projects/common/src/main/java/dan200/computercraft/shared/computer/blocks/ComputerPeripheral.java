@@ -14,14 +14,12 @@ import org.jspecify.annotations.Nullable;
  * <p>
  * This allows for basic interaction with adjacent computers. Computers wrapped as peripherals will have the type
  * {@code computer} while turtles will be {@code turtle}.
- *
  * <p>
  * ## Recipes
  * <div class="recipe-container">
  *  <mc-recipe recipe="computercraft:computer_normal"></mc-recipe>
  *  <mc-recipe recipe="computercraft:computer_advanced"></mc-recipe>
  * </div>
- * <p>
  *
  * @cc.module computer
  */
