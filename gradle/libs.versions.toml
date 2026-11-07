@@ -81,7 +81,6 @@ versionCatalogUpdate = "1.1.1"
 [libraries]
 # Normal dependencies
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
-asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
 checkerFramework = { module = "org.checkerframework:checker-qual", version.ref = "checkerFramework" }
 cobalt = { module = "cc.tweaked:cobalt", version.ref = "cobalt" }
@@ -197,5 +196,5 @@ test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]
 testRuntime = ["junit-jupiter-engine", "junit-platform-launcher", "junit-platform-reporting", "jqwik-engine"]
 
 # Build tools
-teavm-api = ["teavm-jso", "teavm-jso-apis", "teavm-platform", "teavm-classlib", "teavm-extension-apis", "teavm-extension-spi"]
-teavm-tooling = ["teavm-tooling", "teavm-jso-impl"]
+teavm-impl = ["teavm-core", "teavm-jso", "teavm-jso-apis", "teavm-extension-apis", "teavm-extension-spi"]
+teavm-runtime = ["teavm-classlib", "teavm-jso-impl"]

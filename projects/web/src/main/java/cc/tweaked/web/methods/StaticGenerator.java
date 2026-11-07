@@ -4,9 +4,6 @@
 
 package cc.tweaked.web.methods;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
 import dan200.computercraft.api.lua.*;
@@ -14,20 +11,25 @@ import dan200.computercraft.core.asm.Reflect;
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.util.Nullability;
 import org.jspecify.annotations.Nullable;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.teavm.extension.introspect.IntrospectClass;
 
+import java.lang.classfile.ClassFile;
+import java.lang.classfile.CodeBuilder;
+import java.lang.classfile.TypeKind;
+import java.lang.constant.ClassDesc;
+import java.lang.constant.ConstantDescs;
+import java.lang.constant.MethodTypeDesc;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.AccessFlag;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
-import static org.objectweb.asm.Opcodes.*;
+import static java.lang.constant.ConstantDescs.*;
 
 /**
  * The underlying generator for {@link LuaFunction}-annotated methods.
@@ -42,47 +44,40 @@ import static org.objectweb.asm.Opcodes.*;
  * @param <T> The type of the interface the generated classes implement.
  */
 public final class StaticGenerator<T> {
+    private static final Logger LOG = LoggerFactory.getLogger(StaticGenerator.class);
+
     private static final String METHOD_NAME = "apply";
-    private static final String[] EXCEPTIONS = new String[]{ Type.getInternalName(LuaException.class) };
 
-    private static final String INTERNAL_METHOD_RESULT = Type.getInternalName(MethodResult.class);
-    private static final String DESC_METHOD_RESULT = Type.getDescriptor(MethodResult.class);
-
-    private static final String INTERNAL_ARGUMENTS = Type.getInternalName(IArguments.class);
-    private static final String DESC_ARGUMENTS = Type.getDescriptor(IArguments.class);
-
-    private static final String INTERNAL_COERCED = Type.getInternalName(Coerced.class);
+    private static final ClassDesc CD_METHOD_RESULT = MethodResult.class.describeConstable().orElseThrow();
+    private static final ClassDesc CD_ARGUMENTS = IArguments.class.describeConstable().orElseThrow();
+    private static final ClassDesc CD_COERCED = Coerced.class.describeConstable().orElseThrow();
 
     private final Class<T> base;
     private final List<Class<?>> context;
 
-    private final String[] interfaces;
-    private final String methodDesc;
+    private final MethodTypeDesc methodDesc;
     private final String classPrefix;
 
     private final Function<byte[], IntrospectClass<?>> createClass;
 
-    private final LoadingCache<Method, Optional<IntrospectClass<T>>> methodCache = CacheBuilder
-        .newBuilder()
-        .build(CacheLoader.from(catching(this::build, Optional.empty())));
+    private final Map<Method, Optional<IntrospectClass<T>>> methodCache = new HashMap<>();
 
     public StaticGenerator(Class<T> base, List<Class<?>> context, Function<byte[], IntrospectClass<?>> createClass) {
         this.base = base;
         this.context = context;
         this.createClass = createClass;
 
-        interfaces = new String[]{ Type.getInternalName(base) };
-
-        var methodDesc = new StringBuilder().append("(Ljava/lang/Object;");
-        for (var klass : context) methodDesc.append(Type.getDescriptor(klass));
-        methodDesc.append(DESC_ARGUMENTS).append(")").append(DESC_METHOD_RESULT);
-        this.methodDesc = methodDesc.toString();
+        List<ClassDesc> arguments = new ArrayList<>(context.size() + 2);
+        arguments.add(CD_Object);
+        for (var klass : context) arguments.add(klass.describeConstable().orElseThrow());
+        arguments.add(CD_ARGUMENTS);
+        methodDesc = MethodTypeDesc.of(CD_METHOD_RESULT, arguments);
 
         classPrefix = StaticGenerator.class.getPackageName() + "." + base.getSimpleName() + "$";
     }
 
     public Optional<IntrospectClass<T>> getMethod(Method method) {
-        return methodCache.getUnchecked(method);
+        return methodCache.computeIfAbsent(method, this::build);
     }
 
     private Optional<IntrospectClass<T>> build(Method method) {
@@ -91,25 +86,25 @@ public final class StaticGenerator<T> {
 
         // Methods must be final - this prevents them being overridden and potentially exposed twice.
         if (!Modifier.isFinal(modifiers) && !Modifier.isFinal(method.getDeclaringClass().getModifiers())) {
-            System.err.printf("Lua Method %s should be final.\n", name);
+            LOG.warn("Lua Method {} should be final.", name);
         }
 
         if (!Modifier.isPublic(modifiers) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-            System.err.printf("Lua Method %s should be a public method.\n", name);
+            LOG.warn("Lua Method {} should be a public method.", name);
             return Optional.empty();
         }
 
         var exceptions = method.getExceptionTypes();
         for (var exception : exceptions) {
             if (exception != LuaException.class) {
-                System.err.printf("Lua Method %s cannot throw %s.\n", name, exception.getName());
+                LOG.warn("Lua Method {} cannot throw {}.", name, exception.getName());
                 return Optional.empty();
             }
         }
 
         var annotation = Nullability.assertNonNull(method.getAnnotation(LuaFunction.class));
         if (annotation.unsafe() && annotation.mainThread()) {
-            System.err.printf("Lua Method %s cannot use unsafe and mainThread.\n", name);
+            LOG.warn("Lua Method {} cannot use unsafe and mainThread.", name);
             return Optional.empty();
         }
 
@@ -120,171 +115,159 @@ public final class StaticGenerator<T> {
 
             return Optional.of(createClass.apply(bytes).asSubclass(base));
         } catch (ClassFormatError | RuntimeException e) {
-            System.err.printf("Error generating %s\n", name);
-            e.printStackTrace();
+            LOG.error("Error generating {}", name, e);
             return Optional.empty();
         }
     }
 
     private byte @Nullable [] generate(String className, Class<?> target, Method targetMethod, boolean unsafe) {
-        var internalName = className.replace(".", "/");
+        var internalName = ClassDesc.of(className);
 
         // Construct a public final class which extends Object and implements MethodInstance.Delegate
-        var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        cw.visit(V17, ACC_PUBLIC | ACC_FINAL, internalName, null, "java/lang/Object", interfaces);
-        cw.visitSource("CC generated method", null);
+        return ClassFile.of().build(internalName, klass -> {
+            klass.withFlags(AccessFlag.PUBLIC, AccessFlag.FINAL);
+            klass.withInterfaceSymbols(base.describeConstable().orElseThrow());
 
-        cw.visitField(ACC_PUBLIC | ACC_STATIC | ACC_FINAL, "INSTANCE", "L" + internalName + ";", null, null).visitEnd();
+            klass.withField("INSTANCE", internalName, f -> f.withFlags(AccessFlag.PUBLIC, AccessFlag.STATIC, AccessFlag.FINAL));
 
-        { // Constructor just invokes super.
-            var mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-            mw.visitCode();
-            mw.visitVarInsn(ALOAD, 0);
-            mw.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-            mw.visitInsn(RETURN);
-            mw.visitMaxs(0, 0);
-            mw.visitEnd();
-        }
+            // Constructor just invokes super.
+            klass.withMethod(INIT_NAME, ConstantDescs.MTD_void, AccessFlag.PUBLIC.mask(), method -> method.withCode(code -> {
+                code.aload(0);
+                code.invokespecial(CD_Object, INIT_NAME, ConstantDescs.MTD_void);
+                code.return_();
+            }));
 
-        // Static initialiser sets the INSTANCE field.
-        {
-            var mw = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-            mw.visitCode();
-            mw.visitTypeInsn(NEW, internalName);
-            mw.visitInsn(DUP);
-            mw.visitMethodInsn(INVOKESPECIAL, internalName, "<init>", "()V", false);
-            mw.visitFieldInsn(PUTSTATIC, internalName, "INSTANCE", "L" + internalName + ";");
-            mw.visitInsn(RETURN);
-            mw.visitMaxs(0, 0);
-            mw.visitEnd();
-        }
+            // Static initialiser sets the INSTANCE field.
+            klass.withMethod(ConstantDescs.CLASS_INIT_NAME, ConstantDescs.MTD_void, AccessFlag.STATIC.mask(), method -> method.withCode(code -> {
+                code.new_(internalName);
+                code.dup();
+                code.invokespecial(internalName, INIT_NAME, ConstantDescs.MTD_void);
+                code.putstatic(internalName, "INSTANCE", internalName);
+                code.return_();
+            }));
 
-        {
-            var mw = cw.visitMethod(ACC_PUBLIC, METHOD_NAME, methodDesc, null, EXCEPTIONS);
-            mw.visitCode();
+            klass.withMethod(METHOD_NAME, methodDesc, AccessFlag.PUBLIC.mask(), method -> method.withCode(code -> {
+                // Load the target as the first argument.
+                code.aload(1);
+                code.checkcast(ClassDesc.of(target.getName()));
 
-            // Load the target as the first argument.
-            mw.visitVarInsn(ALOAD, 1);
-            mw.visitTypeInsn(CHECKCAST, Type.getInternalName(target));
-
-            var argIndex = 0;
-            for (var genericArg : targetMethod.getGenericParameterTypes()) {
-                var loadedArg = loadArg(mw, target, targetMethod, unsafe, genericArg, argIndex);
-                if (loadedArg == null) return null;
-                if (loadedArg) argIndex++;
-            }
-
-            mw.visitMethodInsn(
-                INVOKEVIRTUAL,
-                Type.getInternalName(targetMethod.getDeclaringClass()), targetMethod.getName(),
-                Type.getMethodDescriptor(targetMethod), false
-            );
-
-            // We allow a reasonable amount of flexibility on the return value's type. Alongside the obvious MethodResult,
-            // we convert basic types into an immediate result.
-            var ret = targetMethod.getReturnType();
-            if (ret != MethodResult.class) {
-                if (ret == void.class) {
-                    mw.visitMethodInsn(INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "()" + DESC_METHOD_RESULT, false);
-                } else if (ret.isPrimitive()) {
-                    var boxed = Primitives.wrap(ret);
-                    mw.visitMethodInsn(INVOKESTATIC, Type.getInternalName(boxed), "valueOf", "(" + Type.getDescriptor(ret) + ")" + Type.getDescriptor(boxed), false);
-                    mw.visitMethodInsn(INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "(Ljava/lang/Object;)" + DESC_METHOD_RESULT, false);
-                } else if (ret == Object[].class) {
-                    mw.visitMethodInsn(INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "([Ljava/lang/Object;)" + DESC_METHOD_RESULT, false);
-                } else {
-                    mw.visitMethodInsn(INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "(Ljava/lang/Object;)" + DESC_METHOD_RESULT, false);
+                var argIndex = 0;
+                for (var genericArg : targetMethod.getGenericParameterTypes()) {
+                    var loadedArg = loadArg(code, target, targetMethod, unsafe, genericArg, argIndex);
+                    if (loadedArg) argIndex++;
                 }
-            }
 
-            mw.visitInsn(ARETURN);
+                code.invokevirtual(
+                    targetMethod.getDeclaringClass().describeConstable().orElseThrow(),
+                    targetMethod.getName(),
+                    MethodType.methodType(targetMethod.getReturnType(), targetMethod.getParameterTypes()).describeConstable().orElseThrow()
+                );
 
-            mw.visitMaxs(0, 0);
-            mw.visitEnd();
-        }
+                // We allow a reasonable amount of flexibility on the return value's type. Alongside the obvious MethodResult,
+                // we convert basic types into an immediate result.
+                var ret = targetMethod.getReturnType();
+                if (ret != MethodResult.class) {
+                    if (ret == void.class) {
+                        code.invokestatic(CD_METHOD_RESULT, "of", MethodTypeDesc.of(CD_METHOD_RESULT), false);
+                    } else if (ret.isPrimitive()) {
+                        var boxed = Primitives.wrap(ret);
+                        code.invokestatic(
+                            boxed.describeConstable().orElseThrow(), "valueOf",
+                            MethodType.methodType(boxed, ret).describeConstable().orElseThrow()
+                        );
+                        code.invokestatic(CD_METHOD_RESULT, "of", MethodTypeDesc.of(CD_METHOD_RESULT, CD_Object), false);
+                    } else if (ret == Object[].class) {
+                        code.invokestatic(CD_METHOD_RESULT, "of", MethodTypeDesc.of(CD_METHOD_RESULT, CD_Object.arrayType()), false);
+                    } else {
+                        code.invokestatic(CD_METHOD_RESULT, "of", MethodTypeDesc.of(CD_METHOD_RESULT, CD_Object), false);
+                    }
+                }
 
-        cw.visitEnd();
-
-        return cw.toByteArray();
+                code.return_(TypeKind.REFERENCE);
+            }));
+        });
     }
 
-    private @Nullable Boolean loadArg(MethodVisitor mw, Class<?> target, Method method, boolean unsafe, java.lang.reflect.Type genericArg, int argIndex) {
+    private boolean loadArg(CodeBuilder code, Class<?> target, Method method, boolean unsafe, java.lang.reflect.Type genericArg, int argIndex) {
         if (genericArg == target) {
-            mw.visitVarInsn(ALOAD, 1);
-            mw.visitTypeInsn(CHECKCAST, Type.getInternalName(target));
+            code.aload(1);
+            code.checkcast(target.describeConstable().orElseThrow());
             return false;
         }
 
         var arg = Reflect.getRawType(method, genericArg, true);
-        if (arg == null) return null;
+        if (arg == null) throw new IllegalStateException("Invalid argument");
+
+        var argDesc = arg.describeConstable().orElseThrow();
 
         if (arg == IArguments.class) {
-            mw.visitVarInsn(ALOAD, 2 + context.size());
+            code.aload(2 + context.size());
             return false;
         }
 
         var idx = context.indexOf(arg);
         if (idx >= 0) {
-            mw.visitVarInsn(ALOAD, 2 + idx);
+            code.aload(2 + idx);
             return false;
         }
 
         if (arg == Coerced.class) {
             var klass = Reflect.getRawType(method, TypeToken.of(genericArg).resolveType(Reflect.COERCED_IN).getType(), false);
-            if (klass == null) return null;
+            if (klass == null) throw new IllegalStateException("Invalid argument");
 
             if (klass == String.class) {
-                loadCoerced(mw, argIndex, "getStringCoerced", "(I)Ljava/lang/String;");
+                loadCoerced(code, argIndex, "getStringCoerced", MethodTypeDesc.of(CD_String, CD_int));
                 return true;
             } else if (klass == ByteBuffer.class) {
-                loadCoerced(mw, argIndex, "getBytesCoerced", "(I)Ljava/nio/ByteBuffer;");
+                loadCoerced(code, argIndex, "getBytesCoerced", MethodTypeDesc.of(ByteBuffer.class.describeConstable().orElseThrow(), CD_int));
                 return true;
             }
         }
 
         if (arg == Optional.class) {
             var klass = Reflect.getRawType(method, TypeToken.of(genericArg).resolveType(Reflect.OPTIONAL_IN).getType(), false);
-            if (klass == null) return null;
+            if (klass == null) throw new IllegalStateException("Invalid argument");
 
             if (Enum.class.isAssignableFrom(klass) && klass != Enum.class) {
-                mw.visitVarInsn(ALOAD, 2 + context.size());
-                loadInt(mw, argIndex);
-                mw.visitLdcInsn(Type.getType(klass));
-                mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "optEnum", "(ILjava/lang/Class;)Ljava/util/Optional;", true);
+                code.aload(2 + context.size());
+                code.loadConstant(argIndex);
+                code.loadConstant(klass.describeConstable().orElseThrow());
+                code.invokeinterface(CD_ARGUMENTS, "optEnum", MethodType.methodType(Optional.class, int.class, Class.class).describeConstable().orElseThrow());
                 return true;
             }
 
             var name = getLuaName(Primitives.unwrap(klass), unsafe);
             if (name != null) {
-                mw.visitVarInsn(ALOAD, 2 + context.size());
-                loadInt(mw, argIndex);
-                mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "opt" + name, "(I)Ljava/util/Optional;", true);
+                code.aload(2 + context.size());
+                code.loadConstant(argIndex);
+                code.invokeinterface(CD_ARGUMENTS, "opt" + name, MethodType.methodType(Optional.class, int.class).describeConstable().orElseThrow());
                 return true;
             }
         }
 
         if (Enum.class.isAssignableFrom(arg) && arg != Enum.class) {
-            mw.visitVarInsn(ALOAD, 2 + context.size());
-            loadInt(mw, argIndex);
-            mw.visitLdcInsn(Type.getType(arg));
-            mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getEnum", "(ILjava/lang/Class;)Ljava/lang/Enum;", true);
-            mw.visitTypeInsn(CHECKCAST, Type.getInternalName(arg));
+            code.aload(2 + context.size());
+            code.loadConstant(argIndex);
+            code.loadConstant(argDesc);
+            code.invokeinterface(CD_ARGUMENTS, "getEnum", MethodType.methodType(Enum.class, int.class, Class.class).describeConstable().orElseThrow());
+            code.checkcast(argDesc);
             return true;
         }
 
         var name = arg == Object.class ? "" : getLuaName(arg, unsafe);
         if (name != null) {
-            if (Reflect.getRawType(method, genericArg, false) == null) return null;
+            if (Reflect.getRawType(method, genericArg, false) == null) {
+                throw new IllegalStateException("Invalid argument");
+            }
 
-            mw.visitVarInsn(ALOAD, 2 + context.size());
-            loadInt(mw, argIndex);
-            mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "get" + name, "(I)" + Type.getDescriptor(arg), true);
+            code.aload(2 + context.size());
+            code.loadConstant(argIndex);
+            code.invokeinterface(CD_ARGUMENTS, "get" + name, MethodType.methodType(arg, int.class).describeConstable().orElseThrow());
             return true;
         }
 
-        System.err.printf("Unknown parameter type %s for method %s.%s.\n",
-            arg.getName(), method.getDeclaringClass().getName(), method.getName());
-        return null;
+        LOG.warn("Unknown parameter type {} for method {}.{}.", arg.getName(), method.getDeclaringClass().getName(), method.getName());
+        throw new IllegalStateException("Invalid argument");
     }
 
     @Nullable
@@ -304,34 +287,12 @@ public final class StaticGenerator<T> {
         return null;
     }
 
-    private static void loadInt(MethodVisitor visitor, int value) {
-        if (value >= -1 && value <= 5) {
-            visitor.visitInsn(ICONST_0 + value);
-        } else {
-            visitor.visitLdcInsn(value);
-        }
-    }
-
-    private void loadCoerced(MethodVisitor mw, int argIndex, String getter, String getterType) {
-        mw.visitTypeInsn(NEW, INTERNAL_COERCED);
-        mw.visitInsn(DUP);
-        mw.visitVarInsn(ALOAD, 2 + context.size());
-        loadInt(mw, argIndex);
-        mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, getter, getterType, true);
-        mw.visitMethodInsn(INVOKESPECIAL, INTERNAL_COERCED, "<init>", "(Ljava/lang/Object;)V", false);
-    }
-
-    @SuppressWarnings("Guava")
-    static <T, U> com.google.common.base.Function<T, U> catching(Function<T, U> function, U def) {
-        return x -> {
-            try {
-                return function.apply(x);
-            } catch (Exception | LinkageError e) {
-                // LinkageError due to possible codegen bugs and NoClassDefFoundError. The latter occurs when fetching
-                // methods on a class which references non-existent (i.e. client-only) types.
-                e.printStackTrace();
-                return def;
-            }
-        };
+    private void loadCoerced(CodeBuilder code, int argIndex, String getter, MethodTypeDesc getterType) {
+        code.new_(CD_COERCED);
+        code.dup();
+        code.aload(2 + context.size());
+        code.loadConstant(argIndex);
+        code.invokeinterface(CD_ARGUMENTS, getter, getterType);
+        code.invokespecial(CD_COERCED, INIT_NAME, MethodTypeDesc.of(CD_void, CD_Object));
     }
 }

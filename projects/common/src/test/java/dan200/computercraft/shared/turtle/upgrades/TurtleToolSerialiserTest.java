@@ -33,9 +33,6 @@ class TurtleToolSerialiserTest {
             tool.getUpgradeID(), tool, TurtleToolSerialiser.INSTANCE::toNetwork, TurtleToolSerialiser.INSTANCE::fromNetwork
         );
 
-        if (!equality.equals(tool, converted)) {
-            System.out.println("Break");
-        }
         assertThat("Messages are equal", converted, equality.asMatcher(TurtleTool.class, tool));
     }
 
