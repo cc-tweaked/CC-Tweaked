@@ -5,6 +5,7 @@
 package dan200.computercraft.api.peripheral;
 
 import dan200.computercraft.api.ForgeComputerCraftAPI;
+import dan200.computercraft.api.peripheral.block.BlockPeripheral;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -19,11 +20,13 @@ import net.minecraftforge.common.util.LazyOptional;
  * <p>
  * {@link ForgeComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)} should be used to register a peripheral
  * provider.
+ * <p>
+ * While not required, it is recommended to return a {@link BlockPeripheral} from your lookup.
  */
 @FunctionalInterface
 public interface IPeripheralProvider {
     /**
-     * Produce an peripheral implementation from a block location.
+     * Produce a peripheral implementation from a block location.
      *
      * @param world The world the block is in.
      * @param pos   The position the block is at.

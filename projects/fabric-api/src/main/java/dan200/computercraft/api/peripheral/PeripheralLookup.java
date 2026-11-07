@@ -5,6 +5,7 @@
 package dan200.computercraft.api.peripheral;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.peripheral.block.BlockPeripheral;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +13,8 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * {@linkplain BlockApiLookup Block API lookup} for {@link IPeripheral}s. This should be used to register peripherals
  * for a block. It should <em>NOT</em> be used to query peripherals.
+ * <p>
+ * While not required, it is recommended to return a {@link BlockPeripheral} from your lookup.
  */
 public final class PeripheralLookup {
     public static final ResourceLocation ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "peripheral");

@@ -27,9 +27,9 @@
  *     </li>
  *     <li>
  * <p>
- *         <strong>With an {@link dan200.computercraft.api.peripheral.IPeripheral}:</strong> If your peripheral needs
- *         more advanced behaviour, such as knowing which computers it is attached to, then you can use an
- *         {@link dan200.computercraft.api.peripheral.IPeripheral}.
+ *         <strong>With an {@link dan200.computercraft.api.peripheral.block.BlockPeripheral}:</strong> If your
+ *         peripheral needs more advanced behaviour, such as knowing which computers it is attached to, then you can use an
+ *         {@link dan200.computercraft.api.peripheral.block.BlockPeripheral}.
  * <p>
  *          These peripherals are currently <strong>NOT</strong> compatible with the generic peripheral system, so
  *          methods added by other mods (including CC's built-in inventory methods) will not be available.
@@ -55,8 +55,9 @@
  * {@snippet class=com.example.examplemod.ExampleMod region=generic_source}
  *
  * <h3>Creating a {@code IPeripheral}</h3>
- * First, we'll need to create a new class that implements {@link dan200.computercraft.api.peripheral.IPeripheral}. This
- * requires a couple of boilerplate methods: one to get the type of the peripheral, and an equality function.
+ * First, we'll need to create a new class that implements {@link dan200.computercraft.api.peripheral.block.BlockPeripheral}.
+ * This requires a couple of boilerplate methods: one to get the type of the peripheral, an equality function, and one
+ * returning the block our peripheral targets.
  * <p>
  * We can then start adding peripheral methods to our class. Each method should be {@code final}, and annotated with
  * {@link dan200.computercraft.api.lua.LuaFunction}.
