@@ -11,7 +11,12 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.core.*;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
@@ -265,17 +270,23 @@ public class TurtleAPI implements ILuaAPI {
      * Drop the currently selected stack into the inventory in front of the turtle, or as an item into the world if
      * there is no inventory.
      *
+     * <p>
+     * When dropping into an inventory, a slot may be given to only insert items into that slot of the inventory.
+     *
      * @param count The number of items to drop. If not given, the entire stack will be dropped.
+     * @param slot  The slot of the inventory to insert items into. If not given, items will be inserted into the first
+     *              available slot.
      * @return The turtle command result.
-     * @throws LuaException If dropping an invalid number of items.
+     * @throws LuaException If dropping an invalid number of items, or the slot is out of range.
      * @cc.treturn boolean Whether items were dropped.
      * @cc.treturn string|nil The reason the no items were dropped.
      * @cc.since 1.31
+     * @cc.changed 1.121.0 Added an optional slot argument.
      * @see #select
      */
     @LuaFunction
-    public final MethodResult drop(Optional<Integer> count) throws LuaException {
-        return trackCommand(new TurtleDropCommand(InteractDirection.FORWARD, checkCount(count)));
+    public final MethodResult drop(Optional<Integer> count, Optional<Integer> slot) throws LuaException {
+        return trackCommand(new TurtleDropCommand(InteractDirection.FORWARD, checkCount(count), checkInventorySlot(slot)));
     }
 
     /**
@@ -283,16 +294,19 @@ public class TurtleAPI implements ILuaAPI {
      * no inventory.
      *
      * @param count The number of items to drop. If not given, the entire stack will be dropped.
+     * @param slot  The slot of the inventory to insert items into. If not given, items will be inserted into the first
+     *              available slot.
      * @return The turtle command result.
-     * @throws LuaException If dropping an invalid number of items.
+     * @throws LuaException If dropping an invalid number of items, or the slot is out of range.
      * @cc.treturn boolean Whether items were dropped.
      * @cc.treturn string|nil The reason the no items were dropped.
      * @cc.since 1.4
+     * @cc.changed 1.121.0 Added an optional slot argument.
      * @see #select
      */
     @LuaFunction
-    public final MethodResult dropUp(Optional<Integer> count) throws LuaException {
-        return trackCommand(new TurtleDropCommand(InteractDirection.UP, checkCount(count)));
+    public final MethodResult dropUp(Optional<Integer> count, Optional<Integer> slot) throws LuaException {
+        return trackCommand(new TurtleDropCommand(InteractDirection.UP, checkCount(count), checkInventorySlot(slot)));
     }
 
     /**
@@ -300,16 +314,19 @@ public class TurtleAPI implements ILuaAPI {
      * there is no inventory.
      *
      * @param count The number of items to drop. If not given, the entire stack will be dropped.
+     * @param slot  The slot of the inventory to insert items into. If not given, items will be inserted into the first
+     *              available slot.
      * @return The turtle command result.
-     * @throws LuaException If dropping an invalid number of items.
+     * @throws LuaException If dropping an invalid number of items, or the slot is out of range.
      * @cc.treturn boolean Whether items were dropped.
      * @cc.treturn string|nil The reason the no items were dropped.
      * @cc.since 1.4
+     * @cc.changed 1.121.0 Added an optional slot argument.
      * @see #select
      */
     @LuaFunction
-    public final MethodResult dropDown(Optional<Integer> count) throws LuaException {
-        return trackCommand(new TurtleDropCommand(InteractDirection.DOWN, checkCount(count)));
+    public final MethodResult dropDown(Optional<Integer> count, Optional<Integer> slot) throws LuaException {
+        return trackCommand(new TurtleDropCommand(InteractDirection.DOWN, checkCount(count), checkInventorySlot(slot)));
     }
 
     /**
@@ -481,50 +498,83 @@ public class TurtleAPI implements ILuaAPI {
      * Suck an item from the inventory in front of the turtle, or from an item floating in the world.
      * <p>
      * This will pull items into the first acceptable slot, starting at the {@link #select currently selected} one.
+     * <p>
+     * When sucking from an inventory, the items to take can be narrowed down further:
+     * <ul>
+     *   <li>If a slot number is given, items will only be taken from that slot of the inventory.</li>
+     *   <li>
+     *     If an item name is given, only that item will be taken. Every slot is searched, and up to {@code count} items
+     *     are gathered across all matching slots. If there is no such item, this fails in the same way as sucking from
+     *     an empty inventory.
+     *   </li>
+     * </ul>
+     * <p>
+     * The contents of an inventory can be checked by calling [`inventory.list`] on it, for instance with
+     * {@code peripheral.call("front", "list")}.
      *
-     * @param count The number of items to suck. If not given, up to a stack of items will be picked up.
+     * @param args The arguments to suck.
      * @return The turtle command result.
-     * @throws LuaException If given an invalid number of items.
+     * @throws LuaException If given an invalid number of items, slot or item name.
+     * @cc.tparam [opt] number count The number of items to suck. If not given, up to a stack of items will be picked up.
+     * @cc.tparam [opt] number|string from The slot of the inventory to take items from, or the name of the item to take.
      * @cc.treturn boolean Whether items were picked up.
      * @cc.treturn string|nil The reason the no items were picked up.
      * @cc.since 1.4
      * @cc.changed 1.6 Added an optional limit argument.
+     * @cc.changed 1.121.0 Added an optional slot or item argument.
+     * @cc.usage Take 32 coal from the chest in front of the turtle.
+     * <pre>{@code
+     * local ok, err = turtle.suck(32, "minecraft:coal")
+     * if not ok then printError(err) end
+     * }</pre>
+     * @cc.usage Take everything in the third slot of the chest in front of the turtle.
+     * <pre>{@code
+     * turtle.suck(64, 3)
+     * }</pre>
      */
     @LuaFunction
-    public final MethodResult suck(Optional<Integer> count) throws LuaException {
-        return trackCommand(new TurtleSuckCommand(InteractDirection.FORWARD, checkCount(count)));
+    public final MethodResult suck(IArguments args) throws LuaException {
+        return trackCommand(suckCommand(InteractDirection.FORWARD, args));
     }
 
     /**
      * Suck an item from the inventory above the turtle, or from an item floating in the world.
      *
-     * @param count The number of items to suck. If not given, up to a stack of items will be picked up.
+     * @param args The arguments to suck.
      * @return The turtle command result.
-     * @throws LuaException If given an invalid number of items.
+     * @throws LuaException If given an invalid number of items, slot or item name.
+     * @cc.tparam [opt] number count The number of items to suck. If not given, up to a stack of items will be picked up.
+     * @cc.tparam [opt] number|string from The slot of the inventory to take items from, or the name of the item to take.
      * @cc.treturn boolean Whether items were picked up.
      * @cc.treturn string|nil The reason the no items were picked up.
      * @cc.since 1.4
      * @cc.changed 1.6 Added an optional limit argument.
+     * @cc.changed 1.121.0 Added an optional slot or item argument.
+     * @see #suck For more information about sucking from a specific slot or a specific item.
      */
     @LuaFunction
-    public final MethodResult suckUp(Optional<Integer> count) throws LuaException {
-        return trackCommand(new TurtleSuckCommand(InteractDirection.UP, checkCount(count)));
+    public final MethodResult suckUp(IArguments args) throws LuaException {
+        return trackCommand(suckCommand(InteractDirection.UP, args));
     }
 
     /**
      * Suck an item from the inventory below the turtle, or from an item floating in the world.
      *
-     * @param count The number of items to suck. If not given, up to a stack of items will be picked up.
+     * @param args The arguments to suck.
      * @return The turtle command result.
-     * @throws LuaException If given an invalid number of items.
+     * @throws LuaException If given an invalid number of items, slot or item name.
+     * @cc.tparam [opt] number count The number of items to suck. If not given, up to a stack of items will be picked up.
+     * @cc.tparam [opt] number|string from The slot of the inventory to take items from, or the name of the item to take.
      * @cc.treturn boolean Whether items were picked up.
      * @cc.treturn string|nil The reason the no items were picked up.
      * @cc.since 1.4
      * @cc.changed 1.6 Added an optional limit argument.
+     * @cc.changed 1.121.0 Added an optional slot or item argument.
+     * @see #suck For more information about sucking from a specific slot or a specific item.
      */
     @LuaFunction
-    public final MethodResult suckDown(Optional<Integer> count) throws LuaException {
-        return trackCommand(new TurtleSuckCommand(InteractDirection.DOWN, checkCount(count)));
+    public final MethodResult suckDown(IArguments args) throws LuaException {
+        return trackCommand(suckCommand(InteractDirection.DOWN, args));
     }
 
     /**
@@ -819,6 +869,34 @@ public class TurtleAPI implements ILuaAPI {
 
     private static Optional<Integer> checkSlot(Optional<Integer> slot) throws LuaException {
         return slot.isPresent() ? Optional.of(checkSlot(slot.get())) : Optional.empty();
+    }
+
+    private static TurtleSuckCommand suckCommand(InteractDirection direction, IArguments args) throws LuaException {
+        var count = checkCount(args.optInt(0));
+        var from = args.get(1);
+        if (from == null) return new TurtleSuckCommand(direction, count);
+        if (from instanceof Number) return TurtleSuckCommand.fromSlot(direction, count, checkInventorySlot(args.getInt(1)));
+        if (from instanceof String) return TurtleSuckCommand.ofItem(direction, count, checkItem(args.getString(1)));
+        throw LuaValues.badArgumentOf(args, 1, "number or string");
+    }
+
+    private static int checkInventorySlot(int slot) throws LuaException {
+        // We can't check the upper bound here, as we don't know the inventory's size until the command runs.
+        if (slot < 1) throw new LuaException("Slot number " + slot + " out of range");
+        return slot - 1;
+    }
+
+    private static int checkInventorySlot(Optional<Integer> slot) throws LuaException {
+        return slot.isPresent() ? checkInventorySlot(slot.get()) : -1;
+    }
+
+    private static Item checkItem(String name) throws LuaException {
+        var id = ResourceLocation.tryParse(name);
+        if (id == null) throw new LuaException("Invalid item name '" + name + "'");
+
+        // Unknown items are treated as air, which never matches anything, so we fail with "No items to take".
+        var item = PlatformHelper.get().tryGetRegistryObject(Registries.ITEM, id);
+        return item == null ? Items.AIR : item;
     }
 
     private static int checkCount(Optional<Integer> countArg) throws LuaException {

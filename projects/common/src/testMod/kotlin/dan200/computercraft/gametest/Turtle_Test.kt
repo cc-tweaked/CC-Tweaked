@@ -407,7 +407,7 @@ class Turtle_Test {
     @GameTest
     fun Use_composters(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.dropDown(Optional.empty()).await()
+            turtle.dropDown(Optional.empty(), Optional.empty()).await()
                 .assertArrayEquals(true, message = "Item was dropped")
             assertEquals(63, turtle.getItemCount(Optional.of(1)), "Only dropped one item")
         }
@@ -493,7 +493,7 @@ class Turtle_Test {
         val chest = BlockPos(2, 2, 3)
 
         thenOnComputer {
-            turtle.drop(Optional.of(32)).await()
+            turtle.drop(Optional.of(32), Optional.empty()).await()
                 .assertArrayEquals(true, message = "Could not drop items")
         }
         thenExecute {
@@ -511,7 +511,7 @@ class Turtle_Test {
         thenExecute { for (it in helper.getEntities(EntityType.ITEM)) it.discard() }
 
         thenOnComputer {
-            turtle.drop(Optional.of(32)).await()
+            turtle.drop(Optional.of(32), Optional.empty()).await()
                 .assertArrayEquals(true, message = "Could not drop items")
         }
         thenExecute {
@@ -754,12 +754,48 @@ class Turtle_Test {
     @GameTest
     fun Sided_suck(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.suckUp(Optional.empty()).await().assertArrayEquals(true)
+            turtle.suckUp(ObjectArguments()).await().assertArrayEquals(true)
             turtle.getItemDetail(context, Optional.empty(), Optional.empty()).await().assertArrayEquals(
                 mapOf("name" to "minecraft:iron_ingot", "count" to 8),
             )
 
-            turtle.suckUp(Optional.empty()).await().assertArrayEquals(false, "No items to take")
+            turtle.suckUp(ObjectArguments()).await().assertArrayEquals(false, "No items to take")
+        }
+    }
+
+    /**
+     * `turtle.suck` can take from a specific slot or a specific item, and `turtle.drop` can insert into a specific
+     * slot.
+     */
+    @GameTest
+    fun Suck_and_drop_specific(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            // Sucking a specific item gathers it from multiple slots.
+            turtle.suck(ObjectArguments(12, "minecraft:iron_ingot")).await().assertArrayEquals(true)
+            turtle.suck(ObjectArguments(null, "minecraft:coal")).await().assertArrayEquals(false, "No items to take")
+            turtle.suck(ObjectArguments(null, "cctest:not_an_item")).await().assertArrayEquals(false, "No items to take")
+
+            // Sucking from a specific slot.
+            turtle.suck(ObjectArguments(4, 1)).await().assertArrayEquals(true)
+            turtle.suck(ObjectArguments(null, 2)).await().assertArrayEquals(false, "No items to take")
+            turtle.suck(ObjectArguments(null, 28)).await().assertArrayEquals(false, "Slot out of range")
+            turtle.suckUp(ObjectArguments(null, 1)).await().assertArrayEquals(false, "No inventory to take from")
+
+            // Dropping into a specific slot.
+            turtle.select(2).await()
+            turtle.drop(Optional.of(2), Optional.of(10)).await().assertArrayEquals(true)
+            turtle.drop(Optional.empty(), Optional.of(28)).await().assertArrayEquals(false, "Slot out of range")
+            turtle.dropUp(Optional.empty(), Optional.of(1)).await().assertArrayEquals(false, "No inventory to drop into")
+        }
+        thenExecute {
+            helper.assertContainerExactly(BlockPos(2, 2, 2), listOf(ItemStack(Items.IRON_INGOT, 12), ItemStack(Blocks.DIRT, 2)))
+            helper.assertContainerExactly(
+                BlockPos(2, 2, 3),
+                listOf(
+                    ItemStack(Blocks.DIRT, 12), ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack(Items.IRON_INGOT, 4),
+                    ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack(Blocks.DIRT, 2),
+                ),
+            )
         }
     }
 
@@ -769,12 +805,12 @@ class Turtle_Test {
     @GameTest
     fun Sided_drop(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.dropDown(Optional.empty()).await().assertArrayEquals(true)
+            turtle.dropDown(Optional.empty(), Optional.empty()).await().assertArrayEquals(true)
             turtle.getItemDetail(context, Optional.empty(), Optional.empty()).await().assertArrayEquals(
                 mapOf("name" to "minecraft:coal", "count" to 8),
             )
 
-            turtle.dropDown(Optional.empty()).await().assertArrayEquals(false, "No space for items")
+            turtle.dropDown(Optional.empty(), Optional.empty()).await().assertArrayEquals(false, "No space for items")
         }
     }
 
