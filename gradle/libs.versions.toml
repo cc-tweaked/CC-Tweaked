@@ -7,7 +7,7 @@
 # Minecraft
 # Remember to update corresponding versions in fabric.mod.json/neoforge.mods.toml
 minecraft = "1.21.1"
-fabric-api = "0.116.12+1.21.1"
+fabric-api = "0.116.18+1.21.1"
 fabric-loader = "0.18.4"
 neoForge = "21.1.265"
 neoMergeTool = "2.0.0"

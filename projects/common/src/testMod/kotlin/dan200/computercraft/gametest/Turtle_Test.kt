@@ -955,7 +955,6 @@ class Turtle_Test {
     /**
      * Assert we can push and pull items from a shulker box.
      */
-    @GameTest(required = false) // FIXME: This is broken on Fabric due to getCapacity() returning 1.
     fun Shulker_push_pull(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
             callPeripheral("left", "pullItems").assertArrayEquals(32)
