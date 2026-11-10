@@ -5,11 +5,8 @@
 package dan200.computercraft.core.apis.http.websocket;
 
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.http.HTTPRequestException;
+import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 
-import java.io.Closeable;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
 /**
@@ -17,11 +14,16 @@ import java.nio.ByteBuffer;
  * <p>
  * {@link WebsocketHandle} wraps this into a Lua-compatible interface.
  */
-public interface WebsocketClient extends Closeable {
+public interface WebsocketClient {
     String SUCCESS_EVENT = "websocket_success";
     String FAILURE_EVENT = "websocket_failure";
     String CLOSE_EVENT = "websocket_closed";
     String MESSAGE_EVENT = "websocket_message";
+
+    /**
+     * Error message to throw when attempting to use a {@linkplain #isClosed() closed} websocket.
+     */
+    String CLOSED_ERROR = "attempt to use a closed websocket";
 
     /**
      * Determine whether this websocket is closed.
@@ -32,9 +34,13 @@ public interface WebsocketClient extends Closeable {
 
     /**
      * Close this websocket.
+     *
+     * @param status The status code for this closure. Must be a {@linkplain WebSocketCloseStatus#isValidStatusCode(int)
+     *               valid status code}.
+     * @param reason The reason for this closure.
+     * @see WebSocketCloseStatus
      */
-    @Override
-    void close();
+    void close(int status, String reason);
 
     /**
      * Send a text websocket frame.
@@ -51,45 +57,4 @@ public interface WebsocketClient extends Closeable {
      * @throws LuaException If the message could not be sent.
      */
     void sendBinary(ByteBuffer message) throws LuaException;
-
-    class Support {
-        /**
-         * Parse an address, ensuring it is a valid websocket URI.
-         *
-         * @param address The address to parse.
-         * @return The parsed URI.
-         * @throws HTTPRequestException If the address is not valid.
-         */
-        public static URI parseUri(String address) throws HTTPRequestException {
-            URI uri = null;
-            try {
-                uri = new URI(address);
-            } catch (URISyntaxException ignored) {
-                // Fall through to the case below
-            }
-
-            if (uri == null || uri.getHost() == null) {
-                try {
-                    uri = new URI("ws://" + address);
-                } catch (URISyntaxException ignored) {
-                    // Fall through to the case below
-                }
-            }
-
-            if (uri == null || uri.getHost() == null) throw new HTTPRequestException("URL malformed");
-
-            var scheme = uri.getScheme();
-            if (scheme == null) {
-                try {
-                    uri = new URI("ws://" + uri);
-                } catch (URISyntaxException e) {
-                    throw new HTTPRequestException("URL malformed");
-                }
-            } else if (!scheme.equalsIgnoreCase("wss") && !scheme.equalsIgnoreCase("ws")) {
-                throw new HTTPRequestException("Invalid scheme '" + scheme + "'");
-            }
-
-            return uri;
-        }
-    }
 }

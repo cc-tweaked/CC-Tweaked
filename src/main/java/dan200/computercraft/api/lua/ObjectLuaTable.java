@@ -14,9 +14,10 @@ import java.util.Set;
 /**
  * An implementation of {@link LuaTable} based on a standard Java {@link Map}.
  */
-public class ObjectLuaTable extends LuaTable<Object, Object> {
+public class ObjectLuaTable implements LuaTable<Object, Object> {
     private final Map<Object, Object> map;
 
+    @SuppressWarnings("NullAway")
     public ObjectLuaTable(Map<?, ?> map) {
         this.map = Collections.unmodifiableMap(map);
     }
@@ -32,18 +33,17 @@ public class ObjectLuaTable extends LuaTable<Object, Object> {
     }
 
     @Override
-    public boolean containsKey(Object o) {
+    public boolean containsKey(@Nullable Object o) {
         return map.containsKey(o);
     }
 
     @Override
-    public boolean containsValue(Object o) {
+    public boolean containsValue(@Nullable Object o) {
         return map.containsKey(o);
     }
 
-    @Nullable
     @Override
-    public Object get(Object o) {
+    public @Nullable Object get(@Nullable Object o) {
         return map.get(o);
     }
 
@@ -60,5 +60,15 @@ public class ObjectLuaTable extends LuaTable<Object, Object> {
     @Override
     public Set<Entry<Object, Object>> entrySet() {
         return map.entrySet();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        return this == o || o instanceof Map<?, ?> otherMap && map.equals(otherMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return map.hashCode();
     }
 }

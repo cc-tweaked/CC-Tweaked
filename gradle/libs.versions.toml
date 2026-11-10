@@ -5,18 +5,37 @@
 [versions]
 forge = "1.4.7-6.6.2.534"
 
+errorProne-core = "2.50.0"
+jetbrainsAnnotations = "26.1.0"
 jspecify = "1.0.0"
+
+asm = "9.9"
+kotlin = "2.4.21"
 netty = "4.1.119.Final"
+slf4j = "2.0.20"
 
 [libraries]
+errorProne-annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorProne-core" }
+jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
+asm-util = { module = "org.ow2.asm:asm-util", version.ref = "asm" }
+kotlin = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 netty-codec = { module = "io.netty:netty-codec", version.ref = "netty" }
 netty-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
+netty-proxy = { module = "io.netty:netty-handler-proxy", version.ref = "netty" }
+netty-socks = { module = "io.netty:netty-codec-socks", version.ref = "netty" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 [bundles]
-netty = ["netty-codec", "netty-http"]
+asm = ["asm", "asm-commons", "asm-tree", "asm-util"]
+shadow = ["netty-codec", "netty-http", "netty-proxy", "netty-socks", "slf4j-api"]
 
 [plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 spotless = { id = "com.diffplug.spotless", version = "6.19.0" }
-voldeloom = { id = "agency.highlysuspect.voldeloom", version = "2.4-SNAPSHOT" }
+voldeloom = { id = "agency.highlysuspect.voldeloom", version = "2.5-SNAPSHOT" }

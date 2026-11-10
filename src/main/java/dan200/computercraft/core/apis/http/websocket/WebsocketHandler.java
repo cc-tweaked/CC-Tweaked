@@ -17,10 +17,12 @@ import static dan200.computercraft.core.apis.http.websocket.WebsocketClient.MESS
 class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     private final Websocket websocket;
     private final Options options;
+    private final CustomWebSocketHandshaker handshaker;
     private boolean handshakeComplete = false;
 
-    WebsocketHandler(Websocket websocket, Options options) {
+    WebsocketHandler(Websocket websocket, CustomWebSocketHandshaker handshaker, Options options) {
         this.websocket = websocket;
+        this.handshaker = handshaker;
         this.options = options;
     }
 
@@ -33,10 +35,12 @@ class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
         if (evt == WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_COMPLETE) {
-            websocket.success(options);
+            var headers = handshaker.getResponseHeaders();
+            if (headers == null) throw new NullPointerException("Headers cannot be null once handshake is complete");
+            websocket.success(headers, options);
             handshakeComplete = true;
         } else if (evt == WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_TIMEOUT) {
-            websocket.failure("Timed out");
+            websocket.handshakeFailure("Timed out");
         }
     }
 
@@ -58,22 +62,21 @@ class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
 
             websocket.environment().queueEvent(MESSAGE_EVENT, new Object[]{ websocket.address(), data, true });
         } else if (frame instanceof CloseWebSocketFrame closeFrame) {
-            websocket.close(closeFrame.statusCode(), closeFrame.reasonText());
+            websocket.serverClose(closeFrame.statusCode(), closeFrame.reasonText());
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        ctx.close();
-
         fail(NetworkUtils.toFriendlyError(cause));
+        ctx.close();
     }
 
     private void fail(String message) {
         if (handshakeComplete) {
-            websocket.close(-1, message);
+            websocket.serverClose(-1, message);
         } else {
-            websocket.failure(message);
+            websocket.handshakeFailure(message);
         }
     }
 }

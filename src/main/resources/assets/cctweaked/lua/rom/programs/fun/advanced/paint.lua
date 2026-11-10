@@ -20,6 +20,7 @@ local canvasColour = colours.black
 local canvas = {}
 
 -- The menu options
+local menu = require "cc.internal.menu"
 local mChoices = { "Save", "Exit" }
 
 -- The message displayed in the footer bar
@@ -299,10 +300,7 @@ local menu_choices = {
         end
         return false
     end,
-    Exit = function()
-        require "cc.internal.event".discard_char() -- Consume stray "char" events from pressing Ctrl then E separately.
-        return true
-    end,
+    Exit = function() return true end,
 }
 
 --[[
@@ -310,80 +308,25 @@ local menu_choices = {
     returns: true if the program is to be exited; false otherwise
 ]]
 local function accessMenu()
-    -- Selected menu option
-    local selection = 1
+    local current_menu = menu.create(mChoices)
 
     term.setBackgroundColour(colours.black)
+    menu.draw(current_menu)
 
     while true do
-        -- Draw the menu
-        term.setCursorPos(1, h)
-        term.clearLine()
-        term.setTextColour(colours.white)
-        for k, v in pairs(mChoices) do
-            if selection == k then
-                term.setTextColour(colours.yellow)
-                term.write("[")
-                term.setTextColour(colours.white)
-                term.write(v)
-                term.setTextColour(colours.yellow)
-                term.write("]")
-                term.setTextColour(colours.white)
-            else
-                term.write(" " .. v .. " ")
-            end
+        -- Handle input in the menu
+        local event = table.pack(os.pullEvent())
+
+        local result = menu.handle_event(current_menu, table.unpack(event, 1, event.n))
+        if result == false then
+            return false
+        elseif result ~= nil then
+            return menu_choices[result]()
         end
 
-        -- Handle input in the menu
-        local id, param1, param2, param3 = os.pullEvent()
-        if id == "key" then
-            local key = param1
-
-            -- Handle menu shortcuts.
-            for _, menu_item in ipairs(mChoices) do
-                local k = keys[menu_item:sub(1, 1):lower()]
-                if k and k == key then
-                    return menu_choices[menu_item]()
-                end
-            end
-
-            if key == keys.right then
-                -- Move right
-                selection = selection + 1
-                if selection > #mChoices then
-                    selection = 1
-                end
-
-            elseif key == keys.left and selection > 1 then
-                -- Move left
-                selection = selection - 1
-                if selection < 1 then
-                    selection = #mChoices
-                end
-
-            elseif key == keys.enter or key == keys.numPadEnter then
-                -- Select an option
-                return menu_choices[mChoices[selection]]()
-            elseif key == keys.leftCtrl or keys == keys.rightCtrl then
-                -- Cancel the menu
-                return false
-            end
-        elseif id == "mouse_click" then
-            local cx, cy = param2, param3
-            if cy ~= h then return false end -- Exit the menu
-
-            local nMenuPosEnd = 1
-            local nMenuPosStart = 1
-            for _, sMenuItem in ipairs(mChoices) do
-                nMenuPosEnd = nMenuPosEnd + #sMenuItem + 1
-                if cx > nMenuPosStart and cx < nMenuPosEnd then
-                    return menu_choices[sMenuItem]()
-                end
-                nMenuPosEnd = nMenuPosEnd + 1
-                nMenuPosStart = nMenuPosEnd
-            end
-        elseif id == "term_resize" then
+        if event[1] == "term_resize" then
             termResize()
+            menu.draw(current_menu)
         end
     end
 end

@@ -5,16 +5,18 @@
 package dan200.computercraft.core.util;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ThreadFactory;
-import java.util.logging.Level;
-
-import static cc.tweaked.CCTweaked.LOG;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Provides some utilities to create thread groups.
  */
 public final class ThreadUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(ThreadUtils.class);
     private static final ThreadGroup baseGroup = new ThreadGroup("ComputerCraft");
 
     /**
@@ -28,6 +30,11 @@ public final class ThreadUtils {
     public static final int LOWER_PRIORITY = (Thread.MIN_PRIORITY + Thread.NORM_PRIORITY) / 2;
 
     private ThreadUtils() {
+    }
+
+    private static boolean isPropertySet(String name) {
+        var value = System.getProperty(name);
+        return value != null && !name.equals("false");
     }
 
     /**
@@ -50,11 +57,12 @@ public final class ThreadUtils {
      * @see #factory(String)
      */
     public static ThreadFactoryBuilder builder(String name) {
-        var group = new ThreadGroup(baseGroup, baseGroup.getName() + "-" + name);
+        var fullName = baseGroup.getName() + "-" + name;
+        var group = new ThreadGroup(baseGroup, fullName);
         return new ThreadFactoryBuilder()
             .setDaemon(true)
-            .setNameFormat(group.getName().replace("%", "%%") + "-%d")
-            .setUncaughtExceptionHandler((t, e) -> LOG.log(Level.SEVERE, "Exception in thread " + t.getName(), e))
+            .setNameFormat(fullName.replace("%", "%%") + "-%d")
+            .setUncaughtExceptionHandler((t, e) -> LOG.error("Exception in thread {}", t.getName(), e))
             .setThreadFactory(x -> new Thread(group, x));
     }
 
@@ -82,5 +90,29 @@ public final class ThreadUtils {
      */
     public static ThreadFactory lowPriorityFactory(String name) {
         return builder(name).setPriority(LOWER_PRIORITY).build();
+    }
+
+    /**
+     * Create a new {@link ReentrantLock} with the given name. When running in a development environment we enable cycle
+     * detection
+     *
+     * @param name A user-readable name of the lock. This is typically in the form {@code ClassName.field}.
+     * @return The new lock instance.
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    public static ReentrantLock newReentrantLock(String name) {
+        return new ReentrantLock();
+    }
+
+    /**
+     * Create a new {@link ReentrantReadWriteLock} with the given name. When running in a development environment we enable cycle
+     * detection
+     *
+     * @param name A user-readable name of the lock. This is typically in the form {@code ClassName.field}.
+     * @return The new lock instance.
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    public static ReentrantReadWriteLock newReentrantReadWriteLock(String name) {
+        return new ReentrantReadWriteLock();
     }
 }

@@ -10,13 +10,8 @@ package dan200.computercraft.api.lua;
  * This is designed to be used with {@link LuaFunction} annotated functions, to mark an argument as being coerced to
  * the given type, rather than requiring an exact type.
  *
- * <h2>Example:</h2>
- * <pre>{@code
- * @LuaFunction
- * public final void doSomething(Coerced<String> myString) {
- *   var value = myString.value();
- * }
- * }</pre>
+ * <h2>Example</h2>
+ * {@snippet class=com.example.examplemod.ExampleAPI region=coerced}
  *
  * @param value The argument value.
  * @param <T>   The type of the underlying value.

@@ -5,7 +5,6 @@
 package dan200.computercraft.core.apis.handles;
 
 import dan200.computer.core.IMountedFileBinary;
-import dan200.computercraft.api.lua.ArgumentHelper;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -45,13 +44,11 @@ public class BinaryWritableHandle extends HandleGeneric {
             if (arg instanceof Number) {
                 int number = ((Number) arg).intValue();
                 channel.write(number);
-            } else if (arg instanceof String) {
-                ByteBuffer contents = arguments.getBytes(0);
+            } else {
+                ByteBuffer contents = arguments.getBytesCoerced(0);
                 for (int i = contents.position(), length = contents.capacity(); i < length; i++) {
                     channel.write(contents.get(i));
                 }
-            } else {
-                throw ArgumentHelper.badArgumentOf(0, "string or number", arg);
             }
         } catch (IOException e) {
             throw new LuaException(e.getMessage());

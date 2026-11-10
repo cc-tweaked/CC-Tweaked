@@ -88,9 +88,9 @@ public abstract class AbstractHandle {
                 default -> throw new LuaException("bad argument #1 to 'seek' (invalid option '" + whence + "'");
             }
 
-            return new Object[]{channel.position()};
+            return new Object[]{ channel.position() };
         } catch (IllegalArgumentException e) {
-            return new Object[]{null, "Position is negative"};
+            return new Object[]{ null, "Position is negative" };
         } catch (IOException e) {
             return null;
         }
@@ -116,11 +116,11 @@ public abstract class AbstractHandle {
             if (binary && !countArg.isPresent()) {
                 clear(single);
                 var b = channel.read(single);
-                return b == -1 ? null : new Object[]{single.get(0) & 0xFF};
+                return b == -1 ? null : new Object[]{ single.get(0) & 0xFF };
             } else {
                 int count = countArg.orElse(1);
                 if (count < 0) throw new LuaException("Cannot read a negative number of bytes");
-                if (count == 0) return channel.position() >= channel.size() ? null : new Object[]{""};
+                if (count == 0) return channel.position() >= channel.size() ? null : new Object[]{ "" };
 
                 if (count <= BUFFER_SIZE) {
                     var buffer = ByteBuffer.allocate(count);
@@ -128,7 +128,7 @@ public abstract class AbstractHandle {
                     var read = channel.read(buffer);
                     if (read < 0) return null;
                     flip(buffer);
-                    return new Object[]{buffer};
+                    return new Object[]{ buffer };
                 } else {
                     // Read the initial set of characters, failing if none are read.
                     var buffer = ByteBuffer.allocate(BUFFER_SIZE);
@@ -137,7 +137,7 @@ public abstract class AbstractHandle {
                     flip(buffer);
 
                     // If we failed to read "enough" here, let's just abort
-                    if (read >= count || read < BUFFER_SIZE) return new Object[]{buffer};
+                    if (read >= count || read < BUFFER_SIZE) return new Object[]{ buffer };
 
                     // Build up an array of ByteBuffers. Hopefully this means we can perform less allocation
                     // than doubling up the buffer each time.
@@ -164,7 +164,7 @@ public abstract class AbstractHandle {
                         pos += length;
                     }
                     assert pos == totalRead;
-                    return new Object[]{bytes};
+                    return new Object[]{ bytes };
                 }
             }
         } catch (IOException e) {
@@ -195,7 +195,7 @@ public abstract class AbstractHandle {
 
                 stream.write(buf.array(), 0, r);
             }
-            return new Object[]{stream.toByteArray()};
+            return new Object[]{ stream.toByteArray() };
         } catch (IOException e) {
             return null;
         }
@@ -225,7 +225,7 @@ public abstract class AbstractHandle {
                     // Nothing else to read, and we saw no \n. Return the array. If we saw a \r, then add it
                     // back.
                     if (readRc) stream.write('\r');
-                    return readAnything ? new Object[]{stream.toByteArray()} : null;
+                    return readAnything ? new Object[]{ stream.toByteArray() } : null;
                 }
 
                 readAnything = true;
@@ -236,7 +236,7 @@ public abstract class AbstractHandle {
                         if (readRc) stream.write('\r');
                         stream.write(chr);
                     }
-                    return new Object[]{stream.toByteArray()};
+                    return new Object[]{ stream.toByteArray() };
                 } else {
                     // We want to skip \r\n, but obviously need to include cases where \r is not followed by \n.
                     // Note, this behaviour is non-standard compliant (strictly speaking we should have no

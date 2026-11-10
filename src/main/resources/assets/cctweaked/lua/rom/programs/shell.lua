@@ -85,8 +85,7 @@ else
     bgColour = colours.black
 end
 
-local function tokenise(...)
-    local sLine = table.concat({ ... }, " ")
+local function tokenise(sLine)
     local tWords = {}
     local bQuoted = false
     for match in string.gmatch(sLine .. "\"", "(.-)\"") do
@@ -141,8 +140,11 @@ local function executeProgram(remainingRecursion, path, args)
             return false
         end
 
-        -- Add the path and any arguments to the interpreter's arguments
-        table.insert(hashbangArgs, path)
+        -- Add the program path to the interpreter's arguments
+        -- Always add a leading slash to prevent any shell.resolve calls within the interpreter
+        --   from prepending the current directory since program path is already absolute
+        table.insert(hashbangArgs, "/" .. path)
+        -- Add any arguments passed to program to end of the interpreter's arguments
         for _, v in ipairs(args) do
             table.insert(hashbangArgs, v)
         end
@@ -235,7 +237,7 @@ function shell.execute(command, ...)
             end
         end
         return result
-       else
+    else
         printError("No such program")
         return false
     end
@@ -258,7 +260,10 @@ end
 -- @changed 1.80pr1 Programs now get their own environment instead of sharing the same one.
 -- @changed 1.83.0 `arg` is now added to the environment.
 function shell.run(...)
-    local tWords = tokenise(...)
+    local args = table.pack(...)
+    for i = 1, args.n do expect(i, args[i], "string", "number") end
+
+    local tWords = tokenise(table.concat(args, " ", 1, args.n))
     local sCommand = tWords[1]
     if sCommand then
         return shell.execute(sCommand, table.unpack(tWords, 2))
@@ -300,7 +305,7 @@ function shell.setDir(dir)
     sDir = fs.combine(dir, "")
 end
 
---- Set the path where programs are located.
+--- Get the path where programs are located.
 --
 -- The path is composed of a list of directory names in a string, each separated
 -- by a colon (`:`). On normal turtles will look in the current directory (`.`),
@@ -347,16 +352,6 @@ function shell.resolve(path)
     end
 end
 
-local function pathWithExtension(_sPath, _sExt)
-    local nLen = #sPath
-    local sEndChar = string.sub(_sPath, nLen, nLen)
-    -- Remove any trailing slashes so we can add an extension to the path safely
-    if sEndChar == "/" or sEndChar == "\\" then
-        _sPath = string.sub(_sPath, 1, nLen - 1)
-    end
-    return _sPath .. "." .. _sExt
-end
-
 --- Resolve a program, using the [program path][`path`] and list of [aliases][`aliases`].
 --
 -- @tparam string command The name of the program
@@ -381,7 +376,7 @@ function shell.resolveProgram(command)
         if fs.exists(sPath) and not fs.isDir(sPath) then
             return sPath
         else
-            local sPathLua = pathWithExtension(sPath, "lua")
+            local sPathLua = sPath .. ".lua"
             if fs.exists(sPathLua) and not fs.isDir(sPathLua) then
                 return sPathLua
             end
@@ -389,13 +384,13 @@ function shell.resolveProgram(command)
         return nil
     end
 
-     -- Otherwise, look on the path variable
+    -- Otherwise, look on the path variable
     for sPath in string.gmatch(sPath, "[^:]+") do
         sPath = fs.combine(shell.resolve(sPath), command)
         if fs.exists(sPath) and not fs.isDir(sPath) then
             return sPath
         else
-            local sPathLua = pathWithExtension(sPath, "lua")
+            local sPathLua = sPath .. ".lua"
             if fs.exists(sPathLua) and not fs.isDir(sPathLua) then
                 return sPathLua
             end
@@ -426,7 +421,7 @@ function shell.programs(include_hidden)
             for n = 1, #tList do
                 local sFile = tList[n]
                 if not fs.isDir(fs.combine(sPath, sFile)) and
-                   (include_hidden or string.sub(sFile, 1, 1) ~= ".") then
+                    (include_hidden or string.sub(sFile, 1, 1) ~= ".") then
                     if #sFile > 4 and sFile:sub(-4) == ".lua" then
                         sFile = sFile:sub(1, -5)
                     end
@@ -684,6 +679,7 @@ if multishell then
     -- This function is only available if the [`multishell`] API is.
     --
     -- @tparam string ... The command line to run.
+    -- @treturn number The ID of the new tab that was opened.
     -- @see shell.run
     -- @see multishell.launch
     -- @since 1.6
@@ -753,9 +749,9 @@ else
         local complete
         if settings.get("shell.autocomplete") then complete = shell.complete end
 
-        local ok, result
         local co = coroutine.create(read)
-        assert(coroutine.resume(co, nil, tCommandHistory, complete))
+        local ok, result = coroutine.resume(co, nil, tCommandHistory, complete)
+        if not ok then error(result, 0) end
 
         while coroutine.status(co) ~= "dead" do
             local event = table.pack(os.pullEvent())

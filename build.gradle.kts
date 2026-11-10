@@ -5,11 +5,14 @@
 import com.diffplug.gradle.spotless.FormatExtension
 import com.diffplug.spotless.LineEnding
 import net.fabricmc.loom.LoomGradleExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import java.nio.charset.StandardCharsets
 
 plugins {
     alias(libs.plugins.voldeloom)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.kotlin)
     id("com.gradleup.shadow") version "8.3.5"
 }
 
@@ -27,6 +30,11 @@ java {
     }
 
     withSourcesJar()
+
+    registerFeature("build") {
+        usingSourceSet(sourceSets.create("build"))
+        disablePublication()
+    }
 }
 
 val runtimeToolchain = javaToolchains.launcherFor {
@@ -35,6 +43,11 @@ val runtimeToolchain = javaToolchains.launcherFor {
 
 repositories {
     mavenCentral()
+
+    exclusiveContent {
+        forRepository { maven("https://maven.squiddev.cc") }
+        filter { includeGroup("cc.tweaked") }
+    }
 
     exclusiveContent {
         forRepository { maven("https://api.modrinth.com/maven") { name = "Modrinth" } }
@@ -60,11 +73,6 @@ configurations {
     compileOnly { extendsFrom(shade.get()) }
 }
 
-val buildTools by configurations.creating {
-    isCanBeConsumed = false
-    isCanBeResolved = true
-}
-
 dependencies {
     minecraft("com.mojang:minecraft:$mcVersion")
     forge("net.minecraftforge:forge:${libs.versions.forge.get()}:universal@zip")
@@ -76,57 +84,55 @@ dependencies {
         },
     )
 
-    compileOnly("com.google.code.findbugs:jsr305:3.0.2")
-    compileOnly("org.jetbrains:annotations:24.0.1")
+    compileOnly(libs.errorProne.annotations)
+    compileOnly(libs.jetbrainsAnnotations)
     compileOnly(libs.jspecify)
-    modImplementation("maven.modrinth:computercraft:1.50")
-    "shade"("cc.tweaked:cobalt")
-    "shade"(libs.bundles.netty)
 
-    "buildTools"("cc.tweaked.cobalt:build-tools")
+    modImplementation("maven.modrinth:computercraft:1.50@zip")
+    "shade"("cc.tweaked:cobalt:0.9.9")
+    "shade"(libs.bundles.shadow)
+
+    "buildImplementation"(libs.slf4j.api)
+    "buildImplementation"(libs.bundles.asm)
+    "buildImplementation"(libs.kotlin)
+    "buildRuntimeOnly"(libs.slf4j.simple)
 }
 
-// Point compileJava to emit to classes/uninstrumentedJava/main, and then add a task to instrument these classes,
-// saving them back to the original class directory. This is held together with so much string :(.
-val mainSource = sourceSets.main.get()
-val javaClassesDir = mainSource.java.classesDirectory.get()
-val untransformedClasses = project.layout.buildDirectory.dir("classes/uninstrumentedJava/main")
+tasks.named("compileBuildJava", JavaCompile::class.java) { options.release = 8 }
+tasks.named("compileBuildKotlin", KotlinJvmCompile::class.java).configure {
+    compilerOptions.jvmTarget = JvmTarget.JVM_1_8
+}
 
-val instrumentJava = tasks.register(mainSource.getTaskName("Instrument", "Java"), JavaExec::class) {
-    dependsOn(tasks.compileJava)
-    inputs.dir(untransformedClasses).withPropertyName("inputDir")
-    outputs.dir(javaClassesDir).withPropertyName("outputDir")
+val instrumentJarPath = layout.buildDirectory.file("$name.jar")
+val instrumentJar = tasks.register("instrumentJar", JavaExec::class) {
+    inputs.file(tasks.shadowJar.flatMap { it.archiveFile }).withPropertyName("inputDir")
+    outputs.file(instrumentJarPath).withPropertyName("outputDir")
 
     // Run under Java 8, so we can check compatibility of methods.
     javaLauncher.set(runtimeToolchain)
-    mainClass.set("cc.tweaked.cobalt.build.MainKt")
-    classpath = buildTools
+    mainClass.set("cc.tweaked.build.MainKt")
+    classpath = sourceSets["build"].runtimeClasspath
 
-    args = listOf(
-        untransformedClasses.get().asFile.absolutePath,
-        javaClassesDir.asFile.absolutePath,
-    )
-
-    doFirst { project.delete(javaClassesDir) }
-}
-
-mainSource.compiledBy(instrumentJava)
-tasks.compileJava {
-    destinationDirectory.set(untransformedClasses)
-    finalizedBy(instrumentJava)
+    argumentProviders.add {
+        listOf(
+            tasks.shadowJar.get().archiveFile.get().asFile.absolutePath,
+            instrumentJarPath.get().asFile.absolutePath,
+        )
+    }
 }
 
 tasks.withType(AbstractArchiveTask::class.java).configureEach {
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
-    dirMode = Integer.valueOf("755", 8)
-    fileMode = Integer.valueOf("664", 8)
+    dirPermissions { }
+    filePermissions {}
 }
 
 // Override remapJarForRelease, and then manually configure all tasks to have the right classifiers.
 tasks.remapJarForRelease {
+    dependsOn(instrumentJar)
     archiveClassifier = ""
-    input = tasks.shadowJar.flatMap { it.archiveFile }
+    input = instrumentJarPath
 }
 
 tasks.jar { archiveClassifier = "dev-slim" }
@@ -141,8 +147,12 @@ tasks.shadowJar {
     }
 
     configurations = listOf(project.configurations["shade"])
+    relocate("it.unimi.dsi.fastutil", "cc.tweaked.vendor.fastutil")
     relocate("io.netty", "cc.tweaked.vendor.netty")
+    relocate("org.slf4j", "cc.tweaked.vendor.slf4j")
     minimize()
+
+    exclude("META-INF/maven/", "META-INF/native-image/", "META-INF/versions/")
 }
 
 project.afterEvaluate {
@@ -150,7 +160,7 @@ project.afterEvaluate {
     val field = LoomGradleExtension::class.java.getDeclaredField("unmappedModsBuilt")
     field.isAccessible = true
     (field.get(volde) as MutableList<*>).clear()
-    volde.addUnmappedMod(tasks.shadowJar.get().archiveFile.get().asFile.toPath())
+    volde.addUnmappedMod(instrumentJarPath.get().asFile.toPath())
 }
 
 tasks.processResources {

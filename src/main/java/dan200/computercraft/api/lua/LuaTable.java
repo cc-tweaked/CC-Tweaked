@@ -20,13 +20,26 @@ import static dan200.computercraft.api.lua.LuaValues.*;
  * @param <V> The type of values in a table, will typically be a wildcard.
  * @see ObjectArguments
  */
-public abstract class LuaTable<K, V> implements Map<K, V> {
+public interface LuaTable<K, V> extends Map<K, V> {
+    /**
+     * Return the value to which a specific integer key is mapped, or {@code null} if there is no mapping for the key.
+     * <p>
+     * This should be used when accessing integer keys, as numeric keys within the table are typically normalised to
+     * doubles.
+     *
+     * @param index The key to look up.
+     * @return The corresponding value, or {@code null} if not present.
+     */
+    default @Nullable Object get(int index) {
+        return get((double) index);
+    }
+
     /**
      * Compute the length of the array part of this table.
      *
      * @return This table's length.
      */
-    public int length() {
+    default int length() {
         var size = 0;
         while (containsKey((double) (size + 1))) size++;
         return size;
@@ -41,8 +54,8 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @see #getFiniteDouble(int) if you require this to be finite (i.e. not infinite or NaN).
      * @since 1.116
      */
-    public double getDouble(int index) throws LuaException {
-        Object value = get((double) index);
+    default double getDouble(int index) throws LuaException {
+        var value = get(index);
         if (!(value instanceof Number number)) throw badTableItem(index, "number", getType(value));
         return number.doubleValue();
     }
@@ -56,7 +69,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @see #getFiniteDouble(String) if you require this to be finite (i.e. not infinite or NaN).
      * @since 1.116
      */
-    public double getDouble(String key) throws LuaException {
+    default double getDouble(String key) throws LuaException {
         Object value = get(key);
         if (!(value instanceof Number number)) throw badField(key, "number", getType(value));
         return number.doubleValue();
@@ -69,8 +82,8 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @return The entry's value.
      * @throws LuaException If the value is not an integer.
      */
-    public long getLong(int index) throws LuaException {
-        Object value = get((double) index);
+    default long getLong(int index) throws LuaException {
+        var value = get(index);
         if (!(value instanceof Number number)) throw badTableItem(index, "number", getType(value));
         checkFiniteIndex(index, number.doubleValue());
         return number.longValue();
@@ -83,7 +96,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @return The field's value.
      * @throws LuaException If the value is not an integer.
      */
-    public long getLong(String key) throws LuaException {
+    default long getLong(String key) throws LuaException {
         Object value = get(key);
         if (!(value instanceof Number number)) throw badField(key, "number", getType(value));
         checkFiniteField(key, number.doubleValue());
@@ -97,7 +110,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @return The entry's value.
      * @throws LuaException If the value is not an integer.
      */
-    public int getInt(int index) throws LuaException {
+    default int getInt(int index) throws LuaException {
         return (int) getLong(index);
     }
 
@@ -108,7 +121,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @return The field's value.
      * @throws LuaException If the value is not an integer.
      */
-    public int getInt(String key) throws LuaException {
+    default int getInt(String key) throws LuaException {
         return (int) getLong(key);
     }
 
@@ -120,7 +133,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not finite.
      * @since 1.116
      */
-    public double getFiniteDouble(int index) throws LuaException {
+    default double getFiniteDouble(int index) throws LuaException {
         return checkFiniteIndex(index, getDouble(index));
     }
 
@@ -132,7 +145,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not finite.
      * @since 1.116
      */
-    public double getFiniteDouble(String key) throws LuaException {
+    default double getFiniteDouble(String key) throws LuaException {
         return checkFiniteField(key, getDouble(key));
     }
 
@@ -144,8 +157,8 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a boolean.
      * @since 1.116
      */
-    public boolean getBoolean(int index) throws LuaException {
-        Object value = get((double) index);
+    default boolean getBoolean(int index) throws LuaException {
+        var value = get(index);
         if (!(value instanceof Boolean bool)) throw badTableItem(index, "boolean", getType(value));
         return bool;
     }
@@ -158,7 +171,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a boolean.
      * @since 1.116
      */
-    public boolean getBoolean(String key) throws LuaException {
+    default boolean getBoolean(String key) throws LuaException {
         Object value = get(key);
         if (!(value instanceof Boolean bool)) throw badField(key, "boolean", getType(value));
         return bool;
@@ -172,8 +185,8 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a string.
      * @since 1.116
      */
-    public String getString(int index) throws LuaException {
-        Object value = get((double) index);
+    default String getString(int index) throws LuaException {
+        var value = get(index);
         if (!(value instanceof String string)) throw badTableItem(index, "string", getType(value));
         return string;
     }
@@ -186,7 +199,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a string.
      * @since 1.116
      */
-    public String getString(String key) throws LuaException {
+    default String getString(String key) throws LuaException {
         Object value = get(key);
         if (!(value instanceof String string)) throw badField(key, "string", getType(value));
         return string;
@@ -203,8 +216,8 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a table.
      * @since 1.116
      */
-    public Map<?, ?> getTable(int index) throws LuaException {
-        Object value = get((double) index);
+    default Map<?, ?> getTable(int index) throws LuaException {
+        var value = get(index);
         if (!(value instanceof Map<?, ?> table)) throw badTableItem(index, "table", getType(value));
         return table;
     }
@@ -220,7 +233,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a table.
      * @since 1.116
      */
-    public Map<?, ?> getTable(String key) throws LuaException {
+    default Map<?, ?> getTable(String key) throws LuaException {
         Object value = get(key);
         if (!(value instanceof Map<?, ?> table)) throw badField(key, "table", getType(value));
         return table;
@@ -235,8 +248,8 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @see #getFiniteDouble(int) if you require this to be finite (i.e. not infinite or NaN).
      * @since 1.116
      */
-    public Optional<Double> optDouble(int index) throws LuaException {
-        Object value = get((double) index);
+    default Optional<Double> optDouble(int index) throws LuaException {
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof Number number)) throw badTableItem(index, "number", getType(value));
         return Optional.of(number.doubleValue());
@@ -251,7 +264,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @see #getFiniteDouble(String) if you require this to be finite (i.e. not infinite or NaN).
      * @since 1.116
      */
-    public Optional<Double> optDouble(String key) throws LuaException {
+    default Optional<Double> optDouble(String key) throws LuaException {
         Object value = get(key);
         if (value == null) return Optional.empty();
         if (!(value instanceof Number number)) throw badField(key, "number", getType(value));
@@ -266,8 +279,8 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not an integer.
      * @since 1.116
      */
-    public Optional<Long> optLong(int index) throws LuaException {
-        Object value = get((double) index);
+    default Optional<Long> optLong(int index) throws LuaException {
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof Number number)) throw badTableItem(index, "number", getType(value));
         checkFiniteIndex(index, number.doubleValue());
@@ -282,7 +295,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not an integer.
      * @since 1.116
      */
-    public Optional<Long> optLong(String key) throws LuaException {
+    default Optional<Long> optLong(String key) throws LuaException {
         Object value = get(key);
         if (value == null) return Optional.empty();
         if (!(value instanceof Number number)) throw badField(key, "number", getType(value));
@@ -298,7 +311,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not an integer.
      * @since 1.116
      */
-    public Optional<Integer> optInt(int index) throws LuaException {
+    default Optional<Integer> optInt(int index) throws LuaException {
         return optLong(index).map(Long::intValue);
     }
 
@@ -310,7 +323,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not an integer.
      * @since 1.116
      */
-    public Optional<Integer> optInt(String key) throws LuaException {
+    default Optional<Integer> optInt(String key) throws LuaException {
         return optLong(key).map(Long::intValue);
     }
 
@@ -322,7 +335,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not finite.
      * @since 1.116
      */
-    public Optional<Double> optFiniteDouble(int index) throws LuaException {
+    default Optional<Double> optFiniteDouble(int index) throws LuaException {
         var value = optDouble(index);
         if (value.isPresent()) checkFiniteIndex(index, value.get());
         return value;
@@ -336,7 +349,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not finite.
      * @since 1.116
      */
-    public Optional<Double> optFiniteDouble(String key) throws LuaException {
+    default Optional<Double> optFiniteDouble(String key) throws LuaException {
         var value = optDouble(key);
         if (value.isPresent()) checkFiniteField(key, value.get());
         return value;
@@ -350,8 +363,8 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a boolean.
      * @since 1.116
      */
-    public Optional<Boolean> optBoolean(int index) throws LuaException {
-        Object value = get((double) index);
+    default Optional<Boolean> optBoolean(int index) throws LuaException {
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof Boolean bool)) throw badTableItem(index, "boolean", getType(value));
         return Optional.of(bool);
@@ -365,7 +378,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a boolean.
      * @since 1.116
      */
-    public Optional<Boolean> optBoolean(String key) throws LuaException {
+    default Optional<Boolean> optBoolean(String key) throws LuaException {
         Object value = get(key);
         if (value == null) return Optional.empty();
         if (!(value instanceof Boolean bool)) throw badField(key, "boolean", getType(value));
@@ -380,8 +393,8 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a string.
      * @since 1.116
      */
-    public Optional<String> optString(int index) throws LuaException {
-        Object value = get((double) index);
+    default Optional<String> optString(int index) throws LuaException {
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof String string)) throw badTableItem(index, "string", getType(value));
         return Optional.of(string);
@@ -395,7 +408,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a string.
      * @since 1.116
      */
-    public Optional<String> optString(String key) throws LuaException {
+    default Optional<String> optString(String key) throws LuaException {
         Object value = get(key);
         if (value == null) return Optional.empty();
         if (!(value instanceof String string)) throw badField(key, "string", getType(value));
@@ -413,8 +426,8 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a table.
      * @since 1.116
      */
-    public Optional<Map<?, ?>> optTable(int index) throws LuaException {
-        Object value = get((double) index);
+    default Optional<Map<?, ?>> optTable(int index) throws LuaException {
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof Map<?, ?> table)) throw badTableItem(index, "table", getType(value));
         return Optional.of(table);
@@ -431,7 +444,7 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
      * @throws LuaException If the value is not a table.
      * @since 1.116
      */
-    public Optional<Map<?, ?>> optTable(String key) throws LuaException {
+    default Optional<Map<?, ?>> optTable(String key) throws LuaException {
         Object value = get(key);
         if (value == null) return Optional.empty();
         if (!(value instanceof Map<?, ?> table)) throw badField(key, "table", getType(value));
@@ -440,22 +453,22 @@ public abstract class LuaTable<K, V> implements Map<K, V> {
 
     @Nullable
     @Override
-    public V put(K o, V o2) {
+    default V put(K o, V o2) {
         throw new UnsupportedOperationException("Cannot modify LuaTable");
     }
 
     @Override
-    public V remove(Object o) {
+    default V remove(@Nullable Object o) {
         throw new UnsupportedOperationException("Cannot modify LuaTable");
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> map) {
+    default void putAll(Map<? extends K, ? extends V> map) {
         throw new UnsupportedOperationException("Cannot modify LuaTable");
     }
 
     @Override
-    public void clear() {
+    default void clear() {
         throw new UnsupportedOperationException("Cannot modify LuaTable");
     }
 }

@@ -34,7 +34,6 @@ pluginManagement {
     }
 }
 
-val mcVersion: String by settings
-rootProject.name = "cc-tweaked-$mcVersion"
+rootProject.name = "cc-tweaked"
 
-includeBuild("vendor/Cobalt")
+// includeBuild("vendor/Cobalt")

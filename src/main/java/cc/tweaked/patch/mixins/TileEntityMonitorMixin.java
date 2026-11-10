@@ -11,9 +11,9 @@ import dan200.computer.core.Terminal;
 import dan200.computer.shared.NetworkedTerminalHelper;
 import dan200.computer.shared.TileEntityMonitor;
 import dan200.computercraft.api.lua.ObjectArguments;
-import dan200.computercraft.core.asm.LuaMethod;
-import dan200.computercraft.core.asm.Methods;
-import dan200.computercraft.core.asm.NamedMethod;
+import dan200.computercraft.core.asm.LuaMethodSupplier;
+import dan200.computercraft.core.methods.LuaMethod;
+import dan200.computercraft.core.methods.NamedMethod;
 import dan200.computercraft.shared.peripheral.monitor.MonitorPeripheral;
 import dan200.computercraft.shared.peripheral.monitor.TileEntityMonitorAccessor;
 
@@ -30,20 +30,24 @@ public abstract class TileEntityMonitorMixin implements TileEntityMonitorAccesso
     private List<NamedMethod<LuaMethod>> methods;
     private MonitorPeripheral peripheral;
 
+    @Override
     public String[] getMethodNames() {
         // Overwrite the original getMethodNames, instead deferring to our peripheral.
         if (methods == null) {
             peripheral = new MonitorPeripheral(this);
-            methods = Methods.LUA_METHOD.getMethods(peripheral.getClass());
+            methods = LuaMethodSupplier.INSTANCE.getSelfMethodsList(peripheral);
         }
 
         String[] names = new String[methods.size()];
-        for (int i = 0; i < methods.size(); i++) names[i] = methods.get(i).getName();
+        for (int i = 0; i < methods.size(); i++) names[i] = methods.get(i).name();
         return names;
     }
 
+    @Override
     public Object[] callMethod(IComputerAccess computer, int method, Object[] arguments) throws Exception {
-        return methods.get(method).getMethod().apply(peripheral, new ObjectArguments(arguments));
+        var result = methods.get(method).method().apply(peripheral, new ObjectArguments(arguments));
+        if (result.getCallback() != null) throw new IllegalStateException("Method should not yield");
+        return result.getResult();
     }
 
     @Override

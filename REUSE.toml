@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
+version = 1
+SPDX-PackageName = "CC: Tweaked"
+SPDX-PackageSupplier = "Jonathan Coates <git@squiddev.cc>"
+SPDX-PackageDownloadLocation = "https://github.com/cc-tweaked/cc-tweaked"
+
+[[annotations]]
+# Several assets where it's inconvenient to create a .license file
+SPDX-FileCopyrightText = "The CC: Tweaked Developers"
+SPDX-License-Identifier = "MPL-2.0"
+path = [
+    "src/main/resources/assets/cctweaked/lua/rom/modules/command/.ignoreme",
+    "src/main/resources/assets/cctweaked/lua/rom/modules/main/.ignoreme",
+    "src/main/resources/assets/cctweaked/lua/rom/modules/turtle/.ignoreme",
+    "src/main/resources/assets/cctweaked/lua/rom/motd.txt",
+    "src/main/resources/mcmod.info",
+    "src/main/resources/META-INF/services/cc.tweaked.vendor.slf4j.spi.SLF4JServiceProvider",
+]
+
+[[annotations]]
+# Bulk-license original assets as CCPL.
+SPDX-FileCopyrightText = "2011 Daniel Ratcliffe"
+SPDX-License-Identifier = "LicenseRef-CCPL"
+path = [
+    "doc/logo.png",
+    "src/main/resources/assets/cctweaked/lua/rom/autorun/.ignoreme",
+    "src/main/resources/assets/cctweaked/lua/rom/help/**",
+    "src/main/resources/assets/cctweaked/lua/rom/programs/fun/advanced/levels/**",
+    "src/main/resources/assets/cctweaked/textures/gui/term_font.png",
+]
+
+[[annotations]]
+path = ["gradle/wrapper/**"]
+SPDX-FileCopyrightText = "Gradle Inc"
+SPDX-License-Identifier = "Apache-2.0"

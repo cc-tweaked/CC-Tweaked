@@ -13,10 +13,22 @@
 -- @module vector
 -- @since 1.31
 
-local getmetatable = getmetatable
+local getmetatable, setmetatable = getmetatable, setmetatable
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 local vmetatable
+
+--[[- Construct a new [`Vector`] with the given coordinates, without performing
+any type checks.
+
+@tparam number x The X coordinate or direction of the vector.
+@tparam number y The Y coordinate or direction of the vector.
+@tparam number z The Z coordinate or direction of the vector.
+@treturn Vector The constructed vector.
+]]
+local function raw_new(x, y, z)
+    return setmetatable({ x = x, y = y, z = z }, vmetatable)
+end
 
 --- A 3-dimensional vector, with `x`, `y`, and `z` values.
 --
@@ -35,7 +47,7 @@ local vector = {
         if getmetatable(self) ~= vmetatable then expect(1, self, "vector") end
         if getmetatable(o) ~= vmetatable then expect(2, o, "vector") end
 
-        return vector.new(
+        return raw_new(
             self.x + o.x,
             self.y + o.y,
             self.z + o.z
@@ -53,7 +65,7 @@ local vector = {
         if getmetatable(self) ~= vmetatable then expect(1, self, "vector") end
         if getmetatable(o) ~= vmetatable then expect(2, o, "vector") end
 
-        return vector.new(
+        return raw_new(
             self.x - o.x,
             self.y - o.y,
             self.z - o.z
@@ -71,7 +83,7 @@ local vector = {
         if getmetatable(self) ~= vmetatable then expect(1, self, "vector") end
         expect(2, factor, "number")
 
-        return vector.new(
+        return raw_new(
             self.x * factor,
             self.y * factor,
             self.z * factor
@@ -89,7 +101,7 @@ local vector = {
         if getmetatable(self) ~= vmetatable then expect(1, self, "vector") end
         expect(2, factor, "number")
 
-        return vector.new(
+        return raw_new(
             self.x / factor,
             self.y / factor,
             self.z / factor
@@ -103,7 +115,7 @@ local vector = {
     -- @usage -vector.new(1, 2, 3)
     unm = function(self)
         if getmetatable(self) ~= vmetatable then expect(1, self, "vector") end
-        return vector.new(
+        return raw_new(
             -self.x,
             -self.y,
             -self.z
@@ -133,7 +145,7 @@ local vector = {
         if getmetatable(self) ~= vmetatable then expect(1, self, "vector") end
         if getmetatable(o) ~= vmetatable then expect(2, o, "vector") end
 
-        return vector.new(
+        return raw_new(
             self.y * o.z - self.z * o.y,
             self.z * o.x - self.x * o.z,
             self.x * o.y - self.y * o.x
@@ -170,7 +182,7 @@ local vector = {
         expect(2, tolerance, "number", "nil")
 
         tolerance = tolerance or 1.0
-        return vector.new(
+        return raw_new(
             math.floor((self.x + tolerance * 0.5) / tolerance) * tolerance,
             math.floor((self.y + tolerance * 0.5) / tolerance) * tolerance,
             math.floor((self.z + tolerance * 0.5) / tolerance) * tolerance
@@ -221,9 +233,5 @@ vmetatable = {
 -- @tparam number z The Z coordinate or direction of the vector.
 -- @treturn Vector The constructed vector.
 function new(x, y, z)
-    return setmetatable({
-        x = tonumber(x) or 0,
-        y = tonumber(y) or 0,
-        z = tonumber(z) or 0,
-    }, vmetatable)
+    return raw_new(tonumber(x) or 0, tonumber(y) or 0, tonumber(z) or 0)
 end

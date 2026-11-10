@@ -22,7 +22,7 @@ local fSpeedS
 local bPaused
 local Tick
 local Blocks
-local XOrgin, YOrgin
+local XOrigin, YOrigin
 local fLevel
 
 local function reset()
@@ -39,7 +39,7 @@ local function reset()
     bPaused = false
     Tick = os.startTimer(Speed)
     Blocks = 0
-    XOrgin, YOrgin = 1, 1
+    XOrigin, YOrigin = 1, 1
 
     term.setBackgroundColor(colors.black)
     term.setTextColor(colors.white)
@@ -69,9 +69,9 @@ local function printCentred(yc, stg)
     term.write(stg)
 end
 
-local function centerOrgin()
-    XOrgin = math.floor(TermW / 2 - SizeW / 2)
-    YOrgin = math.floor(TermH / 2 - SizeH / 2)
+local function centerOrigin()
+    XOrigin = math.floor(TermW / 2 - SizeW / 2)
+    YOrigin = math.floor(TermH / 2 - SizeH / 2)
 end
 
 local function reMap()
@@ -272,10 +272,10 @@ local function drawMap()
 
             local obj = tScreen[x][y]
             if obj.ground == true then
-                paintutils.drawPixel(XOrgin + x, YOrgin + y + 1, cG)
+                paintutils.drawPixel(XOrigin + x, YOrigin + y + 1, cG)
             end
             if obj.wall == true then
-                paintutils.drawPixel(XOrgin + x, YOrgin + y + 1, cW)
+                paintutils.drawPixel(XOrigin + x, YOrigin + y + 1, cW)
             end
 
          local ex = tostring(tScreen[x][y].exit)
@@ -293,7 +293,7 @@ local function drawMap()
                 end
                 term.setBackgroundColor(cG)
                 term.setTextColor(ex)
-                term.setCursorPos(XOrgin + x, YOrgin + y + 1)
+                term.setCursorPos(XOrigin + x, YOrigin + y + 1)
                 print("X")
             end
 
@@ -314,7 +314,7 @@ local function drawMap()
 
                 term.setTextColor(Cr)
             term.setBackgroundColor(cG)
-                term.setCursorPos(XOrgin + x, YOrgin + y + 1)
+                term.setCursorPos(XOrigin + x, YOrigin + y + 1)
 
                 local sSide = string.sub(st, 1, 1)
                 if sSide == "a" then
@@ -331,7 +331,7 @@ local function drawMap()
             end
 
             if obj.space == true then
-                paintutils.drawPixel(XOrgin + x, YOrgin + y + 1, cS)
+                paintutils.drawPixel(XOrigin + x, YOrigin + y + 1, cS)
             end
 
             local rb = tostring(tScreen[x][y].robot)
@@ -350,7 +350,7 @@ local function drawMap()
                 end
                 term.setBackgroundColor(Cr)
                 term.setTextColor(colors.white)
-                term.setCursorPos(XOrgin + x, YOrgin + y + 1)
+                term.setCursorPos(XOrigin + x, YOrigin + y + 1)
                 local sSide = string.sub(rb, 1, 1)
                 if sSide == "a" then
                     print("^")
@@ -573,12 +573,12 @@ function InterFace.render()
             Speed = fSpeedS and fSpeed or nSpeed
             Tick = os.startTimer(Speed)
             InterFace.drawBar()
-        elseif p3 - 1 < YOrgin + SizeH + 1 and p3 - 1 > YOrgin and
-               p2 < XOrgin + SizeW + 1 and p2 > XOrgin then
-            local eobj = tScreen[p2 - XOrgin][p3 - YOrgin - 1]
-            local erobj = tostring(tScreen[p2 - XOrgin][p3 - YOrgin - 1].robot)
+        elseif p3 - 1 < YOrigin + SizeH + 1 and p3 - 1 > YOrigin and
+               p2 < XOrigin + SizeW + 1 and p2 > XOrigin then
+            local eobj = tScreen[p2 - XOrigin][p3 - YOrigin - 1]
+            local erobj = tostring(tScreen[p2 - XOrigin][p3 - YOrigin - 1].robot)
             if (erobj == "zz" or erobj == "nil") and not eobj.wall == true and not eobj.space == true and Blocks > 0 then
-                addWall(p2 - XOrgin, p3 - YOrgin - 1)
+                addWall(p2 - XOrigin, p3 - YOrigin - 1)
                 Blocks = Blocks - 1
                 InterFace.drawBar()
                 drawMap()
@@ -598,7 +598,7 @@ end
 local function startG(LevelN)
     drawStars()
     loadLevel(LevelN)
-    centerOrgin()
+    centerOrigin()
     drawMap()
     InterFace.drawBar()
     gRender("start")

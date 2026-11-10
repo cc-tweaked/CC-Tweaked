@@ -11,6 +11,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.util.Colour;
 
+
 /**
  * A base class for all objects which interact with a terminal. Namely the {@link TermAPI} and monitors.
  *
@@ -22,26 +23,24 @@ public abstract class TermMethods {
         return 32 - Integer.numberOfLeadingZeros(group);
     }
 
-    protected abstract boolean isColour();
-
-    protected abstract Terminal getTerminal() throws LuaException;
+    public abstract Terminal getTerminal() throws LuaException;
 
     /**
      * Write {@code text} at the current cursor position, moving the cursor to the end of the text.
      * <p>
-     * Unlike functions like {@code write} and {@code print}, this does not wrap the text - it simply copies the
+     * Unlike functions like [`_G.write`] and [`print`], this does not wrap the text - it simply copies the
      * text to the current terminal line.
      *
-     * @param textA The text to write.
+     * @param text The text to write.
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final void write(Coerced<String> textA) throws LuaException {
-        String text = textA.value();
-        Terminal terminal = getTerminal();
+    public final void write(Coerced<String> text) throws LuaException {
+        var textStr = text.value();
+        var terminal = getTerminal();
         synchronized (terminal) {
-            terminal.write(text);
-            terminal.setCursorPos(terminal.getCursorX() + text.length(), terminal.getCursorY());
+            terminal.write(textStr);
+            terminal.setCursorPos(terminal.getCursorX() + textStr.length(), terminal.getCursorY());
         }
     }
 
@@ -69,12 +68,12 @@ public abstract class TermMethods {
      */
     @LuaFunction
     public final Object[] getCursorPos() throws LuaException {
-        Terminal terminal = getTerminal();
+        var terminal = getTerminal();
         return new Object[]{ terminal.getCursorX() + 1, terminal.getCursorY() + 1 };
     }
 
     /**
-     * Set the position of the cursor. {@link #write(Coerced) terminal writes} will begin from this position.
+     * Set the position of the cursor. {@link #write(Coerced) Terminal writes} will begin from this position.
      *
      * @param x The new x position of the cursor.
      * @param y The new y position of the cursor.
@@ -82,7 +81,7 @@ public abstract class TermMethods {
      */
     @LuaFunction
     public final void setCursorPos(int x, int y) throws LuaException {
-        Terminal terminal = getTerminal();
+        var terminal = getTerminal();
         synchronized (terminal) {
             terminal.setCursorPos(x - 1, y - 1);
         }
@@ -108,7 +107,7 @@ public abstract class TermMethods {
      */
     @LuaFunction
     public final void setCursorBlink(boolean blink) throws LuaException {
-        Terminal terminal = getTerminal();
+        var terminal = getTerminal();
         synchronized (terminal) {
             terminal.setCursorBlink(blink);
         }
@@ -124,7 +123,7 @@ public abstract class TermMethods {
      */
     @LuaFunction
     public final Object[] getSize() throws LuaException {
-        Terminal terminal = getTerminal();
+        var terminal = getTerminal();
         return new Object[]{ terminal.getWidth(), terminal.getHeight() };
     }
 
@@ -173,8 +172,8 @@ public abstract class TermMethods {
      */
     @LuaFunction({ "setTextColour", "setTextColor" })
     public final void setTextColour(int colourArg) throws LuaException {
-        int colour = parseColour(colourArg);
-        Terminal terminal = getTerminal();
+        var colour = parseColour(colourArg);
+        var terminal = getTerminal();
         synchronized (terminal) {
             terminal.setTextColour(colour);
         }
@@ -206,8 +205,8 @@ public abstract class TermMethods {
      */
     @LuaFunction({ "setBackgroundColour", "setBackgroundColor" })
     public final void setBackgroundColour(int colourArg) throws LuaException {
-        int colour = parseColour(colourArg);
-        Terminal terminal = getTerminal();
+        var colour = parseColour(colourArg);
+        var terminal = getTerminal();
         synchronized (terminal) {
             terminal.setBackgroundColour(colour);
         }
@@ -251,15 +250,15 @@ public abstract class TermMethods {
      * }</pre>
      */
     @LuaFunction
-    public final void blit(Coerced<String> text, Coerced<String> textColour, Coerced<String> backgroundColour) throws LuaException {
-        if (textColour.value().length() != text.value().length() || backgroundColour.value().length() != text.value().length()) {
+    public final void blit(String text, String textColour, String backgroundColour) throws LuaException {
+        if (textColour.length() != text.length() || backgroundColour.length() != text.length()) {
             throw new LuaException("Arguments must be the same length");
         }
 
-        Terminal terminal = getTerminal();
+        var terminal = getTerminal();
         synchronized (terminal) {
-            blit(terminal, text.value(), textColour.value(), backgroundColour.value());
-            terminal.setCursorPos(terminal.getCursorX() + text.value().length(), terminal.getCursorY());
+            blit(terminal, text, textColour, backgroundColour);
+            terminal.setCursorPos(terminal.getCursorX() + text.length(), terminal.getCursorY());
         }
     }
 
@@ -267,7 +266,7 @@ public abstract class TermMethods {
      * Set the palette for a specific colour.
      * <p>
      * ComputerCraft's palette system allows you to change how a specific colour should be displayed. For instance, you
-     * can make @{colors.red} <em>more red</em> by setting its palette to #FF0000. This does now allow you to draw more
+     * can make [`colors.red`] <em>more red</em> by setting its palette to #FF0000. This does now allow you to draw more
      * colours - you are still limited to 16 on the screen at one time - but you can change <em>which</em> colours are
      * used.
      *
@@ -280,7 +279,7 @@ public abstract class TermMethods {
      * @cc.tparam number r The intensity of the red channel, between 0 and 1.
      * @cc.tparam number g The intensity of the green channel, between 0 and 1.
      * @cc.tparam number b The intensity of the blue channel, between 0 and 1.
-     * @cc.usage Change the @{colors.red|red colour} from the default #CC4C4C to #FF0000.
+     * @cc.usage Change the [red colour][`colors.red`] from the default #CC4C4C to #FF0000.
      * <pre>{@code
      * term.setPaletteColour(colors.red, 0xFF0000)
      * term.setTextColour(colors.red)
@@ -300,19 +299,12 @@ public abstract class TermMethods {
     public final void setPaletteColour(IArguments args) throws LuaException {
         // No-op
         parseColour(args.getInt(0));
-        if (args.count() == 2) {
-            args.getInt(1);
-        } else {
-            args.getFiniteDouble(1);
-            args.getFiniteDouble(2);
-            args.getFiniteDouble(3);
-        }
     }
 
     /**
      * Get the current palette for a specific colour.
      *
-     * @param colour The colour whose palette should be fetched.
+     * @param colourArg The colour whose palette should be fetched.
      * @return The resulting colour.
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.treturn number The red channel, will be between 0 and 1.
@@ -321,8 +313,8 @@ public abstract class TermMethods {
      * @cc.since 1.80pr1
      */
     @LuaFunction({ "getPaletteColour", "getPaletteColor" })
-    public final Object[] getPaletteColour(int colour) throws LuaException {
-        Colour c = Colour.fromInt(parseColour(colour));
+    public final Object[] getPaletteColour(int colourArg) throws LuaException {
+        Colour c = Colour.fromInt(parseColour(colourArg));
         return new Object[]{ c.getR(), c.getG(), c.getB() };
     }
 
@@ -336,6 +328,8 @@ public abstract class TermMethods {
     public static int encodeColour(int colour) {
         return 1 << (15 - colour);
     }
+
+    protected abstract boolean isColour();
 
     private static void blit(Terminal term, String text, String foreground, String background) {
         if (term.getCursorY() < 0 || term.getCursorY() >= term.getHeight()) return;

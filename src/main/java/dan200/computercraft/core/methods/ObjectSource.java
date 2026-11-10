@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.core.asm;
+package dan200.computercraft.core.methods;
 
 /**
  * A Lua object which exposes additional methods.

@@ -4,42 +4,37 @@
 
 package dan200.computercraft.core.asm;
 
-import cc.tweaked.CCTweaked;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
-import dan200.computercraft.api.lua.Coerced;
-import dan200.computercraft.api.lua.IArguments;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.lua.*;
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.logging.Level;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public final class Generator<T> {
+final class Generator<T> {
+    private static final Logger LOG = LoggerFactory.getLogger(Generator.class);
+
     private static final AtomicInteger METHOD_ID = new AtomicInteger();
 
     private static final String METHOD_NAME = "apply";
     private static final String[] EXCEPTIONS = new String[]{ Type.getInternalName(LuaException.class) };
 
-    private static final String INTERNAL_METHOD_RESULT = Type.getInternalName(Object[].class);
-    private static final String DESC_METHOD_RESULT = Type.getDescriptor(Object[].class);
+    private static final String INTERNAL_METHOD_RESULT = Type.getInternalName(MethodResult.class);
+    private static final String DESC_METHOD_RESULT = Type.getDescriptor(MethodResult.class);
 
     private static final String INTERNAL_ARGUMENTS = Type.getInternalName(IArguments.class);
     private static final String DESC_ARGUMENTS = Type.getDescriptor(IArguments.class);
@@ -52,21 +47,12 @@ public final class Generator<T> {
     private final String[] interfaces;
     private final String methodDesc;
 
-    private final Function<T, T> wrap;
+    private final Map<Method, Optional<T>> methodCache = new ConcurrentHashMap<>();
 
-    private final LoadingCache<Class<?>, List<NamedMethod<T>>> classCache = CacheBuilder
-        .newBuilder()
-        .build(CacheLoader.from(catching(this::build, Collections.emptyList())));
-
-    private final LoadingCache<Method, Optional<T>> methodCache = CacheBuilder
-        .newBuilder()
-        .build(CacheLoader.from(catching(this::build, Optional.empty())));
-
-    Generator(Class<T> base, List<Class<?>> context, Function<T, T> wrap) {
+    Generator(Class<T> base, List<Class<?>> context) {
         this.base = base;
         this.context = context;
         interfaces = new String[]{ Type.getInternalName(base) };
-        this.wrap = wrap;
 
         StringBuilder methodDesc = new StringBuilder().append("(Ljava/lang/Object;");
         for (Class<?> klass : context) methodDesc.append(Type.getDescriptor(klass));
@@ -74,88 +60,47 @@ public final class Generator<T> {
         this.methodDesc = methodDesc.toString();
     }
 
-    public List<NamedMethod<T>> getMethods(Class<?> klass) {
-        try {
-            return classCache.get(klass);
-        } catch (ExecutionException e) {
-            CCTweaked.LOG.log(Level.SEVERE, "Error getting methods for " + klass.getName() + ".", e.getCause());
-            return Collections.emptyList();
-        }
+    public Optional<T> getInstanceMethod(Method method) {
+        return methodCache.computeIfAbsent(method, this::build);
     }
 
-    private List<NamedMethod<T>> build(Class<?> klass) {
-        ArrayList<NamedMethod<T>> methods = null;
-        for (Method method : klass.getMethods()) {
-            LuaFunction annotation = method.getAnnotation(LuaFunction.class);
-            if (annotation == null) continue;
-
-            if (Modifier.isStatic(method.getModifiers())) {
-                CCTweaked.LOG.warning(String.format("LuaFunction method %s.%s should be an instance method.", method.getDeclaringClass(), method.getName()));
-                continue;
-            }
-
-            T instance = methodCache.getUnchecked(method).orElse(null);
-            if (instance == null) continue;
-
-            if (methods == null) methods = new ArrayList<>();
-            addMethod(methods, method, annotation, instance);
+    /**
+     * Check if a {@link LuaFunction}-annotated method can be used in this context.
+     *
+     * @param method The method to check.
+     * @return Whether the method is valid.
+     */
+    private boolean checkMethod(Method method) {
+        if (method.isBridge()) {
+            LOG.debug("Skipping bridge Lua Method {}.{}", method.getDeclaringClass().getName(), method.getName());
+            return false;
         }
 
-        if (methods == null) return Collections.emptyList();
-        methods.trimToSize();
-        return Collections.unmodifiableList(methods);
-    }
-
-    private void addMethod(List<NamedMethod<T>> methods, Method method, LuaFunction annotation, T instance) {
-        String[] names = annotation.value();
-        boolean isSimple = true;
-        if (names.length == 0) {
-            methods.add(new NamedMethod<>(method.getName(), instance, isSimple));
-        } else {
-            for (String name : names) {
-                methods.add(new NamedMethod<>(name, instance, isSimple));
+        // Check we don't throw additional exceptions.
+        var exceptions = method.getExceptionTypes();
+        for (var exception : exceptions) {
+            if (exception != LuaException.class) {
+                LOG.error("Lua Method {}.{} cannot throw {}.", method.getDeclaringClass().getName(), method.getName(), exception.getName());
+                return false;
             }
         }
+
+        // Instance methods must be final - this prevents them being overridden and potentially exposed twice.
+        var modifiers = method.getModifiers();
+        if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isFinal(method.getDeclaringClass().getModifiers())) {
+            LOG.warn("Lua Method {}.{} should be final.", method.getDeclaringClass().getName(), method.getName());
+        }
+
+        return true;
     }
 
     private Optional<T> build(Method method) {
-        String name = method.getDeclaringClass().getName() + "." + method.getName();
-        int modifiers = method.getModifiers();
+        if (!checkMethod(method)) return Optional.empty();
 
-        // Instance methods must be final - this prevents them being overridden and potentially exposed twice.
-        if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
-            CCTweaked.LOG.warning(String.format("Lua Method %s should be final.", name));
-        }
-
-        if (!Modifier.isPublic(modifiers)) {
-            CCTweaked.LOG.severe(String.format("Lua Method %s should be a public method.", name));
-            return Optional.empty();
-        }
-
-        if (!Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-            CCTweaked.LOG.warning(String.format("Lua Method %s should be on a public class.", name));
-            return Optional.empty();
-        }
-
-        CCTweaked.LOG.fine(String.format("Generating method wrapper for %s.", name));
-
-        Class<?>[] exceptions = method.getExceptionTypes();
-        for (Class<?> exception : exceptions) {
-            if (exception != LuaException.class) {
-                CCTweaked.LOG.warning(String.format("Lua Method %s cannot throw %s.", name, exception.getName()));
-                return Optional.empty();
-            }
-        }
+        LOG.debug("Generating method wrapper for {}.{}.", method.getDeclaringClass().getName(), method.getName());
 
         LuaFunction annotation = method.getAnnotation(LuaFunction.class);
-        if (annotation.unsafe() && annotation.mainThread()) {
-            CCTweaked.LOG.severe(String.format("Lua Method %s cannot use unsafe and mainThread", name));
-            return Optional.empty();
-        }
-
-        // We have some rather ugly handling of static methods in both here and the main generate function. Static methods
-        // only come from generic sources, so this should be safe.
-        Class<?> target = Modifier.isStatic(modifiers) ? method.getParameterTypes()[0] : method.getDeclaringClass();
+        Class<?> target = method.getDeclaringClass();
 
         try {
             String className = method.getDeclaringClass().getName() + "$cc$" + method.getName() + METHOD_ID.getAndIncrement();
@@ -165,9 +110,9 @@ public final class Generator<T> {
             Class<?> klass = DeclaringClassLoader.INSTANCE.define(className, bytes, method.getDeclaringClass().getProtectionDomain());
 
             T instance = klass.asSubclass(base).getDeclaredConstructor().newInstance();
-            return Optional.of(annotation.mainThread() ? wrap.apply(instance) : instance);
+            return Optional.of(instance);
         } catch (ReflectiveOperationException | ClassFormatError | RuntimeException e) {
-            CCTweaked.LOG.log(Level.SEVERE, String.format("Error generating wrapper for %s.", name), e);
+            LOG.error("Error generating wrapper for {}.{}.", method.getDeclaringClass().getName(), method.getName());
             return Optional.empty();
         }
 
@@ -196,10 +141,8 @@ public final class Generator<T> {
             mw.visitCode();
 
             // If we're an instance method, load the this parameter.
-            if (!Modifier.isStatic(method.getModifiers())) {
-                mw.visitVarInsn(ALOAD, 1);
-                mw.visitTypeInsn(CHECKCAST, Type.getInternalName(target));
-            }
+            mw.visitVarInsn(ALOAD, 1);
+            mw.visitTypeInsn(CHECKCAST, Type.getInternalName(target));
 
             int argIndex = 0;
             for (java.lang.reflect.Type genericArg : method.getGenericParameterTypes()) {
@@ -217,15 +160,17 @@ public final class Generator<T> {
             // We allow a reasonable amount of flexibility on the return value's type. Alongside the obvious MethodResult,
             // we convert basic types into an immediate result.
             Class<?> ret = method.getReturnType();
-            if (ret != Object[].class) {
+            if (ret != MethodResult.class) {
                 if (ret == void.class) {
-                    mw.visitMethodInsn(INVOKESTATIC, "dan200/computercraft/core/asm/Support", "of", "()" + DESC_METHOD_RESULT);
+                    mw.visitMethodInsn(INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "()" + DESC_METHOD_RESULT);
                 } else if (ret.isPrimitive()) {
-                    Class<?> boxed = Primitives.wrap(ret);
+                    var boxed = Primitives.wrap(ret);
                     mw.visitMethodInsn(INVOKESTATIC, Type.getInternalName(boxed), "valueOf", "(" + Type.getDescriptor(ret) + ")" + Type.getDescriptor(boxed));
-                    mw.visitMethodInsn(INVOKESTATIC, "dan200/computercraft/core/asm/Support", "of", "(Ljava/lang/Object;)" + DESC_METHOD_RESULT);
+                    mw.visitMethodInsn(INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "(Ljava/lang/Object;)" + DESC_METHOD_RESULT);
+                } else if (ret == Object[].class) {
+                    mw.visitMethodInsn(INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "([Ljava/lang/Object;)" + DESC_METHOD_RESULT);
                 } else {
-                    mw.visitMethodInsn(INVOKESTATIC, "dan200/computercraft/core/asm/Support", "of", "(Ljava/lang/Object;)" + DESC_METHOD_RESULT);
+                    mw.visitMethodInsn(INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "(Ljava/lang/Object;)" + DESC_METHOD_RESULT);
                 }
             }
 
@@ -240,14 +185,14 @@ public final class Generator<T> {
         return cw.toByteArray();
     }
 
-    private Boolean loadArg(MethodVisitor mw, Class<?> target, Method method, boolean unsafe, java.lang.reflect.Type genericArg, int argIndex) {
+    private @Nullable Boolean loadArg(MethodVisitor mw, Class<?> target, Method method, boolean unsafe, java.lang.reflect.Type genericArg, int argIndex) {
         if (genericArg == target) {
             mw.visitVarInsn(ALOAD, 1);
             mw.visitTypeInsn(CHECKCAST, Type.getInternalName(target));
             return false;
         }
 
-        Class<?> arg = Reflect.getRawType(method, genericArg, true);
+        var arg = Reflect.getRawType(method, genericArg, true);
         if (arg == null) return null;
 
         if (arg == IArguments.class) {
@@ -255,90 +200,100 @@ public final class Generator<T> {
             return false;
         }
 
-        int idx = context.indexOf(arg);
+        var idx = context.indexOf(arg);
         if (idx >= 0) {
             mw.visitVarInsn(ALOAD, 2 + idx);
             return false;
         }
 
         if (arg == Coerced.class) {
-            Class<?> klass = Reflect.getRawType(method, TypeToken.of(genericArg).resolveType(Reflect.COERCED_IN).getType(), false);
+            var klass = Reflect.getRawType(method, TypeToken.of(genericArg).resolveType(Reflect.COERCED_IN).getType(), false);
             if (klass == null) return null;
 
             if (klass == String.class) {
-                mw.visitTypeInsn(NEW, INTERNAL_COERCED);
-                mw.visitInsn(DUP);
-                mw.visitVarInsn(ALOAD, 2 + context.size());
-                Reflect.loadInt(mw, argIndex);
-                mw.visitMethodInsn(INVOKEVIRTUAL, INTERNAL_ARGUMENTS, "getStringCoerced", "(I)Ljava/lang/String;");
-                mw.visitMethodInsn(INVOKESPECIAL, INTERNAL_COERCED, "<init>", "(Ljava/lang/Object;)V");
+                loadCoerced(mw, argIndex, "getStringCoerced", "(I)Ljava/lang/String;");
                 return true;
             } else if (klass == ByteBuffer.class) {
-                mw.visitTypeInsn(NEW, INTERNAL_COERCED);
-                mw.visitInsn(DUP);
-                mw.visitVarInsn(ALOAD, 2 + context.size());
-                Reflect.loadInt(mw, argIndex);
-                mw.visitMethodInsn(INVOKEVIRTUAL, INTERNAL_ARGUMENTS, "getBytesCoerced", "(I)Ljava/nio/ByteBuffer;");
-                mw.visitMethodInsn(INVOKESPECIAL, INTERNAL_COERCED, "<init>", "(Ljava/lang/Object;)V");
+                loadCoerced(mw, argIndex, "getBytesCoerced", "(I)Ljava/nio/ByteBuffer;");
                 return true;
             }
         }
 
         if (arg == Optional.class) {
-            Class<?> klass = Reflect.getRawType(method, TypeToken.of(genericArg).resolveType(Reflect.OPTIONAL_IN).getType(), false);
+            var klass = Reflect.getRawType(method, TypeToken.of(genericArg).resolveType(Reflect.OPTIONAL_IN).getType(), false);
             if (klass == null) return null;
 
             if (Enum.class.isAssignableFrom(klass) && klass != Enum.class) {
                 mw.visitVarInsn(ALOAD, 2 + context.size());
-                Reflect.loadInt(mw, argIndex);
+                loadInt(mw, argIndex);
                 mw.visitLdcInsn(Type.getType(klass));
-                mw.visitMethodInsn(INVOKEVIRTUAL, INTERNAL_ARGUMENTS, "optEnum", "(ILjava/lang/Class;)Ljava/util/Optional;");
+                mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "optEnum", "(ILjava/lang/Class;)Ljava/util/Optional;");
                 return true;
             }
 
-            String name = Reflect.getLuaName(Primitives.unwrap(klass), unsafe);
+            var name = getLuaName(Primitives.unwrap(klass), unsafe);
             if (name != null) {
                 mw.visitVarInsn(ALOAD, 2 + context.size());
-                Reflect.loadInt(mw, argIndex);
-                mw.visitMethodInsn(INVOKEVIRTUAL, INTERNAL_ARGUMENTS, "opt" + name, "(I)Ljava/util/Optional;");
+                loadInt(mw, argIndex);
+                mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "opt" + name, "(I)Ljava/util/Optional;");
                 return true;
             }
         }
 
         if (Enum.class.isAssignableFrom(arg) && arg != Enum.class) {
             mw.visitVarInsn(ALOAD, 2 + context.size());
-            Reflect.loadInt(mw, argIndex);
+            loadInt(mw, argIndex);
             mw.visitLdcInsn(Type.getType(arg));
-            mw.visitMethodInsn(INVOKEVIRTUAL, INTERNAL_ARGUMENTS, "getEnum", "(ILjava/lang/Class;)Ljava/lang/Enum;");
+            mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getEnum", "(ILjava/lang/Class;)Ljava/lang/Enum;");
             mw.visitTypeInsn(CHECKCAST, Type.getInternalName(arg));
             return true;
         }
 
-        String name = arg == Object.class ? "" : Reflect.getLuaName(arg, unsafe);
+        var name = arg == Object.class ? "" : getLuaName(arg, unsafe);
         if (name != null) {
             if (Reflect.getRawType(method, genericArg, false) == null) return null;
 
             mw.visitVarInsn(ALOAD, 2 + context.size());
-            Reflect.loadInt(mw, argIndex);
-            mw.visitMethodInsn(INVOKEVIRTUAL, INTERNAL_ARGUMENTS, "get" + name, "(I)" + Type.getDescriptor(arg));
+            loadInt(mw, argIndex);
+            mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "get" + name, "(I)" + Type.getDescriptor(arg));
             return true;
         }
 
-        CCTweaked.LOG.severe(String.format("Unknown parameter type %s for method %s.%s.", arg.getName(), method.getDeclaringClass().getName(), method.getName()));
+        LOG.error("Unknown parameter type {} for method {}.{}.", arg.getName(), method.getDeclaringClass().getName(), method.getName());
         return null;
     }
 
-    @SuppressWarnings("Guava")
-    private static <T, U> com.google.common.base.Function<T, U> catching(Function<T, U> function, U def) {
-        return x -> {
-            try {
-                return function.apply(x);
-            } catch (Exception | LinkageError e) {
-                // LinkageError due to possible codegen bugs and NoClassDefFoundError. The latter occurs when fetching
-                // methods on a class which references non-existent (i.e. client-only) types.
-                CCTweaked.LOG.log(Level.SEVERE, "Error generating @LuaFunctions", e);
-                return def;
-            }
-        };
+    private static @Nullable String getLuaName(Class<?> klass, boolean unsafe) {
+        if (klass.isPrimitive()) {
+            if (klass == int.class) return "Int";
+            if (klass == boolean.class) return "Boolean";
+            if (klass == double.class) return "Double";
+            if (klass == long.class) return "Long";
+        } else {
+            if (klass == Map.class) return "Table";
+            if (klass == String.class) return "String";
+            if (klass == ByteBuffer.class) return "Bytes";
+            if (klass == LuaTable.class && unsafe) return "TableUnsafe";
+        }
+
+        return null;
     }
+
+    private static void loadInt(MethodVisitor visitor, int value) {
+        if (value >= -1 && value <= 5) {
+            visitor.visitInsn(ICONST_0 + value);
+        } else {
+            visitor.visitLdcInsn(value);
+        }
+    }
+
+    private void loadCoerced(MethodVisitor mw, int argIndex, String getter, String getterType) {
+        mw.visitTypeInsn(NEW, INTERNAL_COERCED);
+        mw.visitInsn(DUP);
+        mw.visitVarInsn(ALOAD, 2 + context.size());
+        loadInt(mw, argIndex);
+        mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, getter, getterType);
+        mw.visitMethodInsn(INVOKESPECIAL, INTERNAL_COERCED, "<init>", "(Ljava/lang/Object;)V");
+    }
+
 }

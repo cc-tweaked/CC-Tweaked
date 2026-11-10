@@ -10,6 +10,7 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.util.StringUtil;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -28,8 +29,8 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
 public class OSAPI implements ILuaAPI {
     private final IAPIEnvironment apiEnvironment;
 
-    private final Map<Integer, Alarm> alarms = new HashMap<>();
     private final Map<Integer, Timer> timers = new HashMap<>();
+    private final Map<Integer, Alarm> alarms = new HashMap<>();
     private int clock;
     private double time;
     private int day;
@@ -38,28 +39,21 @@ public class OSAPI implements ILuaAPI {
     private int nextAlarmToken = 0;
 
     private static class Timer {
-        int ticksLeft;
+        long ticksLeft;
 
-        Timer(int ticksLeft) {
+        Timer(long ticksLeft) {
             this.ticksLeft = ticksLeft;
         }
     }
 
-
-    private static class Alarm implements Comparable<Alarm> {
-        final double time;
-        final int day;
-
-        private Alarm(double time, int day) {
-            this.time = time;
-            this.day = day;
+    private record Alarm(double time, int day) implements Comparable<Alarm> {
+        double totalTime() {
+            return day() * 24 + time();
         }
 
         @Override
         public int compareTo(Alarm o) {
-            double t = day * 24.0 + time;
-            double ot = day * 24.0 + time;
-            return Double.compare(t, ot);
+            return Double.compare(totalTime(), o.totalTime());
         }
     }
 
@@ -78,10 +72,6 @@ public class OSAPI implements ILuaAPI {
         day = apiEnvironment.getComputerEnvironment().getDay();
         clock = 0;
 
-        synchronized (timers) {
-            timers.clear();
-        }
-
         synchronized (alarms) {
             alarms.clear();
         }
@@ -91,35 +81,20 @@ public class OSAPI implements ILuaAPI {
     public void advance(double dt) {
         clock++;
 
-        synchronized (timers) {
-            // Countdown all of our active timers
-            Iterator<Map.Entry<Integer, Timer>> it = timers.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<Integer, Timer> entry = it.next();
-                Timer timer = entry.getValue();
-                timer.ticksLeft--;
-                if (timer.ticksLeft <= 0) {
-                    // Queue the "timer" event
-                    apiEnvironment.queueEvent("timer", new Object[]{ entry.getKey() });
-                    it.remove();
-                }
-            }
-        }
-
         // Wait for all of our alarms
         synchronized (alarms) {
-            double previousTime = time;
-            int previousDay = day;
-            double time = apiEnvironment.getComputerEnvironment().getTimeOfDay();
-            int day = apiEnvironment.getComputerEnvironment().getDay();
+            var previousTime = time;
+            var previousDay = day;
+            var time = apiEnvironment.getComputerEnvironment().getTimeOfDay();
+            var day = apiEnvironment.getComputerEnvironment().getDay();
 
             if (time > previousTime || day > previousDay) {
-                double now = this.day * 24.0 + this.time;
-                Iterator<Map.Entry<Integer, Alarm>> it = alarms.entrySet().iterator();
+                var now = this.day * 24.0 + this.time;
+                var it = alarms.entrySet().iterator();
                 while (it.hasNext()) {
-                    Map.Entry<Integer, Alarm> entry = it.next();
-                    Alarm alarm = entry.getValue();
-                    double t = alarm.day * 24.0 + alarm.time;
+                    var entry = it.next();
+                    var alarm = entry.getValue();
+                    var t = alarm.totalTime();
                     if (now >= t) {
                         apiEnvironment.queueEvent("alarm", new Object[]{ entry.getKey() });
                         it.remove();
@@ -130,6 +105,21 @@ public class OSAPI implements ILuaAPI {
             this.time = time;
             this.day = day;
         }
+
+        synchronized (timers) {
+            // Countdown all of our active timers
+            var it = timers.entrySet().iterator();
+            while (it.hasNext()) {
+                var entry = it.next();
+                var timer = entry.getValue();
+                timer.ticksLeft--;
+                if (timer.ticksLeft <= 0) {
+                    // Queue the "timer" event
+                    apiEnvironment.queueEvent("timer", new Object[]{ entry.getKey() });
+                    it.remove();
+                }
+            }
+        }
     }
 
     @Override
@@ -139,16 +129,6 @@ public class OSAPI implements ILuaAPI {
         }
     }
 
-    @Override
-    public String[] getMethodNames() {
-        return new String[0];
-    }
-
-    @Override
-    public Object[] callMethod(int method, Object[] arguments) {
-        throw new IllegalStateException();
-    }
-
     private static float getTimeForCalendar(Calendar c) {
         float time = c.get(Calendar.HOUR_OF_DAY);
         time += c.get(Calendar.MINUTE) / 60.0f;
@@ -156,19 +136,19 @@ public class OSAPI implements ILuaAPI {
         return time;
     }
 
-    private static int getDayForCalendar(Calendar c) {
-        GregorianCalendar g = c instanceof GregorianCalendar ? (GregorianCalendar) c : new GregorianCalendar();
-        int year = c.get(Calendar.YEAR);
-        int day = 0;
-        for (int y = 1970; y < year; y++) {
+    private static int getDayForCalendar(Calendar calendar) {
+        var g = calendar instanceof GregorianCalendar c ? c : new GregorianCalendar();
+        var year = calendar.get(Calendar.YEAR);
+        var day = 0;
+        for (var y = 1970; y < year; y++) {
             day += g.isLeapYear(y) ? 366 : 365;
         }
-        day += c.get(Calendar.DAY_OF_YEAR);
+        day += calendar.get(Calendar.DAY_OF_YEAR);
         return day;
     }
 
     private static long getEpochForCalendar(Calendar c) {
-        return c.getTime().getTime();
+        return c.getTimeInMillis();
     }
 
     /**
@@ -178,7 +158,8 @@ public class OSAPI implements ILuaAPI {
      * @param name The name of the event to queue.
      * @param args The parameters of the event.
      * @cc.tparam string name The name of the event to queue.
-     * @cc.param ... The parameters of the event.
+     * @cc.param ... The parameters of the event. These can be any primitive type (boolean, number, string) as well as
+     * tables. Other types (like functions), as well as metatables, will not be preserved.
      * @cc.see os.pullEvent To pull the event queued
      */
     @LuaFunction
@@ -188,30 +169,30 @@ public class OSAPI implements ILuaAPI {
 
     /**
      * Starts a timer that will run for the specified number of seconds. Once
-     * the timer fires, a {@code timer} event will be added to the queue with
-     * the ID returned from this function as the first parameter.
+     * the timer fires, a [`timer`] event will be added to the queue with the ID
+     * returned from this function as the first parameter.
      * <p>
-     * As with @{os.sleep|sleep}, {@code timer} will automatically be rounded up
-     * to the nearest multiple of 0.05 seconds, as it waits for a fixed amount
-     * of world ticks.
+     * As with [sleep][`os.sleep`], the time will automatically be rounded up to
+     * the nearest multiple of 0.05 seconds, as it waits for a fixed amount of
+     * world ticks.
      *
-     * @param timer The number of seconds until the timer fires.
-     * @return The ID of the new timer. This can be used to filter the
-     * {@code timer} event, or {@link #cancelTimer cancel the timer}.
+     * @param time The number of seconds until the timer fires.
+     * @return The ID of the new timer. This can be used to filter the [`timer`]
+     * event, or {@linkplain #cancelTimer cancel the timer}.
      * @throws LuaException If the time is below zero.
      * @see #cancelTimer To cancel a timer.
      */
     @LuaFunction
-    public final int startTimer(double timer) throws LuaException {
+    public final int startTimer(double time) throws LuaException {
         synchronized (timers) {
-            timers.put(nextTimerToken, new Timer((int) Math.round(checkFinite(0, timer) / 0.05)));
+            timers.put(nextTimerToken, new Timer((int) Math.round(checkFinite(0, time) / 0.05)));
             return nextTimerToken++;
         }
     }
 
     /**
-     * Cancels a timer previously started with startTimer. This will stop the
-     * timer from firing.
+     * Cancels a timer previously started with {@link #startTimer(double)}. This
+     * will stop the timer from firing.
      *
      * @param token The ID of the timer to cancel.
      * @cc.since 1.6
@@ -225,9 +206,9 @@ public class OSAPI implements ILuaAPI {
     }
 
     /**
-     * Sets an alarm that will fire at the specified in-game time. When it
-     * fires, * an {@code alarm} event will be added to the event queue with the
-     * ID * returned from this function as the first parameter.
+     * Sets an alarm that will fire at the specified {@linkplain #time(IArguments) in-game time}.
+     * When it fires, an {@code alarm} event will be added to the event queue with the
+     * ID returned from this function as the first parameter.
      *
      * @param time The time at which to fire the alarm, in the range [0.0, 24.0).
      * @return The ID of the new alarm. This can be used to filter the
@@ -241,7 +222,7 @@ public class OSAPI implements ILuaAPI {
         checkFinite(0, time);
         if (time < 0.0 || time >= 24.0) throw new LuaException("Number out of range");
         synchronized (alarms) {
-            int day = time > this.time ? this.day : this.day + 1;
+            var day = time > this.time ? this.day : this.day + 1;
             alarms.put(nextAlarmToken, new Alarm(time, day));
             return nextAlarmToken++;
         }
@@ -296,8 +277,8 @@ public class OSAPI implements ILuaAPI {
      * @cc.since 1.3
      */
     @LuaFunction({ "getComputerLabel", "computerLabel" })
-    public final Object[] getComputerLabel() {
-        String label = apiEnvironment.getComputerEnvironment().getLabel(getComputerID());
+    public final Object @Nullable [] getComputerLabel() {
+        var label = apiEnvironment.getComputerEnvironment().getLabel(getComputerID());
         return label == null ? null : new Object[]{ label };
     }
 
@@ -347,27 +328,23 @@ public class OSAPI implements ILuaAPI {
      * textutils.formatTime(os.time())
      * }</pre>
      * @cc.since 1.2
-     * @cc.changed 1.80pr1 Add support for getting the local local and UTC time.
+     * @cc.changed 1.80pr1 Add support for getting the local and UTC time.
      * @cc.changed 1.82.0 Arguments are now case insensitive.
      * @cc.changed 1.83.0 {@link #time(IArguments)} now accepts table arguments and converts them to UNIX timestamps.
      * @see #date To get a date table that can be converted with this function.
      */
     @LuaFunction
     public final Object time(IArguments args) throws LuaException {
-        Object value = args.get(0);
+        var value = args.get(0);
         if (value instanceof Map) return LuaDateTime.fromTable((Map<?, ?>) value);
 
-        String param = args.optString(0, "ingame");
-        switch (param.toLowerCase(Locale.ROOT)) {
-            case "utc":
-                return getTimeForCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-            case "local":
-                return getTimeForCalendar(Calendar.getInstance());
-            case "ingame":
-                return time;
-            default:
-                throw new LuaException("Unsupported operation");
-        }
+        var param = args.optString(0, "ingame");
+        return switch (param.toLowerCase(Locale.ROOT)) {
+            case "utc" -> getTimeForCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+            case "local" -> getTimeForCalendar(Calendar.getInstance());
+            case "ingame" -> time;
+            default -> throw new LuaException("Unsupported operation");
+        };
     }
 
     /**
@@ -380,24 +357,21 @@ public class OSAPI implements ILuaAPI {
      * * If called with {@code local}, returns the number of days since 1
      * January 1970 in the server's local timezone.
      *
-     * @param args The locale to get the day for. Defaults to {@code ingame} if not set.
+     * @param locale The locale to get the day for. Defaults to {@code ingame} if not set.
      * @return The day depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
      * @cc.since 1.48
      * @cc.changed 1.82.0 Arguments are now case insensitive.
      */
     @LuaFunction
-    public final int day(Optional<String> args) throws LuaException {
-        switch (args.orElse("ingame").toLowerCase(Locale.ROOT)) {
-            case "utc":
-                return getDayForCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-            case "local":
-                return getDayForCalendar(Calendar.getInstance());
-            case "ingame":
-                return day;
-            default:
-                throw new LuaException("Unsupported operation");
-        }
+    @SuppressWarnings("InvalidParam") // Local vs Locale confusion
+    public final int day(Optional<String> locale) throws LuaException {
+        return switch (locale.orElse("ingame").toLowerCase(Locale.ROOT)) {
+            case "utc" -> getDayForCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+            case "local" -> getDayForCalendar(Calendar.getInstance());
+            case "ingame" -> day;
+            default -> throw new LuaException("Unsupported operation");
+        };
     }
 
     /**
@@ -410,15 +384,14 @@ public class OSAPI implements ILuaAPI {
      * * If called with {@code local}, returns the number of milliseconds since 1
      * January 1970 in the server's local timezone.
      * <p>
-     * :::info
-     * The {@code ingame} time zone assumes that one Minecraft day consists of 86,400,000
-     * milliseconds. Since one in-game day is much faster than a real day (20 minutes), this
-     * will change quicker than real time - one real second is equal to 72000 in-game
-     * milliseconds. If you wish to convert this value to real time, divide by 72000; to
-     * convert to ticks (where a day is 24000 ticks), divide by 3600.
-     * :::
+     * > [!INFO]
+     * > The {@code ingame} time zone assumes that one Minecraft day consists of 86,400,000
+     * > milliseconds. Since one in-game day is much faster than a real day (20 minutes), this
+     * > will change quicker than real time - one real second is equal to 72000 in-game
+     * > milliseconds. If you wish to convert this value to real time, divide by 72000; to
+     * > convert to ticks (where a day is 24000 ticks), divide by 3600.
      *
-     * @param args The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
+     * @param locale The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
      * @return The milliseconds since the epoch depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
      * @cc.since 1.80pr1
@@ -431,59 +404,63 @@ public class OSAPI implements ILuaAPI {
      * }</pre>
      */
     @LuaFunction
-    public final long epoch(Optional<String> args) throws LuaException {
-        switch (args.orElse("ingame").toLowerCase(Locale.ROOT)) {
-            case "utc": {
-                // Get utc epoch
-                Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                return getEpochForCalendar(c);
-            }
-            case "local": {
-                // Get local epoch
-                Calendar c = Calendar.getInstance();
-                return getEpochForCalendar(c);
-            }
-            case "ingame":
-                // Get in-game epoch
-                synchronized (alarms) {
-                    return day * 86400000L + (long) (time * 3600000.0);
-                }
-            default:
-                throw new LuaException("Unsupported operation");
-        }
+    @SuppressWarnings("InvalidParam") // Local vs Locale confusion
+    public final long epoch(Optional<String> locale) throws LuaException {
+        return switch (locale.orElse("ingame").toLowerCase(Locale.ROOT)) {
+            case "utc" -> getEpochForCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC"))); // Get utc epoch
+            case "local" -> getEpochForCalendar(Calendar.getInstance());  // Get local epoch
+            case "ingame" -> day * 86400000L + (long) (time * 3600000.0); // Get in-game epoch
+            default -> throw new LuaException("Unsupported operation");
+        };
     }
 
     /**
      * Returns a date string (or table) using a specified format string and
      * optional time to format.
      * <p>
-     * The format string takes the same formats as C's {@code strftime} function
-     * (http://www.cplusplus.com/reference/ctime/strftime/). In extension, it
-     * can be prefixed with an exclamation mark ({@code !}) to use UTC time
-     * instead of the server's local timezone.
+     * The format string takes the same formats as C's [strftime](http://www.cplusplus.com/reference/ctime/strftime/)
+     * function. The format string can also be prefixed with an exclamation mark
+     * ({@code !}) to use UTC time instead of the server's local timezone.
      * <p>
-     * If the format is exactly {@code *t} (optionally prefixed with {@code !}), a
-     * table will be returned instead. This table has fields for the year, month,
-     * day, hour, minute, second, day of the week, day of the year, and whether
-     * Daylight Savings Time is in effect. This table can be converted to a UNIX
-     * timestamp (days since 1 January 1970) with {@link #date}.
+     * If the format is exactly {@code "*t"} (or {@code "!*t"} ), a table
+     * representation of the timestamp will be returned instead. This table has
+     * fields for the year, month, day, hour, minute, second, day of the week,
+     * day of the year, and whether Daylight Savings Time is in effect. This
+     * table can be converted back to a timestamp with {@link #time(IArguments)}.
      *
      * @param formatA The format of the string to return. This defaults to {@code %c}, which expands to a string similar to "Sat Dec 24 16:58:00 2011".
-     * @param timeA   The time to convert to a string. This defaults to the current time.
-     * @return The resulting format string.
+     * @param timeA   The timestamp to convert to a string. This defaults to the current time.
+     * @return The resulting formatted string, or table.
      * @throws LuaException If an invalid format is passed.
      * @cc.since 1.83.0
      * @cc.usage Print the current date in a user-friendly string.
      * <pre>{@code
      * os.date("%A %d %B %Y") -- See the reference above!
      * }</pre>
+     * @cc.usage Convert a timestamp to a table.
+     * <pre>{@code
+     * os.date("!*t", 1242534247)
+     * --[=[ {
+     *   -- Date
+     *   year  = 2009,
+     *   month = 5,
+     *   day   = 17,
+     *   yday  = 137,
+     *   wday  = 1,
+     *   -- Time
+     *   hour  = 4,
+     *   min   = 24,
+     *   sec   = 7,
+     *   isdst = false,
+     * } ]=]
+     * }</pre>
      */
     @LuaFunction
     public final Object date(Optional<String> formatA, Optional<Long> timeA) throws LuaException {
-        String format = formatA.orElse("%c");
+        var format = formatA.orElse("%c");
         long time = timeA.orElseGet(() -> Instant.now().getEpochSecond());
 
-        Instant instant = Instant.ofEpochSecond(time);
+        var instant = Instant.ofEpochSecond(time);
         ZonedDateTime date;
         ZoneOffset offset;
         if (format.startsWith("!")) {
@@ -491,17 +468,27 @@ public class OSAPI implements ILuaAPI {
             date = ZonedDateTime.ofInstant(instant, offset);
             format = format.substring(1);
         } else {
-            ZoneId id = ZoneId.systemDefault();
+            var id = ZoneId.systemDefault();
             offset = id.getRules().getOffset(instant);
             date = ZonedDateTime.ofInstant(instant, id);
         }
 
         if (format.equals("*t")) return LuaDateTime.toTable(date, offset, instant);
 
-        DateTimeFormatterBuilder formatter = new DateTimeFormatterBuilder();
+        var formatter = new DateTimeFormatterBuilder();
         LuaDateTime.format(formatter, format);
         // ROOT would be more sensible, but US appears more consistent with the default C locale
         // on Linux.
         return formatter.toFormatter(Locale.US).format(date);
+    }
+
+    @Override
+    public String[] getMethodNames() {
+        return new String[0];
+    }
+
+    @Override
+    public Object[] callMethod(int i, Object[] objects) {
+        throw new IllegalStateException();
     }
 }

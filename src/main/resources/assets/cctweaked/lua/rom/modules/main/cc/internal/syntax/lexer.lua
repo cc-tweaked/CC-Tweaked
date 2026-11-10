@@ -101,16 +101,21 @@ local function lex_number(context, str, start)
     return tokens.NUMBER, pos - 1
 end
 
---- Lex a quoted string.
---
--- @param context The current parser context.
--- @tparam string str The string we're lexing.
--- @tparam number start_pos The start position of the string.
--- @tparam string quote The quote character, either " or '.
--- @treturn number The token id for strings.
--- @treturn number The new position.
-local function lex_string(context, str, start_pos, quote)
-    local pos = start_pos + 1
+local lex_string_zap
+
+--[[- Lex a quoted string.
+
+@param context The current parser context.
+@tparam string str The string we're lexing.
+@tparam number pos The position to start lexing from.
+@tparam number start_pos The actual start position of the string.
+@tparam string quote The quote character, either " or '.
+@treturn number The token id for strings.
+@treturn number The new position.
+@treturn nil A placeholder value.
+@treturn table|nil The continuation function when the string is not finished.
+]]
+local function lex_string(context, str, pos, start_pos, quote)
     while true do
         local c = sub(str, pos, pos)
         if c == quote then
@@ -125,24 +130,9 @@ local function lex_string(context, str, start_pos, quote)
                 pos = newline(context, str, pos + 1, c)
             elseif c == "" then
                 context.report(errors.unfinished_string_escape, start_pos, pos, quote)
-                return tokens.STRING, pos
+                return tokens.STRING, pos, nil, { lex_string, 1, 1, quote }
             elseif c == "z" then
-                pos = pos + 2
-                while true do
-                    local next_pos, _, c  = find(str, "([%S\r\n])", pos)
-
-                    if not next_pos then
-                        context.report(errors.unfinished_string, start_pos, #str, quote)
-                        return tokens.STRING, #str
-                    end
-
-                    if c == "\n" or c == "\r" then
-                        pos = newline(context, str, next_pos, c)
-                    else
-                        pos = next_pos
-                        break
-                    end
-                end
+                return lex_string_zap(context, str, pos + 2, start_pos, quote)
             else
                 pos = pos + 2
             end
@@ -150,6 +140,39 @@ local function lex_string(context, str, start_pos, quote)
             pos = pos + 1
         end
     end
+end
+
+--[[- Lex the remainder of a zap escape sequence (`\z`). This consumes all leading
+whitespace, and then continues lexing the string.
+
+@param context The current parser context.
+@tparam string str The string we're lexing.
+@tparam number pos The position to start lexing from.
+@tparam number start_pos The actual start position of the string.
+@tparam string quote The quote character, either " or '.
+@treturn number The token id for strings.
+@treturn number The new position.
+@treturn nil A placeholder value.
+@treturn table|nil The continuation function when the string is not finished.
+]]
+lex_string_zap = function(context, str, pos, start_pos, quote)
+    while true do
+        local next_pos, _, c  = find(str, "([%S\r\n])", pos)
+
+        if not next_pos then
+            context.report(errors.unfinished_string, start_pos, #str, quote)
+            return tokens.STRING, #str, nil, { lex_string_zap, 1, 1, quote }
+        end
+
+        if c == "\n" or c == "\r" then
+            pos = newline(context, str, next_pos, c)
+        else
+            pos = next_pos
+            break
+        end
+    end
+
+    return lex_string(context, str, pos, start_pos, quote)
 end
 
 --- Consume the start or end of a long string.
@@ -205,6 +228,45 @@ local function lex_long_str(context, str, start, len)
     end
 end
 
+--[[- Lex the remainder of a long string.
+
+@param context The current parser context.
+@tparam string str The string we're lexing.
+@tparam number pos The position to start lexing from.
+@tparam number start_pos The actual start position of the string.
+@tparam number boundary_length The length of the boundary.
+@treturn number The token id for strings.
+@treturn number The new position.
+@treturn nil A placeholder value.
+@treturn table|nil The continuation function when the string is not finished.
+]]
+local function lex_long_string(context, str, pos, start_pos, boundary_length)
+    local end_pos = lex_long_str(context, str, pos, boundary_length)
+    if end_pos then return tokens.STRING, end_pos end
+
+    context.report(errors.unfinished_long_string, start_pos, pos - 1, boundary_length)
+    return tokens.STRING, #str, nil, { lex_long_string, 0, 0, boundary_length }
+end
+
+--[[- Lex the remainder of a long comment.
+
+@param context The current parser context.
+@tparam string str The comment we're lexing.
+@tparam number pos The position to start lexing from.
+@tparam number start_pos The actual start position of the comment.
+@tparam number boundary_length The length of the boundary.
+@treturn number The token id for comments.
+@treturn number The new position.
+@treturn nil A placeholder value.
+@treturn table|nil The continuation function when the comment is not finished.
+]]
+local function lex_long_comment(context, str, pos, start_pos, boundary_length)
+    local end_pos = lex_long_str(context, str, pos, boundary_length)
+    if end_pos then return tokens.COMMENT, end_pos end
+
+    context.report(errors.unfinished_long_comment, start_pos, pos - 1, boundary_length)
+    return tokens.COMMENT, #str, nil, { lex_long_comment, 0, 0, boundary_length }
+end
 
 --- Lex a single token, assuming we have removed all leading whitespace.
 --
@@ -229,16 +291,12 @@ local function lex_token(context, str, pos)
     elseif c >= "0" and c <= "9" then return lex_number(context, str, pos)
 
     -- Strings
-    elseif c == "\"" or c == "\'" then return lex_string(context, str, pos, c)
+    elseif c == "\"" or c == "\'" then return lex_string(context, str, pos + 1, pos, c)
 
     elseif c == "[" then
         local ok, boundary_pos = lex_long_str_boundary(str, pos + 1, "[")
         if ok then -- Long string
-            local end_pos = lex_long_str(context, str, boundary_pos + 1, boundary_pos - pos)
-            if end_pos then return tokens.STRING, end_pos end
-
-            context.report(errors.unfinished_long_string, pos, boundary_pos, boundary_pos - pos)
-            return tokens.ERROR, #str
+            return lex_long_string(context, str, boundary_pos + 1, pos, boundary_pos - pos)
         elseif pos + 1 == boundary_pos then -- Just a "["
             return tokens.OSQUARE, pos
         else -- Malformed long string, for instance "[="
@@ -256,11 +314,7 @@ local function lex_token(context, str, pos)
         if sub(str, comment_pos, comment_pos) == "[" then
             local ok, boundary_pos = lex_long_str_boundary(str, comment_pos + 1, "[")
             if ok then
-                local end_pos = lex_long_str(context, str, boundary_pos + 1, boundary_pos - comment_pos)
-                if end_pos then return tokens.COMMENT, end_pos end
-
-                context.report(errors.unfinished_long_comment, pos, boundary_pos, boundary_pos - comment_pos)
-                return tokens.ERROR, #str
+                return lex_long_comment(context, str, boundary_pos + 1, pos, boundary_pos - comment_pos)
             end
         end
 
@@ -357,8 +411,8 @@ local function lex_one(context, str, pos)
         elseif c == "\r" or c == "\n" then
             pos = newline(context, str, start_pos, c)
         else
-            local token_id, end_pos, content = lex_token(context, str, start_pos)
-            return token_id, start_pos, end_pos, content
+            local token_id, end_pos, content, continue = lex_token(context, str, start_pos)
+            return token_id, start_pos, end_pos, content, continue
         end
     end
 end

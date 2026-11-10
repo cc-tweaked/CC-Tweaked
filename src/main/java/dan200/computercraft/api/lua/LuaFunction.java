@@ -42,15 +42,6 @@ public @interface LuaFunction {
     String[] value() default {};
 
     /**
-     * Run this function on the main server thread. This should be specified for any method which interacts with
-     * Minecraft in a thread-unsafe manner.
-     *
-     * @return Whether this function should be run on the main thread.
-     * @see ILuaContext#issueMainThreadTask(LuaTask)
-     */
-    boolean mainThread() default false;
-
-    /**
      * Allow using "unsafe" arguments, such {@link IArguments#getTableUnsafe(int)}.
      * <p>
      * This is incompatible with {@link #mainThread()}.

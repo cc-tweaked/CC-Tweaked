@@ -72,18 +72,20 @@ function parseImage(image)
     return tImage
 end
 
---- Loads an image from a file.
---
--- You can create a file suitable for being loaded using the `paint` program.
---
--- @tparam string path The file to load.
---
--- @treturn table|nil The parsed image data, suitable for use with
--- [`paintutils.drawImage`], or `nil` if the file does not exist.
--- @usage Load an image and draw it.
---
---     local image = paintutils.loadImage("data/example.nfp")
---     paintutils.drawImage(image, term.getCursorPos())
+--[[- Loads an image from a file.
+
+You can create a file suitable for being loaded using the `paint` program.
+
+@tparam string path The file to load.
+
+@treturn table|nil The parsed image data, suitable for use with
+[`paintutils.drawImage`], or `nil` if the file does not exist.
+
+@usage Load an image and draw it.
+
+    local image = paintutils.loadImage("data/example.nfp")
+    paintutils.drawImage(image, term.getCursorPos())
+]]
 function loadImage(path)
     expect(1, path, "string")
 
@@ -96,15 +98,17 @@ function loadImage(path)
     return nil
 end
 
---- Draws a single pixel to the current term at the specified position.
---
--- Be warned, this may change the position of the cursor and the current
--- background colour. You should not expect either to be preserved.
---
--- @tparam number xPos The x position to draw at, where 1 is the far left.
--- @tparam number yPos The y position to draw at, where 1 is the very top.
--- @tparam[opt] number colour The [color][`colors`] of this pixel. This will be
--- the current background colour if not specified.
+--[[- Draws a single pixel to the current term at the specified position.
+
+> [!WARNING]
+> This function may change the position of the cursor and the current
+> background colour. You should not expect either to be preserved.
+
+@tparam number xPos The x position to draw at, where 1 is the far left.
+@tparam number yPos The y position to draw at, where 1 is the very top.
+@tparam[opt] number colour The [color][`colors`] of this pixel. This will be
+the current background colour if not specified.
+]]
 function drawPixel(xPos, yPos, colour)
     expect(1, xPos, "number")
     expect(2, yPos, "number")
@@ -116,18 +120,21 @@ function drawPixel(xPos, yPos, colour)
     return drawPixelInternal(xPos, yPos)
 end
 
---- Draws a straight line from the start to end position.
---
--- Be warned, this may change the position of the cursor and the current
--- background colour. You should not expect either to be preserved.
---
--- @tparam number startX The starting x position of the line.
--- @tparam number startY The starting y position of the line.
--- @tparam number endX The end x position of the line.
--- @tparam number endY The end y position of the line.
--- @tparam[opt] number colour The [color][`colors`] of this pixel. This will be
--- the current background colour if not specified.
--- @usage paintutils.drawLine(2, 3, 30, 7, colors.red)
+--[[- Draws a straight line from the start to end position.
+
+> [!WARNING]
+> This function may change the position of the cursor and the current
+> background colour. You should not expect either to be preserved.
+
+@tparam number startX The starting x position of the line.
+@tparam number startY The starting y position of the line.
+@tparam number endX The end x position of the line.
+@tparam number endY The end y position of the line.
+@tparam[opt] number colour The [color][`colors`] of this pixel. This will be
+the current background colour if not specified.
+
+@usage paintutils.drawLine(2, 3, 30, 7, colors.red)
+]]
 function drawLine(startX, startY, endX, endY, colour)
     expect(1, startX, "number")
     expect(2, startY, "number")
@@ -189,19 +196,22 @@ function drawLine(startX, startY, endX, endY, colour)
     end
 end
 
---- Draws the outline of a box on the current term from the specified start
--- position to the specified end position.
---
--- Be warned, this may change the position of the cursor and the current
--- background colour. You should not expect either to be preserved.
---
--- @tparam number startX The starting x position of the line.
--- @tparam number startY The starting y position of the line.
--- @tparam number endX The end x position of the line.
--- @tparam number endY The end y position of the line.
--- @tparam[opt] number colour The [color][`colors`] of this pixel. This will be
--- the current background colour if not specified.
--- @usage paintutils.drawBox(2, 3, 30, 7, colors.red)
+--[[- Draws the outline of a box on the current term from the specified start
+position to the specified end position.
+
+> [!WARNING]
+> This function may change the position of the cursor and the current
+> background colour. You should not expect either to be preserved.
+
+@tparam number startX The starting x position of the line.
+@tparam number startY The starting y position of the line.
+@tparam number endX The end x position of the line.
+@tparam number endY The end y position of the line.
+@tparam[opt] number colour The [color][`colors`] of this pixel. This will be
+the current background colour if not specified.
+
+@usage paintutils.drawBox(2, 3, 30, 7, colors.red)
+]]
 function drawBox(startX, startY, endX, endY, nColour)
     expect(1, startX, "number")
     expect(2, startY, "number")
@@ -242,19 +252,22 @@ function drawBox(startX, startY, endX, endY, nColour)
     end
 end
 
---- Draws a filled box on the current term from the specified start position to
--- the specified end position.
---
--- Be warned, this may change the position of the cursor and the current
--- background colour. You should not expect either to be preserved.
---
--- @tparam number startX The starting x position of the line.
--- @tparam number startY The starting y position of the line.
--- @tparam number endX The end x position of the line.
--- @tparam number endY The end y position of the line.
--- @tparam[opt] number colour The [color][`colors`] of this pixel. This will be
--- the current background colour if not specified.
--- @usage paintutils.drawFilledBox(2, 3, 30, 7, colors.red)
+--[[- Draws a filled box on the current term from the specified start position to
+the specified end position.
+
+> [!WARNING]
+> This function may change the position of the cursor and the current
+> background colour. You should not expect either to be preserved.
+
+@tparam number startX The starting x position of the line.
+@tparam number startY The starting y position of the line.
+@tparam number endX The end x position of the line.
+@tparam number endY The end y position of the line.
+@tparam[opt] number colour The [color][`colors`] of this pixel. This will be
+the current background colour if not specified.
+
+@usage paintutils.drawFilledBox(2, 3, 30, 7, colors.red)
+]]
 function drawFilledBox(startX, startY, endX, endY, nColour)
     expect(1, startX, "number")
     expect(2, startY, "number")
@@ -288,11 +301,21 @@ function drawFilledBox(startX, startY, endX, endY, nColour)
     end
 end
 
---- Draw an image loaded by [`paintutils.parseImage`] or [`paintutils.loadImage`].
---
--- @tparam table image The parsed image data.
--- @tparam number xPos The x position to start drawing at.
--- @tparam number yPos The y position to start drawing at.
+--[[- Draw an image loaded by [`paintutils.parseImage`] or [`paintutils.loadImage`].
+
+> [!WARNING]
+> This function may change the position of the cursor and the current
+> background colour. You should not expect either to be preserved.
+
+@tparam table image The parsed image data.
+@tparam number xPos The x position to start drawing at.
+@tparam number yPos The y position to start drawing at.
+
+@usage Load an image and draw it.
+
+    local image = paintutils.loadImage("data/example.nfp")
+    paintutils.drawImage(image, term.getCursorPos())
+]]
 function drawImage(image, xPos, yPos)
     expect(1, image, "table")
     expect(2, xPos, "number")

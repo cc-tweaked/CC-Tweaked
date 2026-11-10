@@ -6,6 +6,7 @@ package cc.tweaked;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.relauncher.FMLRelaunchLog;
+import dan200.computercraft.core.apis.http.NettyHttp;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -19,7 +20,10 @@ import java.util.logging.Logger;
     dependencies = "required-after:ComputerCraft"
 )
 public class CCTweaked {
+    @Deprecated
     public static final Logger LOG = Logger.getLogger("CC: Tweaked");
+
+    public static final NettyHttp HTTP = new NettyHttp();
 
     static {
         LOG.setParent(FMLRelaunchLog.log.getLogger());

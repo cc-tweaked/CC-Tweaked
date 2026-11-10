@@ -7,9 +7,11 @@ package dan200.computercraft.core.apis.http.request;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.apis.HTTPAPI;
-import dan200.computercraft.core.apis.handles.ArrayByteChannel;
+import dan200.computercraft.core.apis.handles.AbstractHandle;
 import dan200.computercraft.core.apis.handles.ReadHandle;
+import dan200.computercraft.core.methods.ObjectSource;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,13 +21,14 @@ import java.util.Map;
  * @cc.module http.Response
  * @see HTTPAPI#request(IArguments)  On how to make a http request.
  */
-public class HttpResponseHandle extends ReadHandle {
+public class HttpResponseHandle implements ObjectSource {
+    private final Object reader;
     private final int responseCode;
     private final String responseStatus;
     private final Map<String, String> responseHeaders;
 
-    public HttpResponseHandle(byte[] buffer, boolean isBinary, int responseCode, String responseStatus, Map<String, String> responseHeaders) {
-        super(new ArrayByteChannel(buffer), isBinary);
+    public HttpResponseHandle(AbstractHandle reader, int responseCode, String responseStatus, Map<String, String> responseHeaders) {
+        this.reader = reader;
         this.responseCode = responseCode;
         this.responseStatus = responseStatus;
         this.responseHeaders = responseHeaders;
@@ -41,7 +44,7 @@ public class HttpResponseHandle extends ReadHandle {
      */
     @LuaFunction
     public final Object[] getResponseCode() {
-        return new Object[]{responseCode, responseStatus};
+        return new Object[]{ responseCode, responseStatus };
     }
 
     /**
@@ -65,5 +68,10 @@ public class HttpResponseHandle extends ReadHandle {
     @LuaFunction
     public final Map<String, String> getResponseHeaders() {
         return responseHeaders;
+    }
+
+    @Override
+    public Iterable<Object> getExtra() {
+        return List.of(reader);
     }
 }
