@@ -23,6 +23,15 @@ illuaminate {
     version = libs.versions.illuaminate
 }
 
+repositories {
+    exclusiveContent {
+        forRepositories(maven("https://teavm.org/maven/repository"))
+        filter {
+            includeGroup("org.teavm")
+        }
+    }
+}
+
 dependencies {
     compileOnly(libs.autoService)
     annotationProcessor(libs.autoService)

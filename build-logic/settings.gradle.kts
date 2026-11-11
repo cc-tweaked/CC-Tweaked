@@ -31,6 +31,13 @@ dependencyResolutionManagement {
                 includeGroup("cc.tweaked.vanilla-extract")
             }
         }
+
+        exclusiveContent {
+            forRepositories(maven("https://teavm.org/maven/repository"))
+            filter {
+                includeGroup("org.teavm")
+            }
+        }
     }
 }
 

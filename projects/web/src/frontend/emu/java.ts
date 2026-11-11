@@ -9,6 +9,7 @@ export type { ComputerDisplay, ComputerHandle, PeripheralKind, Side } from "cct/
 import { load as teaVMLoad } from "cct/wasm-gc-runtime.js";
 import { exceptions, gc } from "wasm-feature-detect";
 import wasmClasses from "cct/classes.wasm";
+import deobfus from "./deobfuscator.wasm";
 
 const loadClasses = async (): Promise<{ main: (args: string[]) => void }> => {
     if (
@@ -17,7 +18,12 @@ const loadClasses = async (): Promise<{ main: (args: string[]) => void }> => {
     ) {
         try {
             console.log("Loading WASM runtime");
-            return (await teaVMLoad(wasmClasses)).exports;
+            return (await teaVMLoad(wasmClasses, {
+                stackDeobfuscator: {
+                    enabled: true,
+                    path: deobfus,
+                },
+            })).exports;
         } catch (e) {
             console.error("Failed to load WebAssembly runtime", e);
         }

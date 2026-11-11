@@ -74,7 +74,9 @@ public abstract class CompileTeaVMAction implements WorkAction<CompileTeaVMActio
         tool.setStrict(true);
         tool.setJsModuleType(JSModuleType.ES2015);
         tool.setOptimizationLevel(TeaVMOptimizationLevel.ADVANCED);
+        tool.setAssertionsRemoved(true);
         tool.setObfuscated(getParameters().getMinify().get());
+        tool.setDebugInformationGenerated(!getParameters().getMinify().get());
 
         try {
             tool.generate();
