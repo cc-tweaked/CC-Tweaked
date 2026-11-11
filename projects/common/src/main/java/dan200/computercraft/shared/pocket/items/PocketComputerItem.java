@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.pocket.items;
 
+import dan200.computercraft.annotations.FabricOverride;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
@@ -227,6 +228,20 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         }
 
         return ComputerCraftAPI.MOD_ID;
+    }
+
+    @ForgeOverride
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged
+            || oldStack.getItem() != newStack.getItem()
+            || oldStack.getCount() != newStack.getCount()
+            || getComputerID(oldStack) != getComputerID(newStack);
+
+    }
+
+    @FabricOverride
+    public boolean allowNbtUpdateAnimation(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newStack) {
+        return shouldCauseReequipAnimation(oldStack, newStack, false);
     }
 
     /**
