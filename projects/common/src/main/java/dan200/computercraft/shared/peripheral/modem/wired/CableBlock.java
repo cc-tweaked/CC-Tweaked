@@ -96,7 +96,6 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
 
     @ForgeOverride
     public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
-        playerWillDestroy(world, pos, state, player);
         if (onCustomDestroyBlock(state, world, pos, player)) {
             return false;
         }
