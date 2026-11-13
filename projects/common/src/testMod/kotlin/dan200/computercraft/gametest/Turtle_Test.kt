@@ -33,6 +33,7 @@ import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.item.BlockItem
@@ -896,6 +897,49 @@ class Turtle_Test {
                     ItemStack(ModRegistry.Items.SPEAKER.get(), 63),
                     ItemStack(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get()),
                 ),
+            )
+        }
+    }
+
+    /**
+     * Test opening a modem updates the upgrade's data.
+     */
+    @GameTest
+    fun Modem_upgrade_data(helper: GameTestHelper) = helper.sequence {
+        val modem = TurtleUpgrades.instance().get("computercraft:wireless_modem_normal")!!
+        val modemItem = ItemStack(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get())
+
+        thenExecuteAfter(1) {
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            val access = turtle.access
+
+            // Check the modem starts off.
+            assertEquals(
+                UpgradeData.of(modem, modemItem, CompoundTag().also { it.putBoolean("active", false) }),
+                access.getUpgradeWithData(TurtleSide.LEFT),
+            )
+        }
+
+        thenOnComputer {
+            getApi<PeripheralAPI>().call(context, ObjectArguments("left", "open", 1))
+        }
+
+        thenExecuteAfter(1) {
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            val access = turtle.access
+
+            // Check the upgrade's data now contains "on".
+            assertEquals(
+                UpgradeData.of(modem, modemItem, CompoundTag().also { it.putBoolean("active", true) }),
+                access.getUpgradeWithData(TurtleSide.LEFT),
+            )
+
+            // If we were to break the turtle, no data is preserved for modems.
+            val item = turtle.blockState.block.getCloneItemStack(turtle.level!!, turtle.blockPos, turtle.blockState)
+            val itemUpgrade = ModRegistry.Items.TURTLE_NORMAL.get().getUpgradeWithData(item, TurtleSide.LEFT)
+            assertEquals(
+                UpgradeData.of(modem, modemItem, CompoundTag()),
+                itemUpgrade,
             )
         }
     }
