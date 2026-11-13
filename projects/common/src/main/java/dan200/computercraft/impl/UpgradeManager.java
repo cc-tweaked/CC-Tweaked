@@ -83,7 +83,7 @@ public final class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T ex
         for (var wrapper : current.values()) {
             var upgrade = wrapper.upgrade;
             if (upgrade.getCraftingIngredient().test(stack) && upgrade.isItemSuitable(stack)) {
-                return UpgradeData.of(wrapper.upgrade, stack, wrapper.upgrade.getUpgradeData(stack));
+                return UpgradeData.of(wrapper.upgrade, stack.copyWithCount(1), wrapper.upgrade.getUpgradeData(stack));
             }
         }
 

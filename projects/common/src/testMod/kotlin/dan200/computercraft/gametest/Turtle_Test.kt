@@ -877,6 +877,30 @@ class Turtle_Test {
     }
 
     /**
+     * `turtle.equipLeft` equips a stack with multiple items
+     *
+     * @see [#2533](https://github.com/cc-tweaked/CC-Tweaked/issues/2533)
+     */
+    @GameTest
+    fun Equip_upgrade_stack(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            turtle.equipLeft().await().assertArrayEquals(true)
+        }
+        thenExecute {
+            val turtlePos = BlockPos(2, 2, 2)
+            val turtle = helper.getBlockEntity(turtlePos, ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            assertEquals(TurtleUpgrades.instance().get("computercraft:speaker"), turtle.getUpgrade(TurtleSide.LEFT))
+            helper.assertContainerExactly(
+                turtlePos,
+                listOf(
+                    ItemStack(ModRegistry.Items.SPEAKER.get(), 63),
+                    ItemStack(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get()),
+                ),
+            )
+        }
+    }
+
+    /**
      * Assert we can push and pull items from a shulker box.
      */
     @GameTest
