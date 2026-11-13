@@ -5,9 +5,8 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileTree
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.problems.Problem
-import org.gradle.api.problems.ProblemGroup
-import org.gradle.api.problems.ProblemId
 import org.gradle.api.problems.Problems
 import org.gradle.api.tasks.*
 import java.io.File
@@ -39,7 +38,7 @@ abstract class AbstractEnsurePackageInfo : DefaultTask() {
         forEachFileInPackage(sources.asFileTree) { file, packageName, packageInfo ->
             val existing = existingPackages[packageName]
             if (existing != null) {
-                reporter.report(MULTIPLE_DIRS) {
+                reporter.report(problems.groups.compilation.java.problemId("Multiple definitions of package")) {
                     contextualLabel("Package '$packageName' is defined in multiple source sets")
                     fileLocation(file.path)
                     fileLocation(existing.path)
@@ -77,28 +76,25 @@ abstract class AbstractEnsurePackageInfo : DefaultTask() {
             import org.jspecify.annotations.NullMarked;
         """.trimIndent() + "\n"
     }
-
-    companion object {
-        private val GROUP = ProblemGroup.create("cc.tweaked.ensure-package-infos", "Ensure package-info.java")
-
-        @JvmStatic
-        protected val NO_PACKAGE_INFO = ProblemId.create("no-package-info", "Missing package-info.java", GROUP)
-
-        @JvmStatic
-        protected val MULTIPLE_DIRS =
-            ProblemId.create("multiple-dirs", "Package is defined in multiple source sets", GROUP)
-    }
 }
 
 /**
  * Ensure all packages in a source set have a `package-info.java` file.
  */
 abstract class EnsurePackageInfo : AbstractEnsurePackageInfo() {
+    /** A marker file we write to ensure build caching works. */
+    @get:OutputFile
+    abstract val markerOutput: RegularFileProperty
+
+    init {
+        markerOutput.convention(project.layout.buildDirectory.file("${name}.txt"))
+    }
+
     @TaskAction
     fun run() {
         val reporter = problems.reporter
         val packages = gatherPackages()
-        val problems = mutableListOf<Problem>()
+        val problemList = mutableListOf<Problem>()
         for ((packageName, packageInfos) in packages) {
             if (packageInfos.any { it.exists() }) continue
 
@@ -109,13 +105,15 @@ abstract class EnsurePackageInfo : AbstractEnsurePackageInfo() {
                     "'$packageInfo'"
                 }
             }
-            val problem = reporter.create(NO_PACKAGE_INFO) {
+            val problem = reporter.create(problems.groups.compilation.java.problemId("Missing package-info.java")) {
                 contextualLabel("Package '$packageName' is missing a package-info.java file at $location")
             }
-            problems.add(problem)
+            problemList.add(problem)
         }
 
-        if (problems.isNotEmpty()) throw reporter.throwing(GradleException("Missing package-infos"), problems)
+        if (problemList.isNotEmpty()) throw reporter.throwing(GradleException("Missing package-infos"), problemList)
+
+        markerOutput.get().asFile.createNewFile()
     }
 }
 

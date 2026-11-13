@@ -688,7 +688,10 @@ if multishell then
     --     local id = shell.openTab("lua")
     --     shell.switchTab(id)
     function shell.openTab(...)
-        local tWords = tokenise(...)
+        local args = table.pack(...)
+        for i = 1, args.n do expect(i, args[i], "string", "number") end
+
+        local tWords = tokenise(table.concat(args, " ", 1, args.n))
         local sCommand = tWords[1]
         if sCommand then
             local sPath = shell.resolveProgram(sCommand)

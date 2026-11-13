@@ -28,6 +28,7 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorBlock
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
 import dan200.computercraft.shared.turtle.apis.TurtleAPI
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity
+import dan200.computercraft.shared.turtle.core.TurtleAccessInternal
 import dan200.computercraft.shared.turtle.core.TurtleBrain
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand
 import dan200.computercraft.shared.turtle.items.TurtleItem
@@ -49,6 +50,7 @@ import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.ItemContainerContents
 import net.minecraft.world.item.enchantment.Enchantments
@@ -955,9 +957,88 @@ class Turtle_Test {
     }
 
     /**
+     * `turtle.equipLeft` equips a stack with multiple items
+     *
+     * @see [#2533](https://github.com/cc-tweaked/CC-Tweaked/issues/2533)
+     */
+    @GameTest
+    fun Equip_upgrade_stack(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            turtle.equipLeft().await().assertArrayEquals(true)
+        }
+        thenExecute {
+            val turtlePos = BlockPos(2, 1, 2)
+            val turtle = helper.getBlockEntity(turtlePos, TurtleBlockEntity::class.java)
+            val access = turtle.access as TurtleAccessInternal
+
+            assertEquals(
+                helper.level.registryAccess().getOrThrow(SPEAKER),
+                access.getUpgradeWithData(TurtleSide.LEFT)?.upgradeHolder,
+            )
+            helper.assertContainerExactly(
+                turtlePos,
+                listOf(
+                    ItemStack(ModRegistry.Items.SPEAKER.get(), 63),
+                    ItemStack(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get()),
+                ),
+            )
+        }
+    }
+
+    /**
+     * Test opening a modem updates the upgrade's data.
+     */
+    @GameTest
+    fun Modem_upgrade_data(helper: GameTestHelper) = helper.sequence {
+        val modem = helper.level.registryAccess().getOrThrow(MODEM)
+        val modemItem = ItemStackTemplate(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get())
+
+        thenExecuteAfter(1) {
+            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java)
+            val access = turtle.access as TurtleAccessInternal
+
+            // Check the modem starts off.
+            assertEquals(
+                UpgradeData.of(
+                    modem,
+                    modemItem,
+                    DataComponentPatch.builder().set(ModRegistry.DataComponents.ON.get(), false).build(),
+                ),
+                access.getUpgradeWithData(TurtleSide.LEFT),
+            )
+        }
+
+        thenOnComputer {
+            getApi<PeripheralAPI>().call(context, ObjectArguments("left", "open", 1))
+        }
+
+        thenExecuteAfter(1) {
+            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java)
+            val access = turtle.access as TurtleAccessInternal
+
+            // Check the upgrade's data now contains "on".
+            assertEquals(
+                UpgradeData.of(
+                    modem,
+                    modemItem,
+                    DataComponentPatch.builder().set(ModRegistry.DataComponents.ON.get(), true).build(),
+                ),
+                access.getUpgradeWithData(TurtleSide.LEFT),
+            )
+
+            // If we were to break the turtle, no data is preserved for modems.
+            val item = turtle.blockState.getCloneItemStack(turtle.level!!, turtle.blockPos, false)
+            val itemUpgrade = TurtleItem.getUpgradeWithData(item, TurtleSide.LEFT)
+            assertEquals(
+                UpgradeData.of(modem, modemItem, DataComponentPatch.EMPTY),
+                itemUpgrade,
+            )
+        }
+    }
+
+    /**
      * Assert we can push and pull items from a shulker box.
      */
-    @GameTest(required = false) // FIXME: This is broken on Fabric due to getCapacity() returning 1.
     fun Shulker_push_pull(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
             callPeripheral("left", "pullItems").assertArrayEquals(32)
@@ -1104,6 +1185,8 @@ class Turtle_Test {
             ResourceKey.create(ITurtleUpgrade.REGISTRY, key)
 
         private val WOODEN_PICKAXE = id(Identifier.fromNamespaceAndPath("cctest", "wooden_pickaxe"))
+        private val SPEAKER = id(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "speaker"))
+        private val MODEM = id(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wireless_modem_normal"))
     }
 }
 

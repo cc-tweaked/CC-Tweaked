@@ -164,6 +164,19 @@ public class PocketComputerItem extends Item {
         return getCreatorModId(stack);
     }
 
+    @ForgeOverride
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged
+            || oldStack.getItem() != newStack.getItem()
+            || oldStack.getCount() != newStack.getCount()
+            || oldStack.get(ModRegistry.DataComponents.COMPUTER_ID.get()) != newStack.get(ModRegistry.DataComponents.COMPUTER_ID.get());
+    }
+
+    @FabricOverride
+    public boolean allowComponentsUpdateAnimation(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newStack) {
+        return shouldCauseReequipAnimation(oldStack, newStack, false);
+    }
+
     /**
      * Get (or create) the pocket brain and turn it on, ready for the player to interact with.
      *

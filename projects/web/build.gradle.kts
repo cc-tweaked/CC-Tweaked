@@ -2,12 +2,15 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
+import cc.tweaked.gradle.CCTweakedJavaVersions
+import cc.tweaked.gradle.ExternalProjectArtifacts
 import cc.tweaked.gradle.getAbsolutePath
 
 plugins {
     id("cc-tweaked.java-convention")
     id("cc-tweaked.node")
     id("cc-tweaked.illuaminate")
+    id("cc-tweaked.teavm")
 }
 
 val rootProjectDir = rootProject.isolated.projectDirectory
@@ -20,51 +23,61 @@ illuaminate {
     version = libs.versions.illuaminate
 }
 
-sourceSets.register("builder")
-
 dependencies {
+    compileOnly(libs.autoService)
+    annotationProcessor(libs.autoService)
+
     implementation(project(":core"))
-    implementation(libs.bundles.teavm.api)
-    implementation(libs.asm)
+    implementation(libs.bundles.teavm.impl)
     implementation(libs.guava)
     implementation(libs.netty.http)
     implementation(libs.slf4j)
-    runtimeOnly(libs.teavm.core) // Contains the TeaVM runtime
+    runtimeOnly(libs.bundles.teavm.runtime)
 
-    "builderCompileOnly"(libs.bundles.annotations)
-    "builderImplementation"(libs.bundles.teavm.tooling)
-    "builderImplementation"(libs.asm)
-    "builderImplementation"(libs.asm.commons)
+    teavm(libs.teavm.tooling)
 }
 
-val compileTeaVM = tasks.register<JavaExec>("compileTeaVM") {
+// Force us to use Java 25 for the main classes, so we can use the Classfile API.
+tasks.compileJava { options.release = CCTweakedJavaVersions.JDK_VERSION.asInt() }
+
+val bundleResources = tasks.register<cc.tweaked.gradle.JsArchive>("bundleResources") {
+    prefix = "data/computercraft/lua/"
+    input.from(configurations.runtimeClasspath.map(ExternalProjectArtifacts::resources))
+    output = layout.buildDirectory.file("teaVM/resources.js")
+}
+
+val compileTeaVMJs = tasks.register<cc.tweaked.gradle.CompileTeaVM>("compileTeaVMJs") {
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass = "cc.tweaked.web.Main"
+    minify = !project.hasProperty("noMinify")
+    output = layout.buildDirectory.file("teaVM/classes.js")
+}
+
+val compileTeaVMWasm = tasks.register<cc.tweaked.gradle.CompileTeaVM>("compileTeaVMWasm") {
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass = "cc.tweaked.web.Main"
+    minify = !project.hasProperty("noMinify")
+    output = layout.buildDirectory.file("teaVM/classes.wasm")
+}
+
+val extractWasmModule = tasks.register<Copy>("extractWasmModule") {
     group = LifecycleBasePlugin.BUILD_GROUP
-    description = "Generate our classes and resources files"
+    description = "Extract our WASM runtime from the TeaVM jar"
 
-    val output = layout.buildDirectory.dir("teaVM")
-    val minify = !project.hasProperty("noMinify")
-
-    val modVersion = project.version as String
-    inputs.property("version", modVersion)
-    inputs.property("minify", minify)
-    inputs.files(sourceSets.main.get().runtimeClasspath).withPropertyName("inputClasspath")
-    outputs.dir(output).withPropertyName("output")
-
-    classpath = sourceSets["builder"].runtimeClasspath
-    jvmArguments.addAll(
-        provider {
-            val main = sourceSets.main.get()
-            listOf(
-                "-Dcct.input=${main.output.classesDirs.asPath}",
-                "-Dcct.version=$modVersion",
-                "-Dcct.classpath=${main.runtimeClasspath.asPath}",
-                "-Dcct.output=${output.getAbsolutePath()}",
-                "-Dcct.minify=$minify",
-            )
+    from(
+        configurations.teavmResolvable.map { files ->
+            files.map {
+                (if (it.isFile) zipTree(it) else fileTree(it))
+                    // We filter the tree now, then extract map to individual files, to ensure the Copy task writes the
+                    // files to the root, not to the org/teavm/... folder.
+                    .matching { include("org/teavm/backend/wasm/wasm-gc-module-runtime.js") }
+                    .elements
+            }
         },
     )
-    mainClass = "cc.tweaked.web.builder.Builder"
-    javaLauncher = project.javaToolchains.launcherFor { languageVersion = java.toolchain.languageVersion }
+
+    rename { "wasm-gc-runtime.js" }
+    into(layout.buildDirectory.dir("teaVM"))
 }
 
 val rollup = tasks.register<cc.tweaked.gradle.NpxExecToDir>("rollup") {
@@ -76,7 +89,7 @@ val rollup = tasks.register<cc.tweaked.gradle.NpxExecToDir>("rollup") {
 
     // Sources
     inputs.files(fileTree("src/frontend")).withPropertyName("sources")
-    inputs.files(compileTeaVM)
+    inputs.files(bundleResources, compileTeaVMJs, compileTeaVMWasm, extractWasmModule)
     // Config files
     inputs.file("tsconfig.json").withPropertyName("Typescript config")
     inputs.file("rollup.config.js").withPropertyName("Rollup config")

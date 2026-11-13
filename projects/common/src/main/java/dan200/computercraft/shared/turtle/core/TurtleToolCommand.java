@@ -30,8 +30,6 @@ public class TurtleToolCommand implements TurtleCommand {
         for (var side : TurtleSide.values()) {
             if (this.side != null && this.side != side) continue;
 
-            LOG.info("[{}] Dig {} => {}", this, side, turtle.isRemoved());
-
             var upgrade = turtle.getUpgrade(side);
             if (upgrade == null || !upgrade.getUpgrade().getUpgradeType().isTool()) continue;
 

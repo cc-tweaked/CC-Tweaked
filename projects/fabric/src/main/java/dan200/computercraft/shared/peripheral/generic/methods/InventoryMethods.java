@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import com.google.common.annotations.VisibleForTesting;
+import dan200.computercraft.api.peripheral.FabricPeripheralTargets;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.platform.FabricItemContainer;
 import dan200.computercraft.shared.platform.ItemContainer;
@@ -88,17 +89,8 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
 
     @Override
     protected @Nullable ItemContainer getContainer(IPeripheral peripheral) {
-        var object = peripheral.getTarget();
-        var direction = peripheral instanceof dan200.computercraft.shared.peripheral.generic.GenericPeripheral sided ? sided.side() : null;
-
-        if (object instanceof BlockEntity blockEntity) {
-            if (blockEntity.isRemoved()) return null;
-
-            var found = extractContainerImpl(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
-            if (found != null) return new FabricItemContainer(found);
-        }
-
-        return null;
+        var container = FabricPeripheralTargets.getSidedLookup(peripheral, ItemStorage.SIDED);
+        return container == null ? null : new FabricItemContainer(container);
     }
 
     public static @Nullable StorageWrapper extractContainer(Level level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {

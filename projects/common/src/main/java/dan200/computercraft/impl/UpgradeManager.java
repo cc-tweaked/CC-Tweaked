@@ -137,7 +137,7 @@ public final class UpgradeManager<T extends UpgradeBase> {
                 return upgrade.getCraftingIngredient().test(stack) && upgrade.isItemSuitable(stack);
             })
             .findAny()
-            .map(upgrade -> UpgradeData.of(upgrade, ItemStackTemplate.fromNonEmptyStack(stack), DataComponentPatch.EMPTY))
+            .map(upgrade -> UpgradeData.of(upgrade, ItemStackTemplate.fromNonEmptyStack(stack, 1), DataComponentPatch.EMPTY))
             .orElse(null);
     }
 

@@ -7,6 +7,7 @@ package dan200.computercraft.api.peripheral;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.LuaTask;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
@@ -91,12 +92,20 @@ public interface IPeripheral {
     }
 
     /**
-     * Get the object that this peripheral provides methods for. This will generally be the block entity
-     * or block, but may be an inventory, entity, etc...
+     * Get the object that this peripheral provides methods for, such as a block or entity.
+     * <p>
+     * Peripherals for blocks or block entities should subclass
+     * {@link dan200.computercraft.api.peripheral.block.BlockPeripheral}, returning the more specialised
+     * {@link dan200.computercraft.api.peripheral.block.BlockPeripheralTarget} instead.
+     * <p>
+     * Consumers should <strong>NOT</strong> call this method directly. Call
+     * {@link dan200.computercraft.api.peripheral.block.PeripheralTargets#getBlockTarget(IPeripheral)} instead, as
+     * that normalises possible return values from this method.
      *
      * @return The object this peripheral targets
      */
     @Nullable
+    @ApiStatus.OverrideOnly
     default Object getTarget() {
         return null;
     }

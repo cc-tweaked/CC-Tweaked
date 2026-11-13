@@ -37,3 +37,4 @@ dependencyResolutionManagement {
 rootProject.name = "build-logic"
 
 include("base")
+include("teavm")

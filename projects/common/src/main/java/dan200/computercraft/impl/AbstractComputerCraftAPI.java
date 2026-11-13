@@ -16,6 +16,9 @@ import dan200.computercraft.api.media.PrintoutContents;
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.block.BlockPeripheral;
+import dan200.computercraft.api.peripheral.block.BlockPeripheralTarget;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -31,6 +34,7 @@ import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.EntityDetails;
 import dan200.computercraft.shared.details.ItemDetails;
+import dan200.computercraft.shared.peripheral.generic.GenericPeripheral;
 import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -41,6 +45,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
@@ -162,5 +167,17 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     @Override
     public @Nullable PrintoutContents getPrintoutContents(ItemStack stack) {
         return stack.get(ModRegistry.DataComponents.PRINTOUT.get());
+    }
+
+    @Override
+    public @Nullable BlockPeripheralTarget getPeripheralTarget(IPeripheral peripheral) {
+        if (peripheral instanceof BlockPeripheral p) return p.getTarget();
+        if (peripheral instanceof GenericPeripheral p) return p.getBlockTarget();
+
+        var target = peripheral.getTarget();
+        if (target == null) return null;
+        if (target instanceof BlockPeripheralTarget t) return t;
+        if (target instanceof BlockEntity t) return BlockPeripheralTarget.of(t, null);
+        return null;
     }
 }

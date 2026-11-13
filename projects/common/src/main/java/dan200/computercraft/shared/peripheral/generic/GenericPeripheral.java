@@ -11,6 +11,7 @@ import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.block.BlockPeripheralTarget;
 import dan200.computercraft.core.computer.GuardedLuaContext;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,8 +21,8 @@ import java.util.List;
 import java.util.Set;
 
 public final class GenericPeripheral implements IDynamicPeripheral {
-    private final BlockEntity tile;
-    private final Direction side;
+    private final BlockEntity blockEntity;
+    private final BlockPeripheralTarget target;
 
     private final String type;
     private final Set<String> additionalTypes;
@@ -30,17 +31,13 @@ public final class GenericPeripheral implements IDynamicPeripheral {
     private @Nullable GuardedLuaContext contextWrapper;
     private final GuardedLuaContext.Guard guard;
 
-    GenericPeripheral(BlockEntity tile, Direction side, String type, Set<String> additionalTypes, List<SaturatedMethod> methods) {
-        this.side = side;
-        this.tile = tile;
+    GenericPeripheral(BlockEntity blockEntity, Direction side, String type, Set<String> additionalTypes, List<SaturatedMethod> methods) {
+        this.blockEntity = blockEntity;
+        this.target = BlockPeripheralTarget.of(blockEntity, side);
         this.type = type;
         this.additionalTypes = additionalTypes;
         this.methods = methods;
-        this.guard = () -> !tile.isRemoved() && tile.getLevel() != null && tile.getLevel().isLoaded(tile.getBlockPos());
-    }
-
-    public Direction side() {
-        return side;
+        this.guard = () -> !blockEntity.isRemoved() && blockEntity.getLevel() != null && blockEntity.getLevel().isLoaded(blockEntity.getBlockPos());
     }
 
     @Override
@@ -72,7 +69,11 @@ public final class GenericPeripheral implements IDynamicPeripheral {
 
     @Override
     public Object getTarget() {
-        return tile;
+        return blockEntity;
+    }
+
+    public BlockPeripheralTarget getBlockTarget() {
+        return target;
     }
 
     @Override
@@ -80,6 +81,6 @@ public final class GenericPeripheral implements IDynamicPeripheral {
         if (other == this) return true;
         if (!(other instanceof GenericPeripheral generic)) return false;
 
-        return tile == generic.tile && methods.equals(generic.methods);
+        return blockEntity == generic.blockEntity && methods.equals(generic.methods);
     }
 }
