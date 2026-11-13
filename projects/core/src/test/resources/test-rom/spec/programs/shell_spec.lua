@@ -212,6 +212,27 @@ describe("The shell", function()
         end)
     end)
 
+    describe("shell.openTab", function()
+        it("validates arguments", function()
+            expect.error(shell.openTab, true):eq("bad argument #1 (string or number expected, got boolean)")
+        end)
+
+        it("tokenises the arguments", function()
+            shell.openTab("/test-rom/data/dump-args", "arg1", "arg 2", 3)
+
+            local args = _G.__arg
+            _G.__arg = nil
+
+            expect(args):same {
+                [0] = "/test-rom/data/dump-args",
+                "arg1",
+                "arg",
+                "2",
+                "3",
+            }
+        end)
+    end)
+
     describe("shell.switchTab", function()
         it("validates arguments", function()
             expect.error(shell.switchTab, nil):eq("bad argument #1 (number expected, got nil)")

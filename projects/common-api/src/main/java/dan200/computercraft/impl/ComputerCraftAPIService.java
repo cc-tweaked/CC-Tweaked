@@ -17,6 +17,8 @@ import dan200.computercraft.api.media.PrintoutContents;
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.block.BlockPeripheralTarget;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -87,8 +89,9 @@ public interface ComputerCraftAPIService {
 
     DetailRegistry<Entity> getEntityDetailRegistry();
 
-    @Nullable
-    PrintoutContents getPrintoutContents(ItemStack stack);
+    @Nullable PrintoutContents getPrintoutContents(ItemStack stack);
+
+    @Nullable BlockPeripheralTarget getPeripheralTarget(IPeripheral peripheral);
 
     final class Instance {
         static final @Nullable ComputerCraftAPIService INSTANCE;

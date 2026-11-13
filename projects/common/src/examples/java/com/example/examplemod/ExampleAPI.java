@@ -7,6 +7,8 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An example API that will be available on every turtle. This demonstrates both registering an API, and how to write
@@ -22,6 +24,8 @@ import org.jspecify.annotations.Nullable;
  * }</pre>
  */
 public class ExampleAPI implements ILuaAPI {
+    private static final Logger LOG = LoggerFactory.getLogger(ExampleAPI.class);
+
     private final ITurtleAccess turtle;
 
     public ExampleAPI(ITurtleAccess turtle) {
@@ -69,7 +73,7 @@ public class ExampleAPI implements ILuaAPI {
     @LuaFunction
     public final void writeString(Coerced<String> myString) {
         String contents = myString.value();
-        System.out.println("Got " + contents);
+        LOG.info("Got {}", contents);
     }
     // @end region=coerced
 }

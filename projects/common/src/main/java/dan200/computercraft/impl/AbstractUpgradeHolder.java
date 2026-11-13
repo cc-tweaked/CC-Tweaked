@@ -77,6 +77,7 @@ public abstract class AbstractUpgradeHolder<U extends UpgradeBase> {
 
     public final void setData(DataComponentPatch data) {
         this.data = data;
+        this.upgradeData = null;
     }
 
     public final @Unmodifiable ItemStack getItem() {

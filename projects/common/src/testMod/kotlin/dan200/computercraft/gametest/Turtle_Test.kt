@@ -953,6 +953,83 @@ class Turtle_Test {
     }
 
     /**
+     * `turtle.equipLeft` equips a stack with multiple items
+     *
+     * @see [#2533](https://github.com/cc-tweaked/CC-Tweaked/issues/2533)
+     */
+    @GameTest
+    fun Equip_upgrade_stack(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            turtle.equipLeft().await().assertArrayEquals(true)
+        }
+        thenExecute {
+            val turtlePos = BlockPos(2, 2, 2)
+            val turtle = helper.getBlockEntity(turtlePos, ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            assertEquals(helper.level.registryAccess().getOrThrow(SPEAKER).value(), turtle.getUpgrade(TurtleSide.LEFT))
+            helper.assertContainerExactly(
+                turtlePos,
+                listOf(
+                    ItemStack(ModRegistry.Items.SPEAKER.get(), 63),
+                    ItemStack(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get()),
+                ),
+            )
+        }
+    }
+
+    /**
+     * Test opening a modem updates the upgrade's data.
+     */
+    @GameTest
+    fun Modem_upgrade_data(helper: GameTestHelper) = helper.sequence {
+        val modem = helper.level.registryAccess().getOrThrow(MODEM)
+        val modemItem = ItemStack(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get())
+
+        thenExecuteAfter(1) {
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            val access = turtle.access
+
+            // Check the modem starts off.
+            assertEquals(
+                UpgradeData.of(
+                    modem,
+                    modemItem,
+                    DataComponentPatch.builder().set(ModRegistry.DataComponents.ON.get(), false)
+                        .build(),
+                ),
+                access.getUpgradeWithData(TurtleSide.LEFT),
+            )
+        }
+
+        thenOnComputer {
+            getApi<PeripheralAPI>().call(context, ObjectArguments("left", "open", 1))
+        }
+
+        thenExecuteAfter(1) {
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            val access = turtle.access
+
+            // Check the upgrade's data now contains "on".
+            assertEquals(
+                UpgradeData.of(
+                    modem,
+                    modemItem,
+                    DataComponentPatch.builder().set(ModRegistry.DataComponents.ON.get(), true)
+                        .build(),
+                ),
+                access.getUpgradeWithData(TurtleSide.LEFT),
+            )
+
+            // If we were to break the turtle, no data is preserved for modems.
+            val item = turtle.blockState.block.getCloneItemStack(turtle.level!!, turtle.blockPos, turtle.blockState)
+            val itemUpgrade = TurtleItem.getUpgradeWithData(item, TurtleSide.LEFT)
+            assertEquals(
+                UpgradeData.of(modem, modemItem, DataComponentPatch.EMPTY),
+                itemUpgrade,
+            )
+        }
+    }
+
+    /**
      * Assert we can push and pull items from a shulker box.
      */
     fun Shulker_push_pull(helper: GameTestHelper) = helper.sequence {
@@ -1101,6 +1178,8 @@ class Turtle_Test {
             ResourceKey.create(ITurtleUpgrade.REGISTRY, key)
 
         private val WOODEN_PICKAXE = id(ResourceLocation.fromNamespaceAndPath("cctest", "wooden_pickaxe"))
+        private val SPEAKER = id(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "speaker"))
+        private val MODEM = id(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wireless_modem_normal"))
     }
 }
 

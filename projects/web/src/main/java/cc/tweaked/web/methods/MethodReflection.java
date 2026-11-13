@@ -14,6 +14,8 @@ import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.NamedMethod;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.teavm.extension.introspect.IntrospectClass;
 import org.teavm.metaprogramming.CompileTime;
 import org.teavm.metaprogramming.Meta;
@@ -36,6 +38,8 @@ import java.util.function.Consumer;
  */
 @CompileTime
 class MethodReflection {
+    private static final Logger LOG = LoggerFactory.getLogger(MethodReflection.class);
+
     @Meta
     public static native boolean getMethods(Class<?> type, Consumer<NamedMethod<LuaMethod>> make);
 
@@ -110,7 +114,7 @@ class MethodReflection {
                 if (annotation == null) continue;
 
                 if (Modifier.isStatic(method.getModifiers())) {
-                    System.err.printf("LuaFunction method %s.%s should be an instance method.\n", method.getDeclaringClass(), method.getName());
+                    LOG.warn("LuaFunction method {}.{} should be an instance method.\n", method.getDeclaringClass(), method.getName());
                     continue;
                 }
 

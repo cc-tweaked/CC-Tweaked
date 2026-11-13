@@ -108,7 +108,7 @@ public final class UpgradeManager<T extends UpgradeBase> {
                 return upgrade.getCraftingIngredient().test(stack) && upgrade.isItemSuitable(stack);
             })
             .findAny()
-            .map(x -> UpgradeData.of(x, stack, x.value().getUpgradeData(stack)))
+            .map(x -> UpgradeData.of(x, stack.copyWithCount(1), x.value().getUpgradeData(stack)))
             .orElse(null);
     }
 }

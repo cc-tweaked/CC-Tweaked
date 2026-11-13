@@ -149,7 +149,7 @@ public class ComputerTestDelegate {
             }
         } finally {
             // Show a dump of computer output
-            System.out.println(dump());
+            LOG.info("Computer finished:\n{}", dump());
 
             // And shutdown
             computer.shutdown();

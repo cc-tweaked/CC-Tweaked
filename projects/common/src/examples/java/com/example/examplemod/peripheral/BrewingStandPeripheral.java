@@ -2,18 +2,20 @@ package com.example.examplemod.peripheral;
 
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.block.BlockPeripheral;
+import dan200.computercraft.api.peripheral.block.BlockPeripheralTarget;
 import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import org.jspecify.annotations.Nullable;
 
 /**
  * A peripheral that adds a {@code getFuel()} method to brewing stands. This demonstrates the usage of
- * {@link IPeripheral}.
+ * {@link BlockPeripheral}.
  *
  * @see dan200.computercraft.api.peripheral
  * @see FurnacePeripheral Using {@code GenericPeripheral}.
  */
 // @start region=body
-public class BrewingStandPeripheral implements IPeripheral {
+public class BrewingStandPeripheral implements BlockPeripheral {
     private final BrewingStandBlockEntity brewingStand;
 
     public BrewingStandPeripheral(BrewingStandBlockEntity brewingStand) {
@@ -34,6 +36,11 @@ public class BrewingStandPeripheral implements IPeripheral {
     @Override
     public boolean equals(@Nullable IPeripheral other) {
         return other instanceof BrewingStandPeripheral o && brewingStand == o.brewingStand;
+    }
+
+    @Override
+    public BlockPeripheralTarget getTarget() {
+        return BlockPeripheralTarget.of(brewingStand, null);
     }
 }
 // @end region=body
