@@ -94,7 +94,7 @@ public class MoreStreamCodecs {
             @Override
             public ByteBuffer decode(ByteBuf buf) {
                 var toRead = VarInt.read(buf);
-                if (toRead > buf.readableBytes() || toRead >= limit) {
+                if (toRead > buf.readableBytes() || toRead > limit) {
                     throw new DecoderException("ByteArray with size " + toRead + " is bigger than allowed");
                 }
 
