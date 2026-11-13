@@ -4,6 +4,7 @@
 
 package dan200.computercraft.impl.network.wired;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.PacketReceiver;
 import dan200.computercraft.api.network.wired.WiredElement;
@@ -22,9 +23,13 @@ public final class WiredNodeImpl implements WiredNode {
     private @Nullable Set<PacketReceiver> receivers;
 
     final WiredElement element;
+
+    @GuardedBy("network.lock")
     Map<String, IPeripheral> peripherals = Map.of();
 
+    @GuardedBy("network.lock")
     final HashSet<WiredNodeImpl> neighbours = new HashSet<>();
+
     volatile WiredNetworkImpl network;
 
     /**

@@ -12,6 +12,8 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -21,6 +23,16 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class NetworkTest {
+    @BeforeEach
+    public void before() {
+        WiredNetworkImpl.noLevelAvailable = true;
+    }
+
+    @AfterEach
+    public void after() {
+        WiredNetworkImpl.noLevelAvailable = false;
+    }
+
     @Test
     public void testConnect() {
         NetworkElement
@@ -293,10 +305,12 @@ public class NetworkTest {
         }
     }
 
+    @SuppressWarnings("GuardedBy")
     private static Set<WiredNodeImpl> nodes(WiredNetwork network) {
         return ((WiredNetworkImpl) network).nodes;
     }
 
+    @SuppressWarnings("GuardedBy")
     private static Set<WiredNodeImpl> neighbours(WiredNode node) {
         return ((WiredNodeImpl) node).neighbours;
     }

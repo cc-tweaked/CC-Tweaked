@@ -4,19 +4,46 @@
 
 package dan200.computercraft.impl.network.wired;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.wired.WiredNetwork;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.util.Nullability;
-import dan200.computercraft.core.util.ThreadUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 final class WiredNetworkImpl implements WiredNetwork {
-    final ReadWriteLock lock = ThreadUtils.newReentrantReadWriteLock("WiredNetworkImpl.lock");
+    private static final Logger LOG = LoggerFactory.getLogger(WiredNetworkImpl.class);
+
+    /// Whether we're within our JUnit tests and thus don't have a Minecraft level available.
+    // FIXME: This is a horrible hack, we should find a better way.
+    static boolean noLevelAvailable = false;
+
+    /// Our lock for access to the network. This guards access to our [#nodes] and [#peripherals], as well as properties
+    /// of the nodes themselves (e.g. [WiredNodeImpl#neighbours]).
+    ///
+    /// The invariants around locking are a little complicated.
+    ///  - Write locks are *only* acquired on the main thread.
+    ///  - Read locks are never nested. Read-only operations only work over one network at once.
+    ///
+    ///    This is not *strictly* enforced: read locks are only taken when transmissing packets, but technically a
+    ///    WiredElement implementation could re-transmit the message on another network.
+    ///
+    /// These two properties ensure that we can acquire multiple write locks in any order (e.g. when connecting two
+    /// networks together) without the risk of deadlock. This usage is unfortunately not compatible with the
+    /// cycle-detecting lock, hence we disable its usage here.
+    @SuppressWarnings("ForbiddenAPI")
+    final ReadWriteLock lock = new ReentrantReadWriteLock();
+
+    @GuardedBy("lock")
     Set<WiredNodeImpl> nodes;
+
+    @GuardedBy("lock")
     private Map<String, IPeripheral> peripherals = new HashMap<>();
 
     WiredNetworkImpl(WiredNodeImpl node) {
@@ -437,10 +464,25 @@ final class WiredNetworkImpl implements WiredNetwork {
     }
 
     private static WiredNodeImpl checkNode(WiredNode node) {
-        if (node instanceof WiredNodeImpl n) {
-            return n;
-        } else {
+        if (!(node instanceof WiredNodeImpl nodeImpl)) {
             throw new IllegalArgumentException("Unknown implementation of IWiredNode: " + node);
+        }
+
+        if (!noLevelAvailable) checkNetworkUsage(nodeImpl);
+
+        return nodeImpl;
+    }
+
+    private static void checkNetworkUsage(WiredNodeImpl node) {
+        // Perform some additional sanity checks on our nodes.
+        // TODO: Make these fatal on future versions.
+        var level = node.getElement().getLevel();
+        if (level == null) {
+            LOG.warn("Mutating network on an element without a level", new IllegalStateException());
+        } else if (level.isClientSide || level.getServer() == null) {
+            LOG.warn("Mutating network on the client", new IllegalStateException());
+        } else if (!level.getServer().isSameThread()) {
+            throw new IllegalStateException("Network modifications should happen on the main thread");
         }
     }
 }
