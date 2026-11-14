@@ -16,7 +16,7 @@ CC: Tweaked is a mod for Minecraft which adds programmable computers, turtles an
 much-beloved [ComputerCraft], it continues its legacy with improved performance and stability, along with a wealth of
 new features.
 
-CC: Tweaked can be installed from [Modrinth]. It runs on both [Minecraft Forge] and [Fabric].
+CC: Tweaked can be installed from [Modrinth]. It runs on both [Minecraft Forge], [Fabric] and [NeoForge].
 
 ## Features
 Controlled using the [Lua programming language][lua], CC: Tweaked's computers provides all the tools you need to start
@@ -66,6 +66,7 @@ CC: Tweaked lives on [GitHub]. If you've got any ideas, feedback or bugs please 
 [forge]: https://files.minecraftforge.net/ "Download Minecraft Forge."
 [Minecraft Forge]: https://files.minecraftforge.net/ "Download Minecraft Forge."
 [Fabric]: https://fabricmc.net/use/installer/ "Download Fabric."
+[NeoForge]: https://neoforged.net/ "Download NeoForge."
 [lua]: https://www.lua.org/ "Lua's main website"
 [GitHub Discussions]: https://github.com/cc-tweaked/CC-Tweaked/discussions
 [EsperNet]: https://www.esper.net/
