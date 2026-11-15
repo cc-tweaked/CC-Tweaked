@@ -10,19 +10,26 @@ import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
 import dan200.computercraft.api.upgrades.UpgradeBase;
+import dan200.computercraft.client.gui.AbstractComputerScreen;
+import dan200.computercraft.client.gui.NoTermComputerScreen;
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.arguments.ComputerSelector;
 import dan200.computercraft.shared.computer.metrics.basic.Aggregate;
 import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
+import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.config.ConfigSpec;
+import dan200.computercraft.shared.peripheral.modem.wired.CableBlockEntity;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -124,8 +131,8 @@ public final class LanguageProvider implements DataProvider {
 
         add(TurtleStorage.DATA_PACK_TRANSLATION, "Turtle storage upgrades");
 
-        add("chat.computercraft.wired_modem.peripheral_connected", "Peripheral \"%s\" connected to network");
-        add("chat.computercraft.wired_modem.peripheral_disconnected", "Peripheral \"%s\" disconnected from network");
+        add(CableBlockEntity.PERIPHERAL_CONNECTED, "Peripheral \"%s\" connected to network");
+        add(CableBlockEntity.PERIPHERAL_DISCONNECTED, "Peripheral \"%s\" disconnected from network");
 
         // Commands
         add("commands.computercraft.synopsis", "Various commands for controlling computers.");
@@ -206,21 +213,21 @@ public final class LanguageProvider implements DataProvider {
         add("gui.computercraft.terminal", "Computer terminal");
         add("gui.computercraft.tooltip.computer_id", "Computer ID: %s");
         add("gui.computercraft.tooltip.disk_id", "Disk ID: %s");
-        add("gui.computercraft.tooltip.turn_on", "Turn this computer on");
-        add("gui.computercraft.tooltip.turn_off", "Turn this computer off");
-        add("gui.computercraft.tooltip.turn_off.key", "Hold Ctrl+S");
-        add("gui.computercraft.tooltip.terminate", "Stop the currently running code");
-        add("gui.computercraft.tooltip.terminate.key", "Hold Ctrl+T");
-        add("gui.computercraft.upload.failed", "Upload Failed");
-        add("gui.computercraft.upload.failed.computer_off", "You must turn the computer on before uploading files.");
-        add("gui.computercraft.upload.failed.too_much", "Your files are too large to be uploaded.");
-        add("gui.computercraft.upload.failed.name_too_long", "File names are too long to be uploaded.");
-        add("gui.computercraft.upload.failed.too_many_files", "Cannot upload this many files.");
-        add("gui.computercraft.upload.failed.generic", "Uploading files failed (%s)");
-        add("gui.computercraft.upload.failed.corrupted", "Files corrupted when uploading. Please try again.");
-        add("gui.computercraft.upload.no_response", "Transferring Files");
-        add("gui.computercraft.upload.no_response.msg", "Your computer has not used your transferred files. You may need to run the %s program and try again.");
-        add("gui.computercraft.pocket_computer_overlay", "Pocket computer open. Press ESC to close.");
+        add(ComputerSidebar.TURN_ON, "Turn this computer on");
+        add(ComputerSidebar.SHUT_DOWN_MSG, "Turn this computer off");
+        add(ComputerSidebar.SHUT_DOWN_KEY, "Hold Ctrl+S");
+        add(ComputerSidebar.TERMINATE_MSG, "Stop the currently running code");
+        add(ComputerSidebar.TERMINATE_KEY, "Hold Ctrl+T");
+        add(UploadResult.FAILED_TITLE, "Upload Failed");
+        add(UploadResult.COMPUTER_OFF_MSG, "You must turn the computer on before uploading files.");
+        add(UploadResult.TOO_MUCH_MSG, "Your files are too large to be uploaded.");
+        add(AbstractComputerScreen.NAME_TOO_LONG, "File names are too long to be uploaded.");
+        add(AbstractComputerScreen.TOO_MANY_FILES, "Cannot upload this many files.");
+        add(AbstractComputerScreen.CANNOT_COMPUTE_CHECKSUM, "Uploading files failed (%s)");
+        add(AbstractComputerScreen.UPLOAD_CORRUPTED, "Files corrupted when uploading. Please try again.");
+        add(AbstractComputerScreen.NO_RESPONSE_TITLE, "Transferring Files");
+        add(AbstractComputerScreen.NO_RESPONSE_MSG, "Your computer has not used your transferred files. You may need to run the %s program and try again.");
+        add(NoTermComputerScreen.HELP, "Pocket computer open. Press ESC to close.");
 
         // Config options
         addConfigEntry(ConfigSpec.computerSpaceLimit, "Computer space limit (bytes)");
@@ -308,6 +315,18 @@ public final class LanguageProvider implements DataProvider {
 
         if (translations.containsKey(id)) throw new IllegalArgumentException("Duplicate translation " + id);
         translations.put(id, text);
+    }
+
+    private void add(Component component, String text) {
+        Objects.requireNonNull(component, "component cannot be null");
+        Objects.requireNonNull(text, "text cannot be null");
+
+        if (!component.getSiblings().isEmpty()) throw new IllegalArgumentException("Component cannot have siblings");
+        if (!(component.getContents() instanceof TranslatableContents translatable)) {
+            throw new IllegalArgumentException("Component must be translatable");
+        }
+
+        add(translatable.getKey(), text);
     }
 
     private void add(Item item, String text) {

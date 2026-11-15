@@ -28,6 +28,8 @@ import static dan200.computercraft.core.util.Nullability.assertNonNull;
  * @param <T> The concrete type of the associated menu.
  */
 public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen implements MenuAccess<T> {
+    public static final Component HELP = Component.translatable("gui.computercraft.pocket_computer_overlay");
+
     private final T menu;
     protected final UserComputerInput computerInput;
     protected final ClientComputerActions computerActions;
@@ -99,7 +101,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
         super.render(graphics, mouseX, mouseY, partialTicks);
 
         var font = minecraft().font;
-        var lines = font.split(Component.translatable("gui.computercraft.pocket_computer_overlay"), (int) (width * 0.8));
+        var lines = font.split(HELP, (int) (width * 0.8));
         var y = 10;
         for (var line : lines) {
             graphics.drawString(font, line, (width / 2) - (font.width(line) / 2), y, 0xFFFFFF, true);

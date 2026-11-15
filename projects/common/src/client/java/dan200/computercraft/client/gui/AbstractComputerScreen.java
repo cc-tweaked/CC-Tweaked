@@ -51,8 +51,14 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     private static final Logger LOG = LoggerFactory.getLogger(AbstractComputerScreen.class);
 
     private static final Component OK = Component.translatable("gui.ok");
-    private static final Component NO_RESPONSE_TITLE = Component.translatable("gui.computercraft.upload.no_response");
-    private static final Component NO_RESPONSE_MSG = Component.translatable("gui.computercraft.upload.no_response.msg",
+
+    public static final Component NAME_TOO_LONG = Component.translatable("gui.computercraft.upload.failed.name_too_long");
+    public static final Component UPLOAD_CORRUPTED = Component.translatable("gui.computercraft.upload.failed.corrupted");
+    public static final Component CANNOT_COMPUTE_CHECKSUM = Component.translatable("gui.computercraft.upload.failed.generic", "Cannot compute checksum");
+    public static final Component TOO_MANY_FILES = Component.translatable("gui.computercraft.upload.failed.too_many_files");
+
+    public static final Component NO_RESPONSE_TITLE = Component.translatable("gui.computercraft.upload.no_response");
+    public static final Component NO_RESPONSE_MSG = Component.translatable("gui.computercraft.upload.no_response.msg",
         Component.literal("import").withStyle(ChatFormatting.DARK_GRAY));
 
     protected @Nullable TerminalWidget terminal;
@@ -186,7 +192,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
                 var fileName = file.getFileName();
                 var name = fileName == null ? "unknown" : fileName.toString();
                 if (name.length() > UploadFileMessage.MAX_FILE_NAME) {
-                    alert(UploadResult.FAILED_TITLE, Component.translatable("gui.computercraft.upload.failed.name_too_long"));
+                    alert(UploadResult.FAILED_TITLE, NAME_TOO_LONG);
                     return;
                 }
 
@@ -196,19 +202,19 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
 
                 var digest = FileUpload.getDigest(buffer);
                 if (digest == null) {
-                    alert(UploadResult.FAILED_TITLE, Component.translatable("gui.computercraft.upload.failed.corrupted"));
+                    alert(UploadResult.FAILED_TITLE, UPLOAD_CORRUPTED);
                     return;
                 }
 
                 toUpload.add(new FileUpload(name, buffer, digest));
             } catch (IOException e) {
                 LOG.error("Failed uploading files", e);
-                alert(UploadResult.FAILED_TITLE, Component.translatable("gui.computercraft.upload.failed.generic", "Cannot compute checksum"));
+                alert(UploadResult.FAILED_TITLE, CANNOT_COMPUTE_CHECKSUM);
             }
         }
 
         if (toUpload.size() > UploadFileMessage.MAX_FILES) {
-            alert(UploadResult.FAILED_TITLE, Component.translatable("gui.computercraft.upload.failed.too_many_files"));
+            alert(UploadResult.FAILED_TITLE, TOO_MANY_FILES);
             return;
         }
 
