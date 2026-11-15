@@ -51,7 +51,6 @@ public final class PocketBrain implements IPocketAccess {
         this.position = holder.pos();
         this.upgrade = upgrade == null ? null : new UpgradeHolder(upgrade);
         this.colour = colour;
-        invalidatePeripheral();
     }
 
     /**

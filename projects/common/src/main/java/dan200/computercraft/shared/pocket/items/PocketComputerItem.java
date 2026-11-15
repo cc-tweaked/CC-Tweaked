@@ -279,6 +279,10 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         tag.putInt(NBT_SESSION, registry.getSessionID());
         tag.putUUID(NBT_INSTANCE, computer.register());
 
+        // Create peripherals and mark the computer as on *after* writing our instance ID to the stack. This ensures the
+        // holder is actually valid.
+        assert holder.isValid(computer);
+        brain.invalidatePeripheral();
         if (isMarkedOn(stack)) computer.turnOn();
 
         updateItem(stack, brain);

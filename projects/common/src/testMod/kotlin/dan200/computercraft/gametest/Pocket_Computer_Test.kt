@@ -4,22 +4,53 @@
 
 package dan200.computercraft.gametest
 
+import com.mojang.authlib.GameProfile
+import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.api.lua.Coerced
+import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.client.pocket.ClientPocketComputers
 import dan200.computercraft.core.apis.TermAPI
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.impl.PocketUpgrades
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.computer.core.ComputerState
+import dan200.computercraft.shared.platform.PlatformHelper
 import dan200.computercraft.shared.pocket.items.PocketComputerItem
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
+import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.InteractionHand
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.assertNotNull
+import java.util.*
 import kotlin.random.Random
 
 class Pocket_Computer_Test {
+    /**
+     * Asserts that ticking a pocket computer in the inventory turns it on.
+     */
+    @GameTest(template = Structures.DEFAULT)
+    fun Turns_on_in_inventory(context: GameTestHelper) = context.immediate {
+        val player = PlatformHelper.get().createFakePlayer(context.level, GAME_PROFILE)
+
+        val stack = ModRegistry.Items.POCKET_COMPUTER_NORMAL.get().create(
+            -1,
+            null,
+            -1,
+            UpgradeData.ofDefault(PocketUpgrades.instance().get(MODEM)!!),
+        )
+        stack.orCreateTag.putBoolean(PocketComputerItem.NBT_ON, true)
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack)
+
+        player.inventory.tick()
+
+        assertNotNull(PocketComputerItem.getInstanceID(stack))
+    }
+
     /**
      * Checks pocket computer state is synced to the holding player.
      */
@@ -100,5 +131,13 @@ class Pocket_Computer_Test {
         val item = ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().create(1, label, -1, null)
         item.getOrCreateTag().putBoolean(PocketComputerItem.NBT_ON, true)
         player.inventory.setItem(0, item)
+    }
+
+    companion object {
+        private val MODEM = ResourceLocation(ComputerCraftAPI.MOD_ID, "wireless_modem_normal").toString()
+
+        /** Fake game profile. This is the same as the one in [dan200.computercraft.shared.turtle.core.TurtlePlayer] */
+        private val GAME_PROFILE =
+            GameProfile(UUID.fromString("0d0c4ca0-4ff1-11e4-916c-0800200c9a66"), "[ComputerCraft]")
     }
 }
