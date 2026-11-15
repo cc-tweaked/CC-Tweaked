@@ -204,7 +204,6 @@ public final class LanguageProvider implements DataProvider {
 
         // Additional UI elements
         add("gui.computercraft.terminal", "Computer terminal");
-        add("gui.computercraft.tooltip.copy", "Copy to clipboard");
         add("gui.computercraft.tooltip.computer_id", "Computer ID: %s");
         add("gui.computercraft.tooltip.disk_id", "Disk ID: %s");
         add("gui.computercraft.tooltip.turn_on", "Turn this computer on");

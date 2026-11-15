@@ -176,7 +176,6 @@
     "gui.computercraft.pocket_computer_overlay": "Computadora de bolsillo abierta. Pulsa ESC para cerrar.",
     "gui.computercraft.terminal": "Terminal de la Computadora",
     "gui.computercraft.tooltip.computer_id": "ID de la Computadora: %s",
-    "gui.computercraft.tooltip.copy": "Copiar al portapapeles",
     "gui.computercraft.tooltip.disk_id": "ID del disquete: %s",
     "gui.computercraft.tooltip.terminate": "Detener el código en ejecución",
     "gui.computercraft.tooltip.terminate.key": "Mantenga Ctrl+T",

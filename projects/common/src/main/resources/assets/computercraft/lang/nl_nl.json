@@ -68,7 +68,6 @@
     "commands.computercraft.view.synopsis": "De terminal van een computer weergeven.",
     "gui.computercraft.pocket_computer_overlay": "Zakcomputer open. Druk op ESC om te sluiten.",
     "gui.computercraft.tooltip.computer_id": "Computer ID: %s",
-    "gui.computercraft.tooltip.copy": "Kopiëren naar klembord",
     "gui.computercraft.tooltip.disk_id": "Diskette ID: %s",
     "gui.computercraft.tooltip.terminate": "Stop het huidige programma",
     "gui.computercraft.tooltip.turn_off": "Zet deze computer uit",

@@ -81,7 +81,6 @@
     "gui.computercraft.pocket_computer_overlay": "Lommedatamaskin åpen. Trykk ESC for å lukke.",
     "gui.computercraft.terminal": "Datamaskin terminal",
     "gui.computercraft.tooltip.computer_id": "Datamaskin ID: %s",
-    "gui.computercraft.tooltip.copy": "Kopier til utklippstavle",
     "gui.computercraft.tooltip.terminate": "Stopp den kjørende koden",
     "gui.computercraft.tooltip.terminate.key": "Hold Ctrl + T",
     "gui.computercraft.tooltip.turn_off": "Skru denne datamaskinen av",

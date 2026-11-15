@@ -179,7 +179,6 @@
     "gui.computercraft.pocket_computer_overlay": "Cep bilgisayarı açık. Kapatmak için ESC tuşuna basın.",
     "gui.computercraft.terminal": "Bilgisayar terminali",
     "gui.computercraft.tooltip.computer_id": "Bilgisayar Kimliği: %s",
-    "gui.computercraft.tooltip.copy": "Panoya kopyala",
     "gui.computercraft.tooltip.disk_id": "Disk Kimliği: %s",
     "gui.computercraft.tooltip.terminate": "Çalışmakta olan kodu durdur",
     "gui.computercraft.tooltip.terminate.key": "Ctrl+T tuşlarını basılı tut",

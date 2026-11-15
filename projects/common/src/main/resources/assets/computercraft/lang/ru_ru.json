@@ -139,7 +139,6 @@
     "gui.computercraft.pocket_computer_overlay": "Карманный компьютер открыт. Чтобы закрыть, нажми ESC.",
     "gui.computercraft.terminal": "Компьютерный терминал",
     "gui.computercraft.tooltip.computer_id": "Идентификатор компьютера: %s",
-    "gui.computercraft.tooltip.copy": "Скопировано в Буфер обмена",
     "gui.computercraft.tooltip.disk_id": "Идентификатор диска: %s",
     "gui.computercraft.tooltip.terminate": "Прекратить текущий запущенный код",
     "gui.computercraft.tooltip.terminate.key": "Удерживай Ctrl+T",

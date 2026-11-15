@@ -178,7 +178,6 @@
     "gui.computercraft.pocket_computer_overlay": "Zseb számítógép megnyitva. Nyomd meg az ESC-t a bezáráshoz.",
     "gui.computercraft.terminal": "Számítógép terminál",
     "gui.computercraft.tooltip.computer_id": "Számítógép ID: %s",
-    "gui.computercraft.tooltip.copy": "Másolás vágólapra",
     "gui.computercraft.tooltip.disk_id": "Lemez ID: %s",
     "gui.computercraft.tooltip.terminate": "A futó kód leállítása",
     "gui.computercraft.tooltip.terminate.key": "Tartsd lenyomva a Ctrl+T billentyűket",

@@ -151,7 +151,6 @@
     "gui.computercraft.config.turtle.normal_fuel_limit": "Treibstofflimit von Turtles",
     "gui.computercraft.terminal": "Computerterminal",
     "gui.computercraft.tooltip.computer_id": "Computer ID: %s",
-    "gui.computercraft.tooltip.copy": "In die Zwischenablage kopieren",
     "gui.computercraft.tooltip.disk_id": "Disketten ID: %s",
     "gui.computercraft.tooltip.terminate.key": "Strg+T halten",
     "gui.computercraft.tooltip.turn_off": "Computer ausschalten",

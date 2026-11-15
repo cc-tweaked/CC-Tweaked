@@ -178,7 +178,6 @@
     "gui.computercraft.pocket_computer_overlay": "Ordinateur de poche ouvert. Appuyez sur ESC pour le fermer.",
     "gui.computercraft.terminal": "Terminal d'ordinateur",
     "gui.computercraft.tooltip.computer_id": "ID d'ordinateur : %s",
-    "gui.computercraft.tooltip.copy": "Copier dans le Presse-Papiers",
     "gui.computercraft.tooltip.disk_id": "ID de disque : %s",
     "gui.computercraft.tooltip.terminate": "Arrêter le programme en cours d'éxecution",
     "gui.computercraft.tooltip.terminate.key": "Tenir Ctrl+T",

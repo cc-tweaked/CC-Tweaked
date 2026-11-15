@@ -117,7 +117,6 @@
     "gui.computercraft.pocket_computer_overlay": "Fickdator öppen. Tryck ESC för att stänga.",
     "gui.computercraft.terminal": "Datorterminal",
     "gui.computercraft.tooltip.computer_id": "Dator-ID: %s",
-    "gui.computercraft.tooltip.copy": "Kopiera till urklipp",
     "gui.computercraft.tooltip.disk_id": "Diskett-ID: %s",
     "gui.computercraft.tooltip.terminate": "Stoppa aktuellt körande kod",
     "gui.computercraft.tooltip.terminate.key": "Håll ned Ctrl+T",
