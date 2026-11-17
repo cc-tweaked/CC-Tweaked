@@ -329,7 +329,8 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
      * Update the internals of the executor.
      */
     void tick() {
-        // We keep track of the number of ticks since the last start, only
+        // We keep track of the number of ticks since the last start, only starting the computer once the cooldown has
+        // elapsed.
         if (ticksSinceStart >= 0 && ticksSinceStart < START_DELAY) {
             ticksSinceStart++;
         } else if (startRequested) {
