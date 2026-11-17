@@ -7,6 +7,7 @@ package dan200.computercraft.gametest
 import com.mojang.authlib.GameProfile
 import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.api.lua.Coerced
+import dan200.computercraft.api.pocket.IPocketUpgrade
 import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.client.pocket.ClientPocketComputers
 import dan200.computercraft.core.apis.TermAPI
@@ -15,7 +16,9 @@ import dan200.computercraft.impl.PocketUpgrades
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.computer.core.ComputerState
+import dan200.computercraft.shared.computer.core.ServerContext
 import dan200.computercraft.shared.platform.PlatformHelper
+import dan200.computercraft.shared.pocket.core.PocketServerComputer
 import dan200.computercraft.shared.pocket.items.PocketComputerItem
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
@@ -24,6 +27,7 @@ import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.item.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.assertNotNull
 import java.util.*
@@ -34,21 +38,58 @@ class Pocket_Computer_Test {
      * Asserts that ticking a pocket computer in the inventory turns it on.
      */
     @GameTest(template = Structures.DEFAULT)
-    fun Turns_on_in_inventory(context: GameTestHelper) = context.immediate {
+    fun Turns_on_in_inventory(context: GameTestHelper) = context.sequence {
         val player = PlatformHelper.get().createFakePlayer(context.level, GAME_PROFILE)
 
-        val stack = ModRegistry.Items.POCKET_COMPUTER_NORMAL.get().create(
-            -1,
-            null,
-            -1,
-            UpgradeData.ofDefault(PocketUpgrades.instance().get(MODEM)!!),
-        )
-        stack.orCreateTag.putBoolean(PocketComputerItem.NBT_ON, true)
-        player.setItemInHand(InteractionHand.MAIN_HAND, stack)
+        thenExecute {
+            // Create our item and give it to the player
+            val stack = context.createPocketComputer(
+                upgrade = UpgradeData.ofDefault(PocketUpgrades.instance().get(MODEM)!!),
+            )
+            stack.orCreateTag.putBoolean(PocketComputerItem.NBT_ON, true)
+            player.setItemInHand(InteractionHand.MAIN_HAND, stack)
+        }
+        thenWaitUntil {
+            // Now we update the inventory, and wait for the computer to turn on.
+            player.inventory.tick()
 
+            val stack = player.getItemInHand(InteractionHand.MAIN_HAND)
+
+            val instanceId = PocketComputerItem.getInstanceID(stack)
+            assertNotNull(instanceId, "Pocket computer should have an instance")
+
+            val computer = ServerContext.get(context.level.server).registry().get(instanceId)
+            assertNotNull(computer, "Pocket computer should have a computer")
+            context.assertTrue(computer.isOn, "Pocket computer should be on")
+        }
+    }
+
+    /**
+     * Tests crafting to apply an upgrade.
+     */
+    @GameTest(template = Structures.DEFAULT)
+    fun Craft_apply_upgrade(context: GameTestHelper) = context.immediate {
+        val player = PlatformHelper.get().createFakePlayer(context.level, GAME_PROFILE)
+
+        // Set up our stack and ensure the computer is created
+        val stack = context.createPocketComputer()
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack)
         player.inventory.tick()
 
-        assertNotNull(PocketComputerItem.getInstanceID(stack))
+        val instanceId = PocketComputerItem.getInstanceID(stack)
+        assertNotNull(instanceId)
+        val computer = ServerContext.get(context.level.server).registry().get(instanceId) as PocketServerComputer
+
+        // Remove the stack from the player's inventory and "craft" it with a new upgrade.
+        val upgradedStack = stack.copy()
+        val upgradeData = UpgradeData.ofDefault(PocketUpgrades.instance().get(MODEM)!!)
+        PocketComputerItem.setUpgrade(upgradedStack, upgradeData)
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY)
+
+        upgradedStack.onCraftedBy(context.level, player, 1)
+
+        assertEquals(instanceId, PocketComputerItem.getInstanceID(stack), "Instance ID should not change")
+        assertEquals(upgradeData, computer.brain.upgrade, "Upgrade should be updated")
     }
 
     /**
@@ -118,6 +159,13 @@ class Pocket_Computer_Test {
         thenScreenshot(showGui = true)
     }
 
+    /** Create a pocket computer, suitable to be controlled by [GameTestSequence.thenOnComputer]. */
+    private fun GameTestHelper.createPocketComputer(name: String? = null, upgrade: UpgradeData<IPocketUpgrade>? = null): ItemStack {
+        val testName = (this as GameTestHelperAccessor).testInfo.testName
+        val label = testName + (if (name == null) "" else ".$name")
+        return ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().create(1, label, -1, null)
+    }
+
     /**
      * Give the current player a pocket computer, suitable to be controlled by [GameTestSequence.thenOnComputer].
      */
@@ -125,10 +173,7 @@ class Pocket_Computer_Test {
         val player = level.randomPlayer!!
         player.inventory.clearContent()
 
-        val testName = (this as GameTestHelperAccessor).testInfo.testName
-        val label = testName + (if (name == null) "" else ".$name")
-
-        val item = ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().create(1, label, -1, null)
+        val item = createPocketComputer(name)
         item.getOrCreateTag().putBoolean(PocketComputerItem.NBT_ON, true)
         player.inventory.setItem(0, item)
     }

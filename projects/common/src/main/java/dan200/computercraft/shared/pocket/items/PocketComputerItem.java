@@ -336,9 +336,14 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         // Normally we treat the computer instance as the source of truth, and copy the computer's state back to the
         // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
         // the computer.
+        // Our previous holder will no longer be valid (as the item is now in the crafting slot), so we swap out to a
+        // new temporary holder, and then invalidate it afterwards.
         var brain = computer.getBrain();
+        var holder = PocketHolder.CraftingHolder.atCurrentPosition(brain);
+        brain.updateHolder(holder);
         brain.setUpgrade(getUpgradeWithData(stack));
         brain.setColour(getColour(stack));
+        holder.invalidate();
     }
 
     // IComputerItem implementation

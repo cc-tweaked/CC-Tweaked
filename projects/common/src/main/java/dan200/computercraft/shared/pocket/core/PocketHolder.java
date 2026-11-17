@@ -160,4 +160,53 @@ public sealed interface PocketHolder {
             return true;
         }
     }
+
+    /**
+     * A temporary {@link PocketHolder} that is used when crafting an item. This should be
+     * {@linkplain #invalidate() invalidated} after use, as the reference to the stack is no longer valid.
+     */
+    final class CraftingHolder implements PocketHolder {
+        private final ServerLevel level;
+        private final Vec3 pos;
+        private final BlockPos blockPos;
+        private boolean valid = true;
+
+        private CraftingHolder(ServerLevel level, Vec3 pos, BlockPos blockPos) {
+            this.level = level;
+            this.pos = pos;
+            this.blockPos = blockPos;
+        }
+
+        public static CraftingHolder atCurrentPosition(PocketBrain brain) {
+            return new CraftingHolder(brain.getLevel(), brain.getPosition(), brain.computer().getPosition());
+        }
+
+        @Override
+        public ServerLevel level() {
+            return level;
+        }
+
+        @Override
+        public Vec3 pos() {
+            return pos;
+        }
+
+        @Override
+        public BlockPos blockPos() {
+            return blockPos;
+        }
+
+        @Override
+        public boolean isValid(ServerComputer computer) {
+            return valid;
+        }
+
+        public void invalidate() {
+            valid = false;
+        }
+
+        @Override
+        public void setChanged() {
+        }
+    }
 }
