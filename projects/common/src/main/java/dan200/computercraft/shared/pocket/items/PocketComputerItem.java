@@ -339,9 +339,9 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         // Our previous holder will no longer be valid (as the item is now in the crafting slot), so we swap out to a
         // new temporary holder, and then invalidate it afterwards.
         var brain = computer.getBrain();
-        var holder = PocketHolder.CraftingHolder.atCurrentPosition(brain);
+        var holder = PocketHolder.CraftingHolder.atCurrentPosition(brain, stack);
         brain.updateHolder(holder);
-        brain.setUpgrade(getUpgradeWithData(stack));
+        brain.setUpgradeDirect(getUpgradeWithData(stack));
         brain.setColour(getColour(stack));
         holder.invalidate();
     }

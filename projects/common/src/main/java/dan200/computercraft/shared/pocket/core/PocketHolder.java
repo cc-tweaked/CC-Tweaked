@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -41,12 +42,22 @@ public sealed interface PocketHolder {
     BlockPos blockPos();
 
     /**
+     * Get the current pocket computer stack.
+     *
+     * @param computer The owning computer.
+     * @return The found stack. This is empty if no valid stack is found.
+     */
+    ItemStack getStack(ServerComputer computer);
+
+    /**
      * Determine if this holder is still valid for a particular computer.
      *
      * @param computer The current computer.
      * @return Whether this holder is valid.
      */
-    boolean isValid(ServerComputer computer);
+    default boolean isValid(ServerComputer computer) {
+        return !getStack(computer).isEmpty();
+    }
 
     /**
      * Mark the pocket computer item as having changed.
@@ -60,6 +71,17 @@ public sealed interface PocketHolder {
      */
     default boolean isTerminalAlwaysVisible() {
         return false;
+    }
+
+    /**
+     * Ensure this {@link ItemStack} holds a particular {@link ServerComputer}, returning the empty stack if not.
+     *
+     * @param computer The owning computer.
+     * @param stack    The stack to check.
+     * @return The stack, or {@link ItemStack#EMPTY} if it does not match.
+     */
+    private static ItemStack ensureServerComputer(ServerComputer computer, ItemStack stack) {
+        return PocketComputerItem.isServerComputer(computer, stack) ? stack : ItemStack.EMPTY;
     }
 
     /**
@@ -97,8 +119,8 @@ public sealed interface PocketHolder {
      */
     record PlayerHolder(ServerPlayer entity, int slot) implements EntityHolder {
         @Override
-        public boolean isValid(ServerComputer computer) {
-            return entity().isAlive() && PocketComputerItem.isServerComputer(computer, entity().getInventory().getItem(this.slot()));
+        public ItemStack getStack(ServerComputer computer) {
+            return entity().isAlive() ? ensureServerComputer(computer, entity().getInventory().getItem(slot())) : ItemStack.EMPTY;
         }
 
         @Override
@@ -114,8 +136,8 @@ public sealed interface PocketHolder {
      */
     record ItemEntityHolder(ItemEntity entity) implements EntityHolder {
         @Override
-        public boolean isValid(ServerComputer computer) {
-            return entity().isAlive() && PocketComputerItem.isServerComputer(computer, this.entity().getItem());
+        public ItemStack getStack(ServerComputer computer) {
+            return entity().isAlive() ? ensureServerComputer(computer, entity().getItem()) : ItemStack.EMPTY;
         }
 
         @Override
@@ -146,8 +168,8 @@ public sealed interface PocketHolder {
         }
 
         @Override
-        public boolean isValid(ServerComputer computer) {
-            return !lectern().isRemoved() && PocketComputerItem.isServerComputer(computer, lectern.getItem());
+        public ItemStack getStack(ServerComputer computer) {
+            return lectern.isRemoved() ? ItemStack.EMPTY : ensureServerComputer(computer, lectern.getItem());
         }
 
         @Override
@@ -169,16 +191,17 @@ public sealed interface PocketHolder {
         private final ServerLevel level;
         private final Vec3 pos;
         private final BlockPos blockPos;
-        private boolean valid = true;
+        private ItemStack stack;
 
-        private CraftingHolder(ServerLevel level, Vec3 pos, BlockPos blockPos) {
+        private CraftingHolder(ServerLevel level, Vec3 pos, BlockPos blockPos, ItemStack stack) {
             this.level = level;
             this.pos = pos;
             this.blockPos = blockPos;
+            this.stack = stack;
         }
 
-        public static CraftingHolder atCurrentPosition(PocketBrain brain) {
-            return new CraftingHolder(brain.getLevel(), brain.getPosition(), brain.computer().getPosition());
+        public static CraftingHolder atCurrentPosition(PocketBrain brain, ItemStack stack) {
+            return new CraftingHolder(brain.getLevel(), brain.getPosition(), brain.computer().getPosition(), stack);
         }
 
         @Override
@@ -197,12 +220,12 @@ public sealed interface PocketHolder {
         }
 
         @Override
-        public boolean isValid(ServerComputer computer) {
-            return valid;
+        public ItemStack getStack(ServerComputer computer) {
+            return ensureServerComputer(computer, stack);
         }
 
         public void invalidate() {
-            valid = false;
+            stack = ItemStack.EMPTY;
         }
 
         @Override
