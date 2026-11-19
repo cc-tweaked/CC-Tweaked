@@ -4,6 +4,7 @@
 
 package dan200.computercraft.gametest
 
+import com.mojang.authlib.GameProfile
 import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.api.pocket.IPocketUpgrade
@@ -14,6 +15,10 @@ import dan200.computercraft.gametest.api.*
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.computer.core.ComputerState
+import dan200.computercraft.shared.computer.core.ServerContext
+import dan200.computercraft.shared.platform.PlatformHelper
+import dan200.computercraft.shared.pocket.core.PocketServerComputer
+import dan200.computercraft.shared.pocket.items.PocketComputerItem
 import dan200.computercraft.shared.util.DataComponentUtil
 import dan200.computercraft.shared.util.NonNegativeId
 import dan200.computercraft.test.core.computer.getApi
@@ -26,11 +31,71 @@ import net.minecraft.gametest.framework.GameTestSequence
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.assertNotNull
+import java.util.*
 import kotlin.random.Random
 
 class Pocket_Computer_Test {
+    /**
+     * Asserts that ticking a pocket computer in the inventory turns it on.
+     */
+    @GameTest(template = Structures.DEFAULT)
+    fun Turns_on_in_inventory(context: GameTestHelper) = context.sequence {
+        val player = PlatformHelper.get().createFakePlayer(context.level, GAME_PROFILE)
+        val upgrade = UpgradeData.ofDefault(context.level.registryAccess().getOrThrow(MODEM))
+
+        thenExecute {
+            // Create our item and give it to the player
+            val stack = context.createPocketComputer(upgrade = upgrade)
+            stack.set(ModRegistry.DataComponents.ON.get(), true)
+            player.setItemInHand(InteractionHand.MAIN_HAND, stack)
+        }
+        thenWaitUntil {
+            // Now we update the inventory, and wait for the computer to turn on.
+            player.inventory.tick()
+
+            val stack = player.getItemInHand(InteractionHand.MAIN_HAND)
+
+            val instanceId = stack.get(ModRegistry.DataComponents.COMPUTER.get())
+            assertNotNull(instanceId, "Pocket computer should have an instance")
+
+            val computer = instanceId.get(ServerContext.get(context.level.server).registry()) as PocketServerComputer
+            assertEquals(computer.brain.upgrade, upgrade, "Upgrade should be set")
+            context.assertTrue(computer.isOn, "Pocket computer should be on")
+        }
+    }
+
+    /**
+     * Tests crafting to apply an upgrade.
+     */
+    @GameTest(template = Structures.DEFAULT)
+    fun Craft_apply_upgrade(context: GameTestHelper) = context.immediate {
+        val player = PlatformHelper.get().createFakePlayer(context.level, GAME_PROFILE)
+
+        // Set up our stack and ensure the computer is created
+        val stack = context.createPocketComputer()
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack)
+        player.inventory.tick()
+
+        val instanceId = stack.get(ModRegistry.DataComponents.COMPUTER.get())
+        assertNotNull(instanceId)
+        val computer = instanceId.get(ServerContext.get(context.level.server).registry()) as PocketServerComputer
+
+        // Remove the stack from the player's inventory and "craft" it with a new upgrade.
+        val upgradedStack = stack.copy()
+        val upgradeData = UpgradeData.ofDefault(context.level.registryAccess().getOrThrow(MODEM))
+        PocketComputerItem.setUpgrade(upgradedStack, upgradeData)
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY)
+
+        upgradedStack.onCraftedBy(context.level, player, 1)
+
+        assertEquals(instanceId, stack.get(ModRegistry.DataComponents.COMPUTER.get()), "Instance ID should not change")
+        assertEquals(upgradeData, computer.brain.upgrade, "Upgrade should be updated")
+    }
+
     /**
      * Checks pocket computer state is synced to the holding player.
      */
@@ -98,6 +163,17 @@ class Pocket_Computer_Test {
         thenScreenshot(showGui = true)
     }
 
+    /** Create a pocket computer, suitable to be controlled by [GameTestSequence.thenOnComputer]. */
+    private fun GameTestHelper.createPocketComputer(name: String? = null, upgrade: UpgradeData<IPocketUpgrade>? = null): ItemStack {
+        val testName = (this as GameTestHelperAccessor).testInfo.testName
+        val label = testName + (if (name == null) "" else ".$name")
+
+        val item = ItemStack(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get())
+        item.set(DataComponents.CUSTOM_NAME, Component.literal(label))
+        item.set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), upgrade)
+        return item
+    }
+
     /**
      * Give the current player a pocket computer, suitable to be controlled by [GameTestSequence.thenOnComputer].
      */
@@ -105,11 +181,7 @@ class Pocket_Computer_Test {
         val player = level.randomPlayer!!
         player.inventory.clearContent()
 
-        val testName = (this as GameTestHelperAccessor).testInfo.testName
-        val label = testName + (if (name == null) "" else ".$name")
-
-        val item = ItemStack(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get())
-        item.set(DataComponents.CUSTOM_NAME, Component.literal(label))
+        val item = createPocketComputer(name)
         item.set(ModRegistry.DataComponents.ON.get(), true)
         player.inventory.setItem(0, item)
     }
@@ -144,5 +216,16 @@ class Pocket_Computer_Test {
                 ),
             )
         }
+    }
+
+    companion object {
+        private fun id(key: ResourceLocation): ResourceKey<IPocketUpgrade> =
+            ResourceKey.create(IPocketUpgrade.REGISTRY, key)
+
+        private val MODEM = id(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wireless_modem_normal"))
+
+        /** Fake game profile. This is the same as the one in [dan200.computercraft.shared.turtle.core.TurtlePlayer] */
+        private val GAME_PROFILE =
+            GameProfile(UUID.fromString("0d0c4ca0-4ff1-11e4-916c-0800200c9a66"), "[ComputerCraft]")
     }
 }

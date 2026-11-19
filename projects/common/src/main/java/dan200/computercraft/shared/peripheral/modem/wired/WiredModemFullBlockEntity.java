@@ -133,8 +133,8 @@ public class WiredModemFullBlockEntity extends BlockEntity {
         var periphNames = getConnectedPeripheralNames();
 
         if (!Objects.equals(periphNames, oldPeriphNames)) {
-            sendPeripheralChanges(player, "chat.computercraft.wired_modem.peripheral_disconnected", oldPeriphNames);
-            sendPeripheralChanges(player, "chat.computercraft.wired_modem.peripheral_connected", periphNames);
+            sendPeripheralChanges(player, CableBlockEntity.PERIPHERAL_DISCONNECTED, oldPeriphNames);
+            sendPeripheralChanges(player, CableBlockEntity.PERIPHERAL_CONNECTED, periphNames);
         }
 
         return InteractionResult.CONSUME;

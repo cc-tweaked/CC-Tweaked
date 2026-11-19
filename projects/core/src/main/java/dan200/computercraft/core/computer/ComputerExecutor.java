@@ -59,6 +59,13 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
     private static final Logger LOG = LoggerFactory.getLogger(ComputerExecutor.class);
     private static final int QUEUE_LIMIT = 256;
 
+    /**
+     * The delay permitted to calls to {@link #queueStart()}.
+     *
+     * @see #ticksSinceStart
+     */
+    private static final int START_DELAY = 50;
+
     private final Computer computer;
     private final ComputerEnvironment computerEnvironment;
     private final MetricsObserver metrics;
@@ -145,6 +152,24 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
 
     private final ComputerScheduler.Executor executor;
 
+    /**
+     * Whether the computer will be {@linkplain #queueStart()} started after some timeout.
+     *
+     * @see #queueDelayedStart()
+     */
+    private volatile boolean startRequested;
+
+    /**
+     * Number of ticks since the computer was last started. This is used to debounce calls to
+     * {@link #queueDelayedStart()}.
+     * <p>
+     * This variable is only updated on the main thread, so actually tracks how long since a {@link StateCommand#TURN_ON}
+     * command was <em>queued</em> ({@link #queueStart()}), rather than since when {@link #turnOn()} completed.
+     *
+     * @see #START_DELAY
+     */
+    private int ticksSinceStart = -1;
+
     ComputerExecutor(Computer computer, ComputerEnvironment computerEnvironment, ComputerContext context) {
         this.computer = computer;
         this.computerEnvironment = computerEnvironment;
@@ -192,14 +217,24 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
     /**
      * Schedule this computer to be started if not already on.
      */
-    void queueStart() {
+    private void queueStart() {
+        startRequested = false;
+
         synchronized (queueLock) {
             // We should only schedule a start if we're not currently on and there's turn on.
             if (closed || isOn || command != null) return;
 
             command = StateCommand.TURN_ON;
+            ticksSinceStart = 0;
         }
         enqueue();
+    }
+
+    /*
+     * Schedule this computer to be started if not already on, with some debouncing between requests.
+     */
+    void queueDelayedStart() {
+        startRequested = true;
     }
 
     /**
@@ -294,6 +329,14 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
      * Update the internals of the executor.
      */
     void tick() {
+        // We keep track of the number of ticks since the last start, only starting the computer once the cooldown has
+        // elapsed.
+        if (ticksSinceStart >= 0 && ticksSinceStart < START_DELAY) {
+            ticksSinceStart++;
+        } else if (startRequested) {
+            queueStart();
+        }
+
         if (isOn && isOnLock.tryLock()) {
             // This horrific structure means we don't try to update APIs while the state is being changed
             // (and so they may be running startup/shutdown).
@@ -422,7 +465,7 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
     private void shutdown() throws InterruptedException {
         isOnLock.lockInterruptibly();
         try {
-            isOn = wasPaused = false;
+            isOn = wasPaused = startRequested = false;
             synchronized (queueLock) {
                 eventQueue.clear();
             }

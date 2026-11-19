@@ -49,7 +49,6 @@ public final class PocketBrain implements IPocketAccess {
         this.position = holder.pos();
         this.upgrade = upgrade == null ? null : new UpgradeHolder(upgrade);
         this.colour = colour;
-        invalidatePeripheral();
     }
 
     /**
@@ -112,6 +111,25 @@ public final class PocketBrain implements IPocketAccess {
         return position;
     }
 
+    private void requireMainThread() {
+        if (!computer.getLevel().getServer().isSameThread()) {
+            throw new IllegalStateException("Must be called from the main thread");
+        }
+    }
+
+    private ItemStack requireStack() {
+        requireMainThread();
+        var stack = holder.getStack(computer);
+        if (stack.isEmpty()) throw new IllegalStateException("Pocket computer is not active");
+        return stack;
+    }
+
+    @Override
+    public boolean isActive() {
+        requireMainThread();
+        return holder.isValid(computer);
+    }
+
     @Override
     public @Nullable Entity getEntity() {
         return holder instanceof PocketHolder.EntityHolder entity && holder.isValid(computer) ? entity.entity() : null;
@@ -140,13 +158,6 @@ public final class PocketBrain implements IPocketAccess {
         lightColour = colour;
     }
 
-    private void requirePresent() {
-        if (!computer.getLevel().getServer().isSameThread()) {
-            throw new IllegalStateException("Must be called from the main thread");
-        }
-        if (!holder.isValid(computer)) throw new IllegalStateException("Pocket computer is not active");
-    }
-
     @Override
     public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
         return upgrade == null ? null : upgrade.getUpgradeData();
@@ -154,7 +165,7 @@ public final class PocketBrain implements IPocketAccess {
 
     @Override
     public @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle() {
-        requirePresent();
+        requireStack();
         return upgrade == null ? null : upgrade.getHandle();
     }
 
@@ -187,14 +198,28 @@ public final class PocketBrain implements IPocketAccess {
 
     @Override
     public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        requirePresent();
+        var stack = requireStack();
+        if (!setUpgradeDirect(upgrade)) return;
 
+        PocketComputerItem.setUpgrade(stack, upgrade);
+        holder.setChanged();
+    }
+
+    /**
+     * Set an upgrade on the brain, without updating the {@link ItemStack}. This should be used when syncing changes
+     * from the computer's {@link ItemStack} (e.g. after crafting) back to the brain.
+     *
+     * @param upgrade The new upgrade.
+     * @return Whether the upgrade was changed.
+     */
+    public boolean setUpgradeDirect(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
         var currentUpgrade = this.upgrade;
-        if (Objects.equals(currentUpgrade == null ? null : currentUpgrade.getUpgradeData(), upgrade)) return;
+        if (Objects.equals(currentUpgrade == null ? null : currentUpgrade.getUpgradeData(), upgrade)) return false;
 
         this.upgrade = upgrade == null ? null : new UpgradeHolder(upgrade);
-        dirty = true;
+        lightColour = -1;
         invalidatePeripheral();
+        return true;
     }
 
     private final class UpgradeHolder extends AbstractUpgradeHolder<IPocketUpgrade> {
@@ -205,17 +230,17 @@ public final class PocketBrain implements IPocketAccess {
         @Override
         protected void requireValid() {
             if (upgrade != this) throw new IllegalStateException("Upgrade is no longer present");
-            requirePresent();
+            requireStack();
         }
 
         @Override
         public void setChanged() {
-            dirty = true;
+            PocketComputerItem.setUpgrade(requireStack(), getUpgradeData());
+            holder.setChanged();
         }
 
         @Override
         public void remove() {
-            requireValid();
             setUpgrade(null);
         }
     }

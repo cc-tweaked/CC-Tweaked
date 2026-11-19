@@ -179,7 +179,6 @@
     "gui.computercraft.pocket_computer_overlay": "便携式计算机已打开。按ESC键可关闭。",
     "gui.computercraft.terminal": "计算机终端",
     "gui.computercraft.tooltip.computer_id": "计算机ID：%s",
-    "gui.computercraft.tooltip.copy": "复制到剪贴板",
     "gui.computercraft.tooltip.disk_id": "软盘ID：%s",
     "gui.computercraft.tooltip.terminate": "停止当前运行的代码",
     "gui.computercraft.tooltip.terminate.key": "按住 Ctrl+T",

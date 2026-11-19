@@ -94,7 +94,6 @@
     "gui.computercraft.config.turtle.normal_fuel_limit": "터틀 연료 제한",
     "gui.computercraft.pocket_computer_overlay": "포켓 컴퓨터가 열립니다. ESC를 눌러 닫습니다.",
     "gui.computercraft.tooltip.computer_id": "컴퓨터 ID: %s",
-    "gui.computercraft.tooltip.copy": "클립보드에 복사",
     "gui.computercraft.tooltip.disk_id": "디스크 ID: %s",
     "gui.computercraft.tooltip.terminate": "현재 실행 중인 코드를 중지합니다.",
     "gui.computercraft.tooltip.terminate.key": "Ctrl+T를 누르세요.",

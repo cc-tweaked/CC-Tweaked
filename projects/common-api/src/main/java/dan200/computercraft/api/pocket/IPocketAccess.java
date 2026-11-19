@@ -35,6 +35,23 @@ public interface IPocketAccess {
     Vec3 getPosition();
 
     /**
+     * Get whether this pocket computer is "active".
+     * <p>
+     * Some operations on pocket computer (for instance, {@linkplain #getUpgradeHandle() reading and writing upgrade
+     * data}) requires access to the stack the pocket computer is attached to. However, in some cases, the stack may no
+     * longer be present (for instance, if it has been moved into a chest), and so those operations will fail.
+     * <p>
+     * In this case, the pocket computer is considered inactive: the computer will continue to run for several seconds,
+     * but upgrades will not be {@linkplain IPocketUpgrade#update(IPocketAccess, IPeripheral) ticked}, and pocket
+     * computer data cannot be interacted with.
+     * <p>
+     * This function is not thread safe and must be called from the server thread.
+     *
+     * @return Whether this pocket computer is active.
+     */
+    boolean isActive();
+
+    /**
      * Gets the entity holding this item.
      * <p>
      * This must be called on the server thread.
@@ -95,6 +112,7 @@ public interface IPocketAccess {
      * This function is not thread safe and must be called from the server thread.
      *
      * @return The currently equipped upgrade.
+     * @throws IllegalStateException If the pocket computer is not {@linkplain #isActive() active}.
      * @see #setUpgrade(UpgradeData)
      * @since 1.121.0
      */
@@ -106,6 +124,7 @@ public interface IPocketAccess {
      * This function is not thread safe and must be called from the server thread.
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.
+     * @throws IllegalStateException If the pocket computer is not {@linkplain #isActive() active}.
      * @see #getUpgrade()
      * @see #getUpgradeHandle()
      */
@@ -138,6 +157,8 @@ public interface IPocketAccess {
 
     /**
      * Remove the current peripheral and create a new one.
+     * <p>
+     * This function is not thread safe and must be called from the server thread.
      * <p>
      * You may wish to do this if the methods available change, for instance when the {@linkplain #getEntity() owning
      * entity} changes.

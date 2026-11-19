@@ -178,7 +178,6 @@
     "gui.computercraft.pocket_computer_overlay": "ポケットコンピューターを開いています。 ESCを押して閉じます。",
     "gui.computercraft.terminal": "コンピューターターミナル",
     "gui.computercraft.tooltip.computer_id": "コンピューターID: %s",
-    "gui.computercraft.tooltip.copy": "クリップボードにコピー",
     "gui.computercraft.tooltip.disk_id": "ディスクID: %s",
     "gui.computercraft.tooltip.terminate": "現在実行中のコードを停止する",
     "gui.computercraft.tooltip.terminate.key": "Ctrl+T 長押し",

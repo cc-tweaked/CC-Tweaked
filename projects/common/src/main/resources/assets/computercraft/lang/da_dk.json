@@ -21,7 +21,6 @@
     "chat.computercraft.wired_modem.peripheral_disconnected": "Perifer enhed \"%s\" koblet fra netværk",
     "gui.computercraft.pocket_computer_overlay": "Lommecomputer åben. Tryk ESC for at lukke.",
     "gui.computercraft.tooltip.computer_id": "Computer-ID: %s",
-    "gui.computercraft.tooltip.copy": "Kopier til udklipsholder",
     "gui.computercraft.tooltip.disk_id": "Disk-ID: %s",
     "gui.computercraft.tooltip.terminate": "Stop den igangværende kode",
     "gui.computercraft.tooltip.terminate.key": "Hold Ctrl+T nede",

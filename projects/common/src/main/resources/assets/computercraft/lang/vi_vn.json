@@ -19,7 +19,6 @@
     "block.computercraft.wireless_modem_advanced": "Modem Ender",
     "block.computercraft.wireless_modem_normal": "Modem không dây",
     "gui.computercraft.tooltip.computer_id": "ID của máy tính: %s",
-    "gui.computercraft.tooltip.copy": "Sao chép vào clipboard",
     "gui.computercraft.tooltip.disk_id": "ID của đĩa: %s",
     "item.computercraft.disk": "Đĩa mềm",
     "item.computercraft.pocket_computer_advanced": "Máy tính bỏ túi tiên tiến",

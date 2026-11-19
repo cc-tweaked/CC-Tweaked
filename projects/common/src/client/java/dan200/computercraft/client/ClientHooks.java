@@ -20,12 +20,10 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
-import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.PauseAwareTimer;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -161,8 +159,11 @@ public final class ClientHooks {
 
         if (!hitPos.equals(pos)) return null;
 
-        return WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
-            ? state.getBlock().defaultBlockState().setValue(CableBlock.MODEM, state.getValue(CableBlock.MODEM))
-            : state.setValue(CableBlock.MODEM, CableModemVariant.None);
+        return switch (CableBlock.getCablePart(state, pos, hit)) {
+            case MODEM ->
+                state.getBlock().defaultBlockState().setValue(CableBlock.MODEM, state.getValue(CableBlock.MODEM));
+            case CABLE -> state.setValue(CableBlock.MODEM, CableModemVariant.None);
+            case UNKNOWN -> null;
+        };
     }
 }

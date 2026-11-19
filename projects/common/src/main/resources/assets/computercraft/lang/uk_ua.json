@@ -178,7 +178,6 @@
     "gui.computercraft.pocket_computer_overlay": "Кишеньковий комп'ютер відкритий. Натисніть ESC, щоб закрити.",
     "gui.computercraft.terminal": "Термінал компʼютеру",
     "gui.computercraft.tooltip.computer_id": "Ідентифікатор комп'ютера: %s",
-    "gui.computercraft.tooltip.copy": "Скопійовано в Буфер обміну",
     "gui.computercraft.tooltip.disk_id": "Ідентифікатор диска: %s",
     "gui.computercraft.tooltip.terminate": "Припинити поточний запущений код",
     "gui.computercraft.tooltip.terminate.key": "Утримуй Ctrl+T",

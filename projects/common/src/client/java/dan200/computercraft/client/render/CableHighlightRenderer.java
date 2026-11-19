@@ -8,7 +8,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -40,9 +39,10 @@ public final class CableHighlightRenderer {
             return false;
         }
 
-        var shape = WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
-            ? CableShapes.getModemShape(state)
-            : CableShapes.getCableShape(state);
+        var shape = switch (CableBlock.getCablePart(state, pos, hit)) {
+            case MODEM -> CableShapes.getModemShape(state);
+            case CABLE, UNKNOWN -> CableShapes.getCableShape(state);
+        };
 
         var cameraPos = camera.getPosition();
         var xOffset = pos.getX() - cameraPos.x();

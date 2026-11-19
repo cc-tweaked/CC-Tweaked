@@ -178,7 +178,6 @@
     "gui.computercraft.pocket_computer_overlay": "Computer tascabile aperto. Premi ESC per chiudere.",
     "gui.computercraft.terminal": "Terminale computer",
     "gui.computercraft.tooltip.computer_id": "ID Computer: %s",
-    "gui.computercraft.tooltip.copy": "Copia negli appunti",
     "gui.computercraft.tooltip.disk_id": "ID Disco: %s",
     "gui.computercraft.tooltip.terminate": "Ferma il codice in esecuzione",
     "gui.computercraft.tooltip.terminate.key": "Tieni premuto Ctrl+T",

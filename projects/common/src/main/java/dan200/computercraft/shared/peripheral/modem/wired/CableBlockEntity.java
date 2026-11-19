@@ -30,6 +30,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 
 public class CableBlockEntity extends BlockEntity {
+    public static final String PERIPHERAL_DISCONNECTED = "chat.computercraft.wired_modem.peripheral_disconnected";
+    public static final String PERIPHERAL_CONNECTED = "chat.computercraft.wired_modem.peripheral_connected";
+
     private final class CableElement extends WiredModemElement {
         @Override
         public Level getLevel() {
@@ -133,12 +136,10 @@ public class CableBlockEntity extends BlockEntity {
 
         if (!Objects.equals(newName, oldName)) {
             if (oldName != null) {
-                player.displayClientMessage(Component.translatable("chat.computercraft.wired_modem.peripheral_disconnected",
-                    ChatHelpers.copy(oldName)), false);
+                player.displayClientMessage(Component.translatable(PERIPHERAL_DISCONNECTED, ChatHelpers.copy(oldName)), false);
             }
             if (newName != null) {
-                player.displayClientMessage(Component.translatable("chat.computercraft.wired_modem.peripheral_connected",
-                    ChatHelpers.copy(newName)), false);
+                player.displayClientMessage(Component.translatable(PERIPHERAL_CONNECTED, ChatHelpers.copy(newName)), false);
             }
         }
 

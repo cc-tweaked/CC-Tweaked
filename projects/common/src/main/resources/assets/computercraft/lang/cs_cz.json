@@ -178,7 +178,6 @@
     "gui.computercraft.pocket_computer_overlay": "Kapesní počítač otevřen. Zmáčkni ESC pro uzavření.",
     "gui.computercraft.terminal": "Počítačový terminál",
     "gui.computercraft.tooltip.computer_id": "ID počítače: %s",
-    "gui.computercraft.tooltip.copy": "Kopírovat do schránky",
     "gui.computercraft.tooltip.disk_id": "ID disku: %s",
     "gui.computercraft.tooltip.terminate": "Zastavit nyní běžící kód",
     "gui.computercraft.tooltip.terminate.key": "Podrž Ctrl+T",
