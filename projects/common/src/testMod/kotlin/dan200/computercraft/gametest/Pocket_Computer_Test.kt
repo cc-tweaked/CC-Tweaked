@@ -40,12 +40,11 @@ class Pocket_Computer_Test {
     @GameTest(template = Structures.DEFAULT)
     fun Turns_on_in_inventory(context: GameTestHelper) = context.sequence {
         val player = PlatformHelper.get().createFakePlayer(context.level, GAME_PROFILE)
+        val upgrade = UpgradeData.ofDefault(PocketUpgrades.instance().get(MODEM)!!)
 
         thenExecute {
             // Create our item and give it to the player
-            val stack = context.createPocketComputer(
-                upgrade = UpgradeData.ofDefault(PocketUpgrades.instance().get(MODEM)!!),
-            )
+            val stack = context.createPocketComputer(upgrade = upgrade)
             stack.orCreateTag.putBoolean(PocketComputerItem.NBT_ON, true)
             player.setItemInHand(InteractionHand.MAIN_HAND, stack)
         }
@@ -58,8 +57,8 @@ class Pocket_Computer_Test {
             val instanceId = PocketComputerItem.getInstanceID(stack)
             assertNotNull(instanceId, "Pocket computer should have an instance")
 
-            val computer = ServerContext.get(context.level.server).registry().get(instanceId)
-            assertNotNull(computer, "Pocket computer should have a computer")
+            val computer = ServerContext.get(context.level.server).registry().get(instanceId) as PocketServerComputer
+            assertEquals(computer.brain.upgrade, upgrade, "Upgrade should be set")
             context.assertTrue(computer.isOn, "Pocket computer should be on")
         }
     }
@@ -163,7 +162,7 @@ class Pocket_Computer_Test {
     private fun GameTestHelper.createPocketComputer(name: String? = null, upgrade: UpgradeData<IPocketUpgrade>? = null): ItemStack {
         val testName = (this as GameTestHelperAccessor).testInfo.testName
         val label = testName + (if (name == null) "" else ".$name")
-        return ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().create(1, label, -1, null)
+        return ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().create(1, label, -1, upgrade)
     }
 
     /**
