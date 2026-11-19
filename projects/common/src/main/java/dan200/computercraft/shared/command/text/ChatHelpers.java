@@ -66,10 +66,19 @@ public final class ChatHelpers {
         return coloured(text, HEADER);
     }
 
+    /**
+     * Create a component which can be copied on click.
+     * <p>
+     * Similar to {@link net.minecraft.network.chat.ComponentUtils#copyOnClickText(String)}, but without wrapping the
+     * text in square brackets.
+     *
+     * @param text The text to make copyable.
+     * @return The newly created component.
+     */
     public static MutableComponent copy(String text) {
         return Component.literal(text).withStyle(s -> s
             .withClickEvent(new ClickEvent.CopyToClipboard(text))
-            .withHoverEvent(new HoverEvent.ShowText(Component.translatable("gui.computercraft.tooltip.copy")))
+            .withHoverEvent(new HoverEvent.ShowText(Component.translatable("chat.copy.click")))
         );
     }
 

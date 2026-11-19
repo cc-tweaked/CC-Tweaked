@@ -106,6 +106,31 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
         return world.setBlock(pos, fluid.createLegacyBlock(), world.isClientSide() ? UPDATE_ALL_IMMEDIATE : UPDATE_ALL);
     }
 
+    public enum CablePart {
+        CABLE,
+        MODEM,
+        UNKNOWN,
+    }
+
+    /**
+     * Get the current part of the cable a player is looking at.
+     *
+     * @param state The current block state.
+     * @param pos   The current position.
+     * @param hit   The player's hit result, if known
+     * @return Which part of the block the player is interacting with.
+     */
+    public static CablePart getCablePart(BlockState state, BlockPos pos, @Nullable HitResult hit) {
+        // If we have no modem or cable, we must be interacting with the other.
+        if (state.getValue(MODEM).getFacing() == null) return CablePart.CABLE;
+        if (!state.getValue(CABLE)) return CablePart.MODEM;
+
+        if (hit == null || hit.getType() != HitResult.Type.BLOCK) return CablePart.UNKNOWN;
+        return WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
+            ? CablePart.MODEM
+            : CablePart.CABLE;
+    }
+
     public boolean onCustomDestroyBlock(BlockState state, Level world, BlockPos pos, Player player) {
         if (!state.getValue(CABLE) || state.getValue(MODEM).getFacing() == null) return false;
 
@@ -113,24 +138,25 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
             WorldUtil.getRayStart(player), WorldUtil.getRayEnd(player),
             ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player
         ));
-        if (hit.getType() != HitResult.Type.BLOCK) return false;
-
-        var tile = world.getBlockEntity(pos);
-        if (!(tile instanceof CableBlockEntity cable) || !tile.hasLevel()) return false;
 
         ItemStack item;
         BlockState newState;
-        if (WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))) {
-            newState = state.setValue(MODEM, CableModemVariant.None);
-            item = new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
-        } else {
-            newState = state.setValue(CABLE, false);
-            item = new ItemStack(ModRegistry.Items.CABLE.get());
+        switch (getCablePart(state, pos, hit)) {
+            case MODEM -> {
+                newState = state.setValue(MODEM, CableModemVariant.None);
+                item = new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
+            }
+            case CABLE -> {
+                newState = state.setValue(CABLE, false);
+                item = new ItemStack(ModRegistry.Items.CABLE.get());
+            }
+            default -> {
+                return false;
+            }
         }
 
         world.setBlockAndUpdate(pos, correctConnections(world, pos, newState));
-
-        cable.connectionsChanged();
+        if (world.getBlockEntity(pos) instanceof CableBlockEntity cable && cable.hasLevel()) cable.connectionsChanged();
         if (!world.isClientSide() && !player.getAbilities().instabuild) {
             Block.popResource(world, pos, item);
         }
@@ -150,15 +176,15 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
             return getCloneItemStack(level, pos, state, includeData);
         }
 
-        // Perform a ray-trace for the player.
+        // Perform a ray-trace for the player and try to work out which part we're interactive with.
         var from = player.getEyePosition();
         var to = from.add(Entity.calculateViewVector(player.getXRot(), player.getYRot()).scale(player.blockInteractionRange()));
         var hit = level.clip(new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
 
-        // We've a modem and cable, so try to work out which one we're interacting with
-        return hit.getType() == HitResult.Type.BLOCK && WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
-            ? new ItemStack(ModRegistry.Items.WIRED_MODEM.get())
-            : new ItemStack(ModRegistry.Items.CABLE.get());
+        return switch (getCablePart(state, pos, hit)) {
+            case MODEM -> new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
+            case CABLE, UNKNOWN -> new ItemStack(ModRegistry.Items.CABLE.get());
+        };
     }
 
     @Override
@@ -249,7 +275,11 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     @Override
     protected final InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
-        return world.getBlockEntity(pos) instanceof CableBlockEntity modem ? modem.use(player) : InteractionResult.PASS;
+        return switch (getCablePart(state, pos, hit)) {
+            case CABLE, UNKNOWN -> InteractionResult.PASS;
+            case MODEM ->
+                world.getBlockEntity(pos) instanceof CableBlockEntity modem ? modem.use(player) : InteractionResult.PASS;
+        };
     }
 
     @Override

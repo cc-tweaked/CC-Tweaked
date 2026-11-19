@@ -205,11 +205,14 @@ public class PocketComputerItem extends Item {
                 new TerminalSize(ConfigSpec.pocketTermWidth.get(), ConfigSpec.pocketTermHeight.get())
             ))
         );
-        brain.setUpgrades(getUpgradeWithData(stack, PocketSide.TOP), getUpgradeWithData(stack, PocketSide.BACK));
         var computer = brain.computer();
 
         stack.set(ModRegistry.DataComponents.COMPUTER.get(), new ServerComputerReference(registry.getSessionID(), computer.register()));
 
+        // Create peripherals and mark the computer as on *after* writing our instance ID to the stack. This ensures the
+        // holder is actually valid.
+        assert holder.isValid(computer);
+        brain.setUpgrades(getUpgradeWithData(stack, PocketSide.TOP), getUpgradeWithData(stack, PocketSide.BACK));
         if (isMarkedOn(stack)) computer.turnOn();
 
         updateItem(stack, brain);
@@ -259,7 +262,13 @@ public class PocketComputerItem extends Item {
         // Normally we treat the computer instance as the source of truth, and copy the computer's state back to the
         // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
         // the computer.
+        // Our previous holder will no longer be valid (as the item is now in the crafting slot), so we swap out to a
+        // new temporary holder, and then invalidate it afterwards.
+        var brain = computer.getBrain();
+        var holder = PocketHolder.CraftingHolder.atCurrentPosition(brain, stack);
+        brain.updateHolder(holder);
         computer.getBrain().setUpgrades(getUpgradeWithData(stack, PocketSide.TOP), getUpgradeWithData(stack, PocketSide.BACK));
+        holder.invalidate();
     }
 
     public ComputerFamily getFamily() {

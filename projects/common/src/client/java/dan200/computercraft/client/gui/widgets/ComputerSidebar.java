@@ -17,6 +17,12 @@ import java.util.function.Consumer;
  * Registers buttons to interact with a computer.
  */
 public final class ComputerSidebar {
+    public static final Component TURN_ON = Component.translatable("gui.computercraft.tooltip.turn_on");
+    public static final Component SHUT_DOWN_MSG = Component.translatable("gui.computercraft.tooltip.turn_off");
+    public static final Component SHUT_DOWN_KEY = Component.translatable("gui.computercraft.tooltip.turn_off.key");
+    public static final Component TERMINATE_MSG = Component.translatable("gui.computercraft.tooltip.terminate");
+    public static final Component TERMINATE_KEY = Component.translatable("gui.computercraft.tooltip.terminate.key");
+
     private static final int ICON_WIDTH = 12;
     private static final int ICON_HEIGHT = 12;
     private static final int ICON_MARGIN = 2;
@@ -33,11 +39,8 @@ public final class ComputerSidebar {
         x += CORNERS_BORDER + 1;
         y += CORNERS_BORDER + ICON_MARGIN;
 
-        var turnOn = new HintedMessage(Component.translatable("gui.computercraft.tooltip.turn_on"), (Component) null);
-        var turnOff = new HintedMessage(
-            Component.translatable("gui.computercraft.tooltip.turn_off"),
-            Component.translatable("gui.computercraft.tooltip.turn_off.key")
-        );
+        var turnOn = new HintedMessage(TURN_ON, (Component) null);
+        var turnOff = new HintedMessage(SHUT_DOWN_MSG, SHUT_DOWN_KEY);
         add.accept(new DynamicImageButton(
             x, y, ICON_WIDTH, ICON_HEIGHT,
             h -> isOn.getAsBoolean() ? GuiSprites.TURNED_ON.get(h) : GuiSprites.TURNED_OFF.get(h),
@@ -51,10 +54,7 @@ public final class ComputerSidebar {
             x, y, ICON_WIDTH, ICON_HEIGHT,
             GuiSprites.TERMINATE::get,
             b -> actions.terminate(),
-            new HintedMessage(
-                Component.translatable("gui.computercraft.tooltip.terminate"),
-                Component.translatable("gui.computercraft.tooltip.terminate.key")
-            )
+            new HintedMessage(TERMINATE_MSG, TERMINATE_KEY)
         ));
     }
 

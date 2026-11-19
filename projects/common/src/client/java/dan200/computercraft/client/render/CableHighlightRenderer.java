@@ -7,7 +7,6 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.world.phys.BlockHitResult;
 import org.joml.Vector3f;
@@ -36,9 +35,10 @@ public final class CableHighlightRenderer {
             return null;
         }
 
-        var shape = WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
-            ? CableShapes.getModemShape(state)
-            : CableShapes.getCableShape(state);
+        var shape = switch (CableBlock.getCablePart(state, pos, hit)) {
+            case MODEM -> CableShapes.getModemShape(state);
+            case CABLE, UNKNOWN -> CableShapes.getCableShape(state);
+        };
 
         return (transform, buffer, colour, width) -> {
             var normal = new Vector3f();

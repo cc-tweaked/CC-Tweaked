@@ -178,7 +178,6 @@
     "gui.computercraft.pocket_computer_overlay": "Computador portátil aberto. Pressione ESC para fechar.",
     "gui.computercraft.terminal": "Terminal do Computador",
     "gui.computercraft.tooltip.computer_id": "ID do Computador: %s",
-    "gui.computercraft.tooltip.copy": "Copiar para a área de transferência",
     "gui.computercraft.tooltip.disk_id": "ID do Disco: %s",
     "gui.computercraft.tooltip.terminate": "Parar o código atualmente em execução",
     "gui.computercraft.tooltip.terminate.key": "Segure Ctrl+T",

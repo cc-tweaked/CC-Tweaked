@@ -32,8 +32,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * </ul>
  */
 public class Computer {
-    private static final int START_DELAY = 50;
-
     // Various properties of the computer
     private final int id;
     private @Nullable String label = null;
@@ -55,9 +53,6 @@ public class Computer {
     // Additional state about the computer and its environment.
     private final Environment internalEnvironment;
     private final RedstoneState redstone = new RedstoneState();
-
-    private boolean startRequested;
-    private int ticksSinceStart = -1;
 
     public Computer(ComputerContext context, ComputerEnvironment environment, Terminal terminal, int id) {
         if (id < 0) throw new IllegalStateException("Id has not been assigned");
@@ -99,7 +94,7 @@ public class Computer {
     }
 
     public void turnOn() {
-        startRequested = true;
+        executor.queueDelayedStart();
     }
 
     public void shutdown() {
@@ -146,17 +141,6 @@ public class Computer {
     }
 
     public void tick() {
-        // We keep track of the number of ticks since the last start, only
-        if (ticksSinceStart >= 0 && ticksSinceStart <= START_DELAY) ticksSinceStart++;
-
-        if (startRequested && (ticksSinceStart < 0 || ticksSinceStart > START_DELAY)) {
-            startRequested = false;
-            if (!executor.isOn()) {
-                ticksSinceStart = 0;
-                executor.queueStart();
-            }
-        }
-
         executor.tick();
 
         // Update the environment's internal state.

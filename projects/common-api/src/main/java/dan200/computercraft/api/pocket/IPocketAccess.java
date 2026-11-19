@@ -37,12 +37,15 @@ public interface IPocketAccess extends PocketComputer {
      * This function is not thread safe and must be called from the server thread.
      *
      * @return The currently equipped upgrade.
+     * @throws IllegalStateException If the pocket computer is not {@linkplain #isActive() active}.
      * @since 1.121.0
      */
     @Nullable MutableUpgradeHandle<IPocketUpgrade> getUpgrade();
 
     /**
      * Remove the current peripheral and create a new one.
+     * <p>
+     * This function is not thread safe and must be called from the server thread.
      * <p>
      * You may wish to do this if the methods available change, for instance when the {@linkplain #getEntity() owning
      * entity} changes.

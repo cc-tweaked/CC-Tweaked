@@ -112,15 +112,15 @@ public final class PocketBrain implements PocketComputerInternal {
     }
 
     @Override
-    public @Nullable Entity getEntity() {
-        requireMainThread();
-        return holder instanceof PocketHolder.EntityHolder entity && holder.isValid(computer) ? entity.entity() : null;
-    }
-
-    @Override
     public boolean isActive() {
         requireMainThread();
         return holder.isValid(computer);
+    }
+
+    @Override
+    public @Nullable Entity getEntity() {
+        requireMainThread();
+        return holder instanceof PocketHolder.EntityHolder entity && holder.isValid(computer) ? entity.entity() : null;
     }
 
     @Override
@@ -247,20 +247,13 @@ public final class PocketBrain implements PocketComputerInternal {
             lightColour = colour;
         }
 
-        private void requirePresent() {
-            if (!computer.getLevel().getServer().isSameThread()) {
-                throw new IllegalStateException("Must be called from the main thread");
-            }
-            if (!holder.isValid(computer)) throw new IllegalStateException("Pocket computer is not active");
-        }
-
         private @Nullable UpgradeData<IPocketUpgrade> getUpgradeData() {
             return upgrade == null ? null : upgrade.getUpgradeData();
         }
 
         @Override
         public @Nullable MutableUpgradeHandle<IPocketUpgrade> getUpgrade() {
-            requirePresent();
+            requireStack();
             return upgrade == null ? null : upgrade.getHandle();
         }
 
@@ -322,7 +315,6 @@ public final class PocketBrain implements PocketComputerInternal {
 
             @Override
             public void remove() {
-                requireValid();
                 setUpgrade(null);
             }
         }

@@ -4,6 +4,8 @@
 
 package dan200.computercraft.api.pocket;
 
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.upgrades.MutableUpgradeHandle;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -43,13 +45,19 @@ public interface PocketComputer {
     Entity getEntity();
 
     /**
-     * Check whether this pocket computer is currently being held by a player, lectern, or other valid entity.
+     * Get whether this pocket computer is "active".
      * <p>
-     * As pocket computers are backed by item stacks, you must check for validity before updating the computer.
+     * Some operations on pocket computer (for instance, {@linkplain IPocketAccess#getUpgrade() reading and writing
+     * upgrade data}) requires access to the stack the pocket computer is attached to. However, in some cases, the stack
+     * may no longer be present (for instance, if it has been moved into a chest), and so those operations will fail.
      * <p>
-     * This must be called on the server thread.
+     * In this case, the pocket computer is considered inactive: the computer will continue to run for several seconds,
+     * but upgrades will not be {@linkplain IPocketUpgrade#update(IPocketAccess, MutableUpgradeHandle, IPeripheral)}
+     * ticked}, and pocket computer data cannot be interacted with.
+     * <p>
+     * This function is not thread safe and must be called from the server thread.
      *
-     * @return Whether this computer is active.
+     * @return Whether this pocket computer is active.
      */
     boolean isActive();
 
@@ -77,5 +85,4 @@ public interface PocketComputer {
      * @see #getColour()
      */
     void setColour(int colour);
-
 }

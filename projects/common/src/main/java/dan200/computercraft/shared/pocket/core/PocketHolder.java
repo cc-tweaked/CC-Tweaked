@@ -76,6 +76,17 @@ public sealed interface PocketHolder {
     }
 
     /**
+     * Ensure this {@link ItemStack} holds a particular {@link ServerComputer}, returning the empty stack if not.
+     *
+     * @param computer The owning computer.
+     * @param stack    The stack to check.
+     * @return The stack, or {@link ItemStack#EMPTY} if it does not match.
+     */
+    private static ItemStack ensureServerComputer(ServerComputer computer, ItemStack stack) {
+        return PocketComputerItem.isServerComputer(computer, stack) ? stack : ItemStack.EMPTY;
+    }
+
+    /**
      * An {@link Entity} holding a pocket computer.
      */
     sealed interface EntityHolder extends PocketHolder {
@@ -111,10 +122,7 @@ public sealed interface PocketHolder {
     record PlayerHolder(ServerPlayer entity, int slot) implements EntityHolder {
         @Override
         public ItemStack getStack(ServerComputer computer) {
-            if (!entity().isAlive()) return ItemStack.EMPTY;
-
-            var item = entity().getInventory().getItem(this.slot());
-            return PocketComputerItem.isServerComputer(computer, item) ? item : ItemStack.EMPTY;
+            return entity().isAlive() ? ensureServerComputer(computer, entity().getInventory().getItem(slot())) : ItemStack.EMPTY;
         }
 
         @Override
@@ -132,10 +140,7 @@ public sealed interface PocketHolder {
     record LivingEntityHolder(LivingEntity entity, EquipmentSlot slot) implements EntityHolder {
         @Override
         public ItemStack getStack(ServerComputer computer) {
-            if (!entity().isAlive()) return ItemStack.EMPTY;
-
-            var item = entity().getItemBySlot(this.slot());
-            return PocketComputerItem.isServerComputer(computer, item) ? item : ItemStack.EMPTY;
+            return entity().isAlive() ? ensureServerComputer(computer, this.entity().getItemBySlot(this.slot())) : ItemStack.EMPTY;
         }
 
         @Override
@@ -152,10 +157,7 @@ public sealed interface PocketHolder {
     record ItemEntityHolder(ItemEntity entity) implements EntityHolder {
         @Override
         public ItemStack getStack(ServerComputer computer) {
-            if (!entity().isAlive()) return ItemStack.EMPTY;
-
-            var item = entity().getItem();
-            return PocketComputerItem.isServerComputer(computer, item) ? item : ItemStack.EMPTY;
+            return entity().isAlive() ? ensureServerComputer(computer, entity().getItem()) : ItemStack.EMPTY;
         }
 
         @Override
@@ -187,10 +189,7 @@ public sealed interface PocketHolder {
 
         @Override
         public ItemStack getStack(ServerComputer computer) {
-            if (lectern.isRemoved()) return ItemStack.EMPTY;
-
-            var item = lectern.getItem();
-            return PocketComputerItem.isServerComputer(computer, item) ? item : ItemStack.EMPTY;
+            return lectern.isRemoved() ? ItemStack.EMPTY : ensureServerComputer(computer, lectern.getItem());
         }
 
         @Override
@@ -201,6 +200,56 @@ public sealed interface PocketHolder {
         @Override
         public boolean isTerminalAlwaysVisible() {
             return true;
+        }
+    }
+
+    /**
+     * A temporary {@link PocketHolder} that is used when crafting an item. This should be
+     * {@linkplain #invalidate() invalidated} after use, as the reference to the stack is no longer valid.
+     */
+    final class CraftingHolder implements PocketHolder {
+        private final ServerLevel level;
+        private final Vec3 pos;
+        private final BlockPos blockPos;
+        private ItemStack stack;
+
+        private CraftingHolder(ServerLevel level, Vec3 pos, BlockPos blockPos, ItemStack stack) {
+            this.level = level;
+            this.pos = pos;
+            this.blockPos = blockPos;
+            this.stack = stack;
+        }
+
+        public static CraftingHolder atCurrentPosition(PocketBrain brain, ItemStack stack) {
+            return new CraftingHolder(brain.getLevel(), brain.getPosition(), brain.computer().getPosition(), stack);
+        }
+
+        @Override
+        public ServerLevel level() {
+            return level;
+        }
+
+        @Override
+        public Vec3 pos() {
+            return pos;
+        }
+
+        @Override
+        public BlockPos blockPos() {
+            return blockPos;
+        }
+
+        @Override
+        public ItemStack getStack(ServerComputer computer) {
+            return ensureServerComputer(computer, stack);
+        }
+
+        public void invalidate() {
+            stack = ItemStack.EMPTY;
+        }
+
+        @Override
+        public void setChanged() {
         }
     }
 }
