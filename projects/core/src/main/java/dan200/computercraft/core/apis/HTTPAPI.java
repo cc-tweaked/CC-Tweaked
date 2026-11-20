@@ -60,7 +60,7 @@ public class HTTPAPI implements ILuaAPI {
         String address, requestMethod;
         ByteBuffer postBody;
         Map<?, ?> headerTable;
-        boolean binary, redirect;
+        boolean binary, redirect, streaming;
         Optional<Double> timeoutArg;
 
         if (args.get(0) instanceof Map) {
@@ -72,6 +72,7 @@ public class HTTPAPI implements ILuaAPI {
             requestMethod = options.optString("method").orElse(null);
             redirect = options.optBoolean("redirect").orElse(true);
             timeoutArg = options.optFiniteDouble("timeout");
+            streaming = options.optBoolean("streaming").orElse(false);
         } else {
             // Get URL and post information
             address = args.getString(0);
@@ -81,6 +82,7 @@ public class HTTPAPI implements ILuaAPI {
             requestMethod = null;
             redirect = true;
             timeoutArg = Optional.empty();
+            streaming = false;
         }
 
         var headers = getHeaders(headerTable);
@@ -101,7 +103,7 @@ public class HTTPAPI implements ILuaAPI {
         }
 
         // Make the request
-        if (!handler.queueRequest(address, uri, httpMethod, postBody, headers, binary, redirect, timeout)) {
+        if (!handler.queueRequest(address, uri, httpMethod, postBody, headers, binary, redirect, timeout, streaming)) {
             throw new LuaException("Too many ongoing HTTP requests");
         }
 

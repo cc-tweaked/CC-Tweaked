@@ -4,12 +4,15 @@
 
 package dan200.computercraft.core.apis.http.request;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.handles.ReadHandle;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.metrics.Metrics;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
@@ -17,17 +20,22 @@ import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import static dan200.computercraft.core.apis.http.request.HttpRequest.getHeaderSize;
 
-final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
+final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> implements HttpBodyStream {
     /**
      * Same as {@link io.netty.handler.codec.MessageAggregator}.
      */
     private static final int DEFAULT_MAX_COMPOSITE_BUFFER_COMPONENTS = 1024;
+
+    // TODO: make it be configurable
+    // Note: this is not the real maximum buffer size. Reading will only stop after buffer exceed the size defined.
+    private static final int MAX_STREAM_BUFFER_CACHE = 1024 * 1024;
 
     private static final byte[] EMPTY_BYTES = new byte[0];
 
@@ -41,17 +49,29 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     private final URI uri;
     private final HttpMethod method;
+    private final boolean streaming;
     private final Options options;
 
     private final HttpHeaders responseHeaders = new DefaultHttpHeaders();
     private @Nullable HttpResponseStatus responseStatus;
-    private @Nullable CompositeByteBuf responseBody;
 
-    HttpRequestHandler(HttpRequest request, URI uri, HttpMethod method, Options options) {
+    private final Object responseBodyLock = new Object();
+    @GuardedBy("responseBodyLock")
+    private @Nullable CompositeByteBuf responseBody;
+    @GuardedBy("responseBodyLock")
+    private @Nullable ByteBuf unpooledResponseBody;
+    @GuardedBy("responseBodyLock")
+    private @Nullable Runnable responseBodyTrigger;
+    @GuardedBy("responseBodyLock")
+    private boolean responseBodyDone = false;
+    private volatile boolean waitingBody = false;
+
+    HttpRequestHandler(HttpRequest request, URI uri, HttpMethod method, boolean streaming, Options options) {
         this.request = request;
 
         this.uri = uri;
         this.method = method;
+        this.streaming = streaming;
         this.options = options;
     }
 
@@ -109,38 +129,87 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
 
             responseStatus = response.status();
             responseHeaders.add(response.headers());
+
+            if (streaming) {
+                sendResponseStreamed();
+            }
         }
 
         if (message instanceof HttpContent content) {
 
-            if (responseBody == null) {
-                responseBody = ctx.alloc().compositeBuffer(DEFAULT_MAX_COMPOSITE_BUFFER_COMPONENTS);
-            }
-
             var partial = content.content();
             if (partial.isReadable()) {
-                // If we've read more than we're allowed to handle, abort as soon as possible.
-                if (options.maxDownload() != 0 && responseBody.readableBytes() + partial.readableBytes() > options.maxDownload()) {
-                    isActive = false;
-                    ctx.close();
+                synchronized (responseBodyLock) {
+                    if (responseBody == null) {
+                        responseBody = ctx.alloc().compositeBuffer(DEFAULT_MAX_COMPOSITE_BUFFER_COMPONENTS);
+                    }
+                    if (!streaming && options.maxDownload() != 0 && responseBody.readableBytes() + partial.readableBytes() > options.maxDownload()) {
+                        // If we've read more than we're allowed to handle, abort as soon as possible.
+                        isActive = false;
+                        ctx.close();
 
-                    request.failure("Response is too large");
-                    return;
+                        request.failure("Response is too large");
+                        return;
+                    }
+
+                    var isEmpty = !responseBody.isReadable();
+                    responseBody.addComponent(true, partial.retain());
+                    if (streaming) {
+                        if (responseBody.readableBytes() >= MAX_STREAM_BUFFER_CACHE) {
+                            if (responseBody.readableBytes() >= MAX_STREAM_BUFFER_CACHE * 2) {
+                                close();
+                                ctx.close();
+                                request.failure("Response buffer unexpectedly grew too large");
+                                return;
+                            }
+                            // If AbstractTrafficShapingHandler is limiting read at the same time,
+                            // autoRead will set to false before this http handler is invoked,
+                            // so we can simply check if auto read is current active and
+                            // let AbstractTrafficShapingHandler itself to resume the reading.
+                            // If the traffic shaper resumed the reading while our responseBody still excess max buffer size,
+                            // we will then setAutoRead to false.
+                            //
+                            // It is MOSTLY IMPOSSIBLE that AbstractTrafficShapingHandler limited read again in the next packet.
+                            // However, that case still EXISTS, e.g. download speed is limited to a incredible small amount which
+                            // lower than netty internal buffer size (1KB?), then it may cause unstoppable buffer grow.
+                            // If that case should be handled properly, we should make our own implementation of AbstractTrafficShapingHandler
+                            // which take care of our buffer size as well.
+                            if (ctx.channel().config().isAutoRead()) {
+                                ctx.channel().config().setAutoRead(false);
+                                responseBodyTrigger = () -> ctx.executor().execute(() -> {
+                                    if (!TrafficShapingHandlerAccess.isHandlerActive(ctx)) {
+                                        ctx.channel().config().setAutoRead(true);
+                                    }
+                                });
+                            }
+                        }
+                        if (waitingBody || isEmpty) {
+                            waitingBody = false;
+                            request.streamingContent();
+                        }
+                    }
                 }
-
-                responseBody.addComponent(true, partial.retain());
             }
 
             if (message instanceof LastHttpContent last) {
-                responseHeaders.add(last.trailingHeaders());
-
-                // Set the content length, if not already given.
-                if (responseHeaders.contains(HttpHeaderNames.CONTENT_LENGTH)) {
-                    responseHeaders.set(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
-                }
-
                 ctx.close();
-                sendResponse();
+                synchronized (responseBodyLock) {
+                    responseBodyDone = true;
+
+                    // TODO: we should have some way to provide trailing headers for streamed connection
+                    if (!streaming) {
+                        responseHeaders.add(last.trailingHeaders());
+
+                        // Set the content length, if not already given.
+                        if (!responseHeaders.contains(HttpHeaderNames.CONTENT_LENGTH)) {
+                            responseHeaders.set(HttpHeaderNames.CONTENT_LENGTH, responseBody == null ? 0 : responseBody.readableBytes());
+                        }
+
+                        sendResponse();
+                    } else {
+                        request.streamingClosed();
+                    }
+                }
             }
         }
     }
@@ -151,15 +220,7 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
         request.failure(NetworkUtils.toFriendlyError(cause));
     }
 
-    private void sendResponse() {
-        Objects.requireNonNull(responseStatus, "Status has not been set");
-
-        // Read the ByteBuf into a channel.
-        var body = responseBody;
-        var bytes = body == null ? EMPTY_BYTES : NetworkUtils.toBytes(body);
-
-        // Decode the headers
-        var status = responseStatus;
+    private Map<String, String> decodeHeaders() {
         Map<String, String> headers = new HashMap<>();
         for (var header : responseHeaders) {
             var existing = headers.get(header.getKey());
@@ -167,7 +228,28 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
         }
 
         // Fire off a stats event
-        request.environment().observe(Metrics.HTTP_DOWNLOAD, getHeaderSize(responseHeaders) + bytes.length);
+        request.environment().observe(Metrics.HTTP_DOWNLOAD, getHeaderSize(responseHeaders));
+        return headers;
+    }
+
+    private void sendResponse() {
+        Objects.requireNonNull(responseStatus, "Status has not been set");
+
+        // Decode the headers
+        var status = responseStatus;
+        var headers = decodeHeaders();
+
+        // Read the ByteBuf into a channel.
+        byte[] bytes = EMPTY_BYTES;
+        synchronized (responseBodyLock) {
+            if (responseBody != null) {
+                bytes = NetworkUtils.toBytes(responseBody);
+                responseBody.release();
+                responseBody = null;
+            }
+        }
+        // Fire off a stats event
+        request.environment().observe(Metrics.HTTP_DOWNLOAD, bytes.length);
 
         // Prepare to queue an event
         var contents = new ArrayByteChannel(bytes);
@@ -178,6 +260,107 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
             request.success(stream);
         } else {
             request.failure(status.reasonPhrase(), stream);
+        }
+    }
+
+    private void sendResponseStreamed() {
+        Objects.requireNonNull(responseStatus, "Status has not been set");
+
+        // Decode the headers
+        var status = responseStatus;
+        var headers = decodeHeaders();
+
+        // Prepare to queue an event
+        var reader = new HttpStreamReader(this, request.address, request.isBinary());
+        var stream = new HttpResponseHandle(reader, status.code(), status.reasonPhrase(), headers);
+
+        if (status.code() >= 200 && status.code() < 400) {
+            request.streamingSuccess(stream);
+        } else {
+            request.streamingFailure(status.reasonPhrase(), stream);
+        }
+    }
+
+    @Override
+    public void closeStream() {
+        request.streamingClosed();
+    }
+
+    @Override
+    public boolean isFinished() {
+        synchronized (responseBodyLock) {
+            return responseBodyDone;
+        }
+    }
+
+    @Override
+    public int getReadable() {
+        synchronized (responseBodyLock) {
+            var source = responseBody != null ? responseBody : unpooledResponseBody;
+            return source == null ? 0 : source.readableBytes();
+        }
+    }
+
+    @Override
+    public int getMaxReadable() {
+        return MAX_STREAM_BUFFER_CACHE;
+    }
+
+    @Override
+    public void markWaiting() {
+        waitingBody = true;
+    }
+
+    @Override
+    public void read(ByteBuffer buffer) {
+        synchronized (responseBodyLock) {
+            var source = responseBody != null ? responseBody : unpooledResponseBody;
+            if (source == null) return;
+
+            source.readBytes(buffer);
+            source.discardSomeReadBytes();
+            triggerReread();
+        }
+    }
+
+    /**
+     * Read from the response buffer until a separator or end of file. The separator is included in the output buffer.
+     * <p>
+     * If the separator has not been reached, and bytes are still being received, this function returns {@code null},
+     * indicating that the consumer should wait for more content to be received and try again.
+     *
+     * @param separator the target separator
+     * @return The bytes which were read, or {@code null}.
+     */
+    @Override
+    public @Nullable ByteBuffer readUntil(byte separator) {
+        synchronized (responseBodyLock) {
+            ByteBuf source = responseBody != null ? responseBody : unpooledResponseBody;
+            if (source == null) return null; // Isn't this impossible? This should only happen if the channel is closed?
+
+            var sepIndex = source.bytesBefore(separator);
+            int toRead;
+            if (sepIndex != -1) {
+                toRead = sepIndex + 1;
+            } else if (responseBodyDone) {
+                toRead = source.readableBytes();
+            } else {
+                return null;
+            }
+
+            var buffer = ByteBuffer.allocateDirect(toRead);
+            source.readBytes(buffer);
+            source.discardSomeReadBytes();
+            triggerReread();
+
+            return buffer.flip();
+        }
+    }
+
+    @GuardedBy("responseBodyLock")
+    private void triggerReread() {
+        if (responseBody != null && responseBodyTrigger != null && responseBody.readableBytes() < MAX_STREAM_BUFFER_CACHE) {
+            responseBodyTrigger.run();
         }
     }
 
@@ -205,9 +388,16 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     void close() {
         isActive = false;
-        if (responseBody != null) {
-            responseBody.release();
-            responseBody = null;
+        synchronized (responseBodyLock) {
+            responseBodyDone = true;
+            responseBodyTrigger = null;
+            if (responseBody != null) {
+                if (streaming && responseBody.readableBytes() > 0) {
+                    unpooledResponseBody = Unpooled.copiedBuffer(responseBody);
+                }
+                responseBody.release();
+                responseBody = null;
+            }
         }
     }
 }
