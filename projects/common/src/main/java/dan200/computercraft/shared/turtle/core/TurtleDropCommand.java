@@ -18,10 +18,23 @@ import net.minecraft.world.level.block.LevelEvent;
 public class TurtleDropCommand implements TurtleCommand {
     private final InteractDirection direction;
     private final int quantity;
+    private final int toSlot;
 
     public TurtleDropCommand(InteractDirection direction, int quantity) {
+        this(direction, quantity, -1);
+    }
+
+    /**
+     * Construct a new drop command.
+     *
+     * @param direction The direction to drop in.
+     * @param quantity  The maximum number of items to drop.
+     * @param toSlot    The 0-indexed slot of the inventory to insert items into, or {@code -1} to insert into any slot.
+     */
+    public TurtleDropCommand(InteractDirection direction, int quantity, int toSlot) {
         this.direction = direction;
         this.quantity = quantity;
+        this.toSlot = toSlot;
     }
 
     @Override
@@ -45,7 +58,15 @@ public class TurtleDropCommand implements TurtleCommand {
 
         int transferred;
         if (inventory != null) {
+            if (toSlot >= 0) {
+                if (toSlot >= inventory.size()) return TurtleCommandResult.failure("Slot out of range");
+                inventory = inventory.singleSlot(toSlot);
+                if (inventory == null) return TurtleCommandResult.failure("Cannot drop into a specific slot of this inventory");
+            }
+
             transferred = TurtleUtil.getInventory(turtle).moveTo(turtle.getSelectedSlot(), inventory, quantity);
+        } else if (toSlot >= 0) {
+            return TurtleCommandResult.failure("No inventory to drop into");
         } else {
             var stack = turtle.getInventory().removeItem(turtle.getSelectedSlot(), quantity);
             if (stack.isEmpty()) {
