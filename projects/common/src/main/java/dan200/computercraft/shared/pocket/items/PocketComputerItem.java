@@ -177,7 +177,7 @@ public class PocketComputerItem extends Item {
         return slotChanged
             || oldStack.getItem() != newStack.getItem()
             || oldStack.getCount() != newStack.getCount()
-            || oldStack.get(ModRegistry.DataComponents.COMPUTER_ID.get()) != newStack.get(ModRegistry.DataComponents.COMPUTER_ID.get());
+            || !Objects.equals(oldStack.get(ModRegistry.DataComponents.COMPUTER_ID.get()), newStack.get(ModRegistry.DataComponents.COMPUTER_ID.get()));
     }
 
     @FabricOverride
