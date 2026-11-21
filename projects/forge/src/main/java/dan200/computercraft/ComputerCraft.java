@@ -18,6 +18,7 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidData;
 import dan200.computercraft.shared.integration.CreateIntegration;
+import dan200.computercraft.shared.integration.CuriosIntegration;
 import dan200.computercraft.shared.integration.MoreRedIntegration;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
@@ -94,6 +95,7 @@ public final class ComputerCraft {
         MediaProviders.registerDefault();
 
         if (ModList.get().isLoaded(CreateIntegration.ID)) event.enqueueWork(CreateIntegration::setup);
+        if (ModList.get().isLoaded(CuriosIntegration.ID)) event.enqueueWork(CuriosIntegration::setup);
         if (ModList.get().isLoaded(MoreRedIntegration.MOD_ID)) MoreRedIntegration.setup();
     }
 

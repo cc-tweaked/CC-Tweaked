@@ -109,9 +109,7 @@ public final class CustomLecternBlockEntity extends BlockEntity {
     void tick() {
         if (item.getItem() instanceof PocketComputerItem pocket) {
             // Get our pocket computer, and tick it.
-            var brain = pocket.getOrCreateBrain(pocketHolder, item);
-            brain.computer().keepAlive();
-            pocket.tick(item, pocketHolder, brain);
+            var brain = pocket.tickAndKeepAlive(item, pocketHolder);
 
             // Update the peripheral if the peripheral or brain has changed.
             if (refreshPeripheral || brain != activePocketBrain) {

@@ -89,6 +89,20 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
     }
 
     /**
+     * Tick a pocket computer, creating a {@link PocketBrain} if needed and keeping the computer alive.
+     *
+     * @param stack  The current pocket computer stack.
+     * @param holder The entity holding the pocket item.
+     * @return The current pocket brain.
+     */
+    public PocketBrain tickAndKeepAlive(ItemStack stack, PocketHolder holder) {
+        var brain = getOrCreateBrain(holder, stack);
+        brain.computer().keepAlive();
+        tick(stack, holder, brain);
+        return brain;
+    }
+
+    /**
      * Copy properties from the brain back to the item stack.
      *
      * @param stack The current pocket computer stack.
@@ -136,10 +150,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         if (slot < 0) return;
 
         // If we're in the inventory, create a computer and keep it alive.
-        var holder = new PocketHolder.PlayerHolder(player, slot);
-        var brain = getOrCreateBrain(holder, stack);
-        brain.computer().keepAlive();
-        tick(stack, holder, brain);
+        tickAndKeepAlive(stack, new PocketHolder.PlayerSlotHolder(player, slot));
     }
 
     @ForgeOverride
@@ -165,7 +176,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         var stack = player.getItemInHand(hand);
         if (!world.isClientSide) {
-            var holder = new PocketHolder.PlayerHolder((ServerPlayer) player, InventoryUtil.getHandSlot(player, hand));
+            var holder = new PocketHolder.PlayerSlotHolder((ServerPlayer) player, InventoryUtil.getHandSlot(player, hand));
             var brain = getOrCreateBrain(holder, stack);
             var computer = brain.computer();
             computer.turnOn();

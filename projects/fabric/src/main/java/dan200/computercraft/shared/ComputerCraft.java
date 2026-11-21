@@ -14,6 +14,7 @@ import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidDetails;
 import dan200.computercraft.shared.integration.CreateIntegration;
+import dan200.computercraft.shared.integration.TrinketsIntegration;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
@@ -109,6 +110,7 @@ public class ComputerCraft {
         Peripherals.addGenericLookup((world, pos, state, blockEntity, side, invalidate) -> InventoryMethods.extractContainer(world, pos, state, blockEntity, side));
 
         if (FabricLoader.getInstance().isModLoaded(CreateIntegration.ID)) CreateIntegration.setup();
+        if (FabricLoader.getInstance().isModLoaded(TrinketsIntegration.ID)) TrinketsIntegration.setup();
 
         ResourceManagerHelper.registerBuiltinResourcePack(
             new ResourceLocation(ComputerCraftAPI.MOD_ID, TurtleStorage.DATA_PACK_NAME),

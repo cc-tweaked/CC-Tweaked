@@ -37,6 +37,7 @@ nightConfig = "3.9.0"
 
 # Minecraft mods
 complementary = "r5.9.3"
+curios = "5.14.1+1.20.1"
 emi = "1.0.8+1.20.1"
 fabricPermissions = "0.3.20230723"
 iris = "1.6.4+1.20"
@@ -47,6 +48,7 @@ oculus = "1.2.5"
 rei = "12.0.626"
 rubidium = "0.6.1"
 sodium = "mc1.20-0.4.10"
+trinkets = "3.7.2"
 create-forge = "6.0.0-9"
 create-fabric = "6.0.7.0+mc1.20.1-build.1716"
 
@@ -103,9 +105,10 @@ nightConfig-toml = { module = "com.electronwill.night-config:toml", version.ref 
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # Minecraft mods
-complementary = {  module = "maven.modrinth:complementary-reimagined", version.ref = "complementary" }
+complementary = { module = "maven.modrinth:complementary-reimagined", version.ref = "complementary" }
 create-fabric = { module = "com.simibubi.create:create-fabric-1.20.1", version.ref = "create-fabric" }
 create-forge = { module = "com.simibubi.create:create-1.20.1", version.ref = "create-forge" }
+curios = { module = "top.theillusivec4.curios:curios-forge", version.ref = "curios" }
 emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric-loader" }
@@ -124,6 +127,7 @@ rei-builtin = { module = "me.shedaniel:RoughlyEnoughItems-default-plugin", versi
 rei-fabric = { module = "me.shedaniel:RoughlyEnoughItems-fabric", version.ref = "rei" }
 rubidium = { module = "maven.modrinth:rubidium", version.ref = "rubidium" }
 sodium = { module = "maven.modrinth:sodium", version.ref = "sodium" }
+trinkets = { module = "dev.emi:trinkets", version.ref = "trinkets" }
 
 # Testing
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
@@ -188,7 +192,7 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["moreRed", "oculus", "jei-api"]
 externalMods-forge-runtime = ["jei-forge"]
-externalMods-fabric-compile = ["fabricPermissions", "iris", "jei-api", "rei-api", "rei-builtin"]
+externalMods-fabric-compile = ["fabricPermissions", "iris", "jei-api", "rei-api", "rei-builtin", "trinkets"]
 externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
 
 # Testing

@@ -80,7 +80,7 @@ public sealed interface PocketHolder {
      * @param stack    The stack to check.
      * @return The stack, or {@link ItemStack#EMPTY} if it does not match.
      */
-    private static ItemStack ensureServerComputer(ServerComputer computer, ItemStack stack) {
+    static ItemStack ensureServerComputer(ServerComputer computer, ItemStack stack) {
         return PocketComputerItem.isServerComputer(computer, stack) ? stack : ItemStack.EMPTY;
     }
 
@@ -112,12 +112,22 @@ public sealed interface PocketHolder {
     }
 
     /**
+     * A {@link ServerPlayer} holding a pocket computer.
+     * <p>
+     * This is non-sealed to allow our Curios/Trinkets integration to implement it.
+     */
+    non-sealed interface PlayerHolder extends EntityHolder {
+        @Override
+        ServerPlayer entity();
+    }
+
+    /**
      * A pocket computer in a player's slot.
      *
      * @param entity The current player.
      * @param slot   The slot the pocket computer is in.
      */
-    record PlayerHolder(ServerPlayer entity, int slot) implements EntityHolder {
+    record PlayerSlotHolder(ServerPlayer entity, int slot) implements EntityHolder {
         @Override
         public ItemStack getStack(ServerComputer computer) {
             return entity().isAlive() ? ensureServerComputer(computer, entity().getInventory().getItem(slot())) : ItemStack.EMPTY;

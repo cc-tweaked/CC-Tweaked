@@ -47,10 +47,12 @@ repositories {
             includeGroup("commoble.morered")
             includeGroup("dev.architectury")
             includeGroup("dev.emi")
+            includeGroup("dev.onyxstudios.cardinal-components-api")
             includeGroup("maven.modrinth")
             includeGroup("me.shedaniel.cloth")
             includeGroup("me.shedaniel")
             includeGroup("mezz.jei")
+            includeGroup("top.theillusivec4.curios")
             includeModule("com.terraformersmc", "modmenu")
             includeModule("me.lucko", "fabric-permissions-api")
         }

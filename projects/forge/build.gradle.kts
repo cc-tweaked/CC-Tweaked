@@ -180,6 +180,7 @@ dependencies {
     modCompileOnly(libs.bundles.externalMods.forge.compile)
     modRuntimeOnly(libs.bundles.externalMods.forge.runtime)
     modCompileOnly(variantOf(libs.create.forge) { classifier("slim") }) { isTransitive = false }
+    modCompileOnly(variantOf(libs.curios) { classifier("api") })
 
     // Depend on our other projects.
     "localImplementation"(commonClasses(project(":common")))
